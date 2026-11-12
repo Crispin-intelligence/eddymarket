@@ -1,0 +1,132 @@
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_NULLS ON
+GO
+
+
+
+
+
+
+
+
+
+CREATE VIEW [Cars].[v_CarRentalHistoryList]
+AS
+SELECT  t.ID ,
+        t.Ref ,
+        t.RefF ,
+        t.PaperRef ,
+        t.Account ,
+        t.AccountNumberF ,
+        t.AccountBox ,
+        t.AccountBoxNumberF ,
+        t.Car ,
+        t.AgreementDate ,
+        t.FromDate ,
+        t.ToDate ,
+        t.Currency ,
+        t.ExchangeRate ,
+        t.ExchangeRateLL ,
+        t.ExchangeRateEuro ,
+        t.DayPriceF ,
+        t.DayPriceD ,
+        t.DayPriceLL ,
+        t.DayPriceEuro ,
+        t.DayQty ,
+        t.DayTotalPriceF ,
+        t.DayTotalPriceD ,
+        t.DayTotalPriceLL ,
+        t.DayTotalPriceEuro ,
+        t.WeekPriceF ,
+        t.WeekPriceD ,
+        t.WeekPriceLL ,
+        t.WeekPriceEuro ,
+        t.WeekQty ,
+        t.WeekTotalPriceF ,
+        t.WeekTotalPriceD ,
+        t.WeekTotalPriceLL ,
+        t.WeekTotalPriceEuro ,
+        t.MonthPriceF ,
+        t.MonthPriceD ,
+        t.MonthPriceLL ,
+        t.MonthPriceEuro ,
+        t.MonthQty ,
+        t.MonthTotalPriceF ,
+        t.MonthTotalPriceD ,
+        t.MonthTotalPriceLL ,
+        t.MonthTotalPriceEuro ,
+        t.SubtotalF ,
+        t.SubtotalD ,
+        t.SubtotalLL ,
+        t.SubtotalEuro ,
+        t.DiscountF ,
+        t.DiscountD ,
+        t.DiscountLL ,
+        t.DiscountEuro ,
+        t.TotalF ,
+        t.TotalD ,
+        t.TotalLL ,
+        t.TotalEuro ,
+        t.PaymentMethod ,
+        t.FirstPaymentF ,
+        t.FirstPaymentD ,
+        t.FirstPaymentLL ,
+        t.FirstPaymentEuro ,
+        t.PaidUpF ,
+        t.PaidUpD ,
+        t.PaidUpLL ,
+        t.PaidUpEuro ,
+        t.RestF ,
+        t.RestD ,
+        t.RestLL ,
+        t.RestEuro ,
+        t.Paid ,
+        t.OfficeRatio ,
+        t.OfficeValueF ,
+        t.OfficeValueD ,
+        t.OfficeValueLL ,
+        t.OfficeValueEuro ,
+        t.DailyTaxF ,
+        t.DailyTaxD ,
+        t.DailyTaxLL ,
+        t.DailyTaxEuro ,
+        t.TotalTaxF ,
+        t.TotalTaxD ,
+        t.TotalTaxLL ,
+        t.TotalTaxEuro ,
+        t.TaxRate ,
+        t.PaidTax ,
+        t.OfficeValueAfterTaxF ,
+        t.OfficeValueAfterTaxD ,
+        t.OfficeValueAfterTaxLL ,
+        t.OfficeValueAfterTaxEuro ,
+        t.ProfitF ,
+        t.ProfitD ,
+        t.ProfitLL ,
+        t.ProfitEuro ,
+        t.CheckOutDate ,
+        t.CheckOutFuel ,
+        t.CheckOutOdometer ,
+        t.CheckInDate ,
+        t.CheckInFuel ,
+        t.CheckInOdometer ,
+        t.DurationInMinutes ,
+        t.DurationF ,
+        t.OdometerConsumed ,
+        t.StatusIs ,
+        t.DescriptionIs ,
+        t.Notes ,
+        t.DateCreate ,
+        t.IsSync
+FROM    Cars.t_CarRentalHistory AS t;
+
+
+
+
+
+
+
+
+
+GO

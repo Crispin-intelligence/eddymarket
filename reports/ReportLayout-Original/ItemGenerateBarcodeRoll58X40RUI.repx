@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XtraReportsLayoutSerializer SerializerVersion="19.1.3.0" Ref="1" ControlType="DevExpress.XtraReports.UI.XtraReport, DevExpress.XtraReports.v19.1, Version=19.1.3.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Name="ItemGenerateBarcodeRoll58X40RUI" SnapGridSize="12.7" SnapGridStepCount="5" SnappingMode="SnapToGridAndSnapLines" ShowPreviewMarginLines="false" ReportUnit="TenthsOfAMillimeter" RollPaper="true" Margins="0, 0, 0, 0" PaperKind="Custom" PageWidth="580" PageHeight="2970" ScriptLanguage="VisualBasic" Version="19.1" ShowPrintMarginsWarning="false" DataMember="BarcodeR" DataSource="#Ref-0" Dpi="254">
+  <FormattingRuleSheet>
+    <Item1 Ref="2" Name="fPrice" DataMember="BarcodeR" Condition="[PricePromo] &lt;&gt; ''">
+      <Formatting Ref="3" BorderStyle="Inset" Font="Segoe UI, 11.25pt, style=Bold, Strikeout, charSet=0" StringFormat="Near;Near;0;None;Character;Default" />
+    </Item1>
+  </FormattingRuleSheet>
+  <Bands>
+    <Item1 Ref="4" ControlType="TopMarginBand" Name="TopMargin" HeightF="0" Dpi="254" />
+    <Item2 Ref="5" ControlType="BottomMarginBand" Name="BottomMargin" HeightF="0" Dpi="254" />
+    <Item3 Ref="6" ControlType="DetailBand" Name="Detail" HeightF="400" Dpi="254">
+      <HierarchyPrintOptions Ref="7" Indent="20" />
+      <Controls>
+        <Item1 Ref="8" ControlType="XRLabel" Name="XrLabel3" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleCenter" WordWrap="false" SizeF="540,50" LocationFloat="20, 340" Dpi="254" StyleName="scLabel" Padding="0,0,0,0,254">
+          <DataBindings>
+            <Item1 Ref="9" PropertyName="Text" DataMember="BarcodeR.Info2" />
+          </DataBindings>
+          <StylePriority Ref="10" UseFont="false" UsePadding="false" UseTextAlignment="false" />
+        </Item1>
+        <Item2 Ref="11" ControlType="XRLabel" Name="XrLabel2" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleCenter" WordWrap="false" SizeF="540,50" LocationFloat="20, 290" Dpi="254" StyleName="scLabel" Padding="0,0,0,0,254">
+          <DataBindings>
+            <Item1 Ref="12" PropertyName="Text" DataMember="BarcodeR.Info1" />
+          </DataBindings>
+          <StylePriority Ref="13" UseFont="false" UsePadding="false" UseTextAlignment="false" />
+        </Item2>
+        <Item3 Ref="14" ControlType="XRLabel" Name="XrLabel1" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleCenter" WordWrap="false" SizeF="540,50" LocationFloat="20, 240" Dpi="254" StyleName="scData" Padding="0,0,0,0,254">
+          <DataBindings>
+            <Item1 Ref="15" PropertyName="Text" DataMember="BarcodeR.PricePromo" />
+          </DataBindings>
+          <StylePriority Ref="16" UseFont="false" UsePadding="false" UseTextAlignment="false" />
+        </Item3>
+        <Item4 Ref="17" ControlType="XRLabel" Name="teName" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleCenter" SizeF="540,90" LocationFloat="20, 10" Dpi="254" StyleName="scLabel" Padding="0,0,0,0,254">
+          <DataBindings>
+            <Item1 Ref="18" PropertyName="Text" DataMember="BarcodeR.Name" />
+          </DataBindings>
+          <StylePriority Ref="19" UseFont="false" UsePadding="false" UseTextAlignment="false" />
+        </Item4>
+        <Item5 Ref="20" ControlType="XRBarCode" Name="teBarCode" Module="5.08" AutoModule="true" TextAlignment="MiddleCenter" ShowText="false" SizeF="480,90" LocationFloat="50, 100" Dpi="254" StyleName="scLabel" Padding="0,0,0,0,254">
+          <Symbology Ref="21" Name="Code128" CharacterSet="CharsetAuto" />
+          <DataBindings>
+            <Item1 Ref="22" PropertyName="Text" DataMember="BarcodeR.Barcode" />
+          </DataBindings>
+          <StylePriority Ref="23" UseFont="false" UsePadding="false" UseTextAlignment="false" />
+        </Item5>
+        <Item6 Ref="24" ControlType="XRLabel" Name="tePrice" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleCenter" WordWrap="false" SizeF="540,50" LocationFloat="20, 190" Dpi="254" StyleName="scData" Padding="0,0,0,0,254">
+          <FormattingRuleLinks>
+            <Item1 Ref="25" Value="#Ref-2" />
+          </FormattingRuleLinks>
+          <DataBindings>
+            <Item1 Ref="26" PropertyName="Text" DataMember="BarcodeR.Price" />
+          </DataBindings>
+          <StylePriority Ref="27" UseFont="false" UsePadding="false" UseTextAlignment="false" />
+        </Item6>
+      </Controls>
+    </Item3>
+  </Bands>
+  <StyleSheet>
+    <Item1 Ref="28" Name="scData" BorderStyle="Inset" Font="Segoe UI, 11.25pt, style=Bold, charSet=0" StringFormat="Near;Near;0;None;Character;Default" />
+    <Item2 Ref="29" Name="scLabel" BorderStyle="Inset" Font="Segoe UI, 9.75pt, charSet=0" StringFormat="Near;Near;0;None;Character;Default" />
+    <Item3 Ref="30" Name="scMainTitle" BorderStyle="Inset" Font="Segoe UI, 14.25pt, style=Bold, charSet=0" StringFormat="Near;Near;0;None;Character;Default" />
+    <Item4 Ref="31" Name="scDataMin" BorderStyle="Inset" Font="Segoe UI, 9.75pt, charSet=0" StringFormat="Near;Near;0;None;Character;Default" />
+    <Item5 Ref="32" Name="scDataCheque" BorderStyle="Inset" Font="Segoe UI, 9.75pt, style=Bold, charSet=0" StringFormat="Near;Near;0;None;Character;Default" />
+  </StyleSheet>
+  <ComponentStorage>
+    <Item1 Ref="0" />
+  </ComponentStorage>
+</XtraReportsLayoutSerializer>

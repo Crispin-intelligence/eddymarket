@@ -1,0 +1,17 @@
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_NULLS ON
+GO
+
+
+CREATE FUNCTION [Gym].[f_GymMemberAttendanceTypeIsENConvert] ( @TypeIs TINYINT )
+RETURNS NVARCHAR(MAX)
+AS
+BEGIN
+
+  RETURN CASE @TypeIs WHEN 0 THEN N'Manually' ELSE N'Automatically' END;
+
+END;
+
+
+GO

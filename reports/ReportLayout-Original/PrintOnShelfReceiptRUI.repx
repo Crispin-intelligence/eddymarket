@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XtraReportsLayoutSerializer SerializerVersion="19.1.3.0" Ref="1" ControlType="DevExpress.XtraReports.UI.XtraReport, DevExpress.XtraReports.v19.1, Version=19.1.3.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Name="PrintOnShelfReceiptRUI" SnapGridSize="5" SnappingMode="SnapToGridAndSnapLines" RollPaper="true" Margins="0, 0, 0, 0" PaperKind="Custom" PageWidth="270" PageHeight="1100" ScriptLanguage="VisualBasic" Version="19.1" ShowPrintMarginsWarning="false" DataMember="PrintOnShelfReceipt" DataSource="#Ref-0" Font="Arial, 9.75pt">
+  <Bands>
+    <Item1 Ref="2" ControlType="TopMarginBand" Name="TopMargin" HeightF="0" />
+    <Item2 Ref="3" ControlType="BottomMarginBand" Name="BottomMargin" HeightF="0" />
+    <Item3 Ref="4" ControlType="DetailBand" Name="Detail" PageBreak="AfterBand" HeightF="150">
+      <Controls>
+        <Item1 Ref="5" ControlType="XRLabel" Name="lcUnit" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleCenter" SizeF="105,20.00002" LocationFloat="155, 95" StyleName="scDataMin">
+          <EditOptions Ref="6" Enabled="true" />
+          <ExpressionBindings>
+            <Item1 Ref="7" Expression="[Unit]" PropertyName="Text" EventName="BeforePrint" />
+          </ExpressionBindings>
+          <StylePriority Ref="8" UseFont="false" UsePadding="false" UseTextAlignment="false" />
+        </Item1>
+        <Item2 Ref="9" ControlType="XRLabel" Name="lcDateIs" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleCenter" SizeF="105,20.00002" LocationFloat="155, 115" StyleName="scDataMin">
+          <EditOptions Ref="10" Enabled="true" />
+          <ExpressionBindings>
+            <Item1 Ref="11" Expression="[DateIs]" PropertyName="Text" EventName="BeforePrint" />
+          </ExpressionBindings>
+          <StylePriority Ref="12" UseFont="false" UsePadding="false" UseTextAlignment="false" />
+        </Item2>
+        <Item3 Ref="13" ControlType="XRLabel" Name="lcSalePrice" Multiline="true" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleCenter" SizeF="250,50.00001" LocationFloat="10, 14.99999" StyleName="scMainTitle" BackColor="Gainsboro" Padding="0,0,2,2,100" Borders="All" BorderWidth="0.5">
+          <EditOptions Ref="14" Enabled="true" />
+          <ExpressionBindings>
+            <Item1 Ref="15" Expression="[SalePrice]" PropertyName="Text" EventName="BeforePrint" />
+          </ExpressionBindings>
+          <StylePriority Ref="16" UseFont="false" UseBackColor="false" UsePadding="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+        </Item3>
+        <Item4 Ref="17" ControlType="XRBarCode" Name="teBarcode" AutoModule="true" TextAlignment="MiddleCenter" SizeF="145,40.00002" LocationFloat="10, 94.99999" StyleName="scLabel" Padding="0,0,0,0,100">
+          <Symbology Ref="18" Name="Code128" CharacterSet="CharsetAuto" />
+          <ExpressionBindings>
+            <Item1 Ref="19" Expression="[Barcode]" PropertyName="Text" EventName="BeforePrint" />
+          </ExpressionBindings>
+          <StylePriority Ref="20" UseFont="false" UsePadding="false" UseTextAlignment="false" />
+        </Item4>
+        <Item5 Ref="21" ControlType="XRLabel" Name="lcName" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="TopCenter" SizeF="250,30" LocationFloat="10, 65" StyleName="scDataMin">
+          <EditOptions Ref="22" Enabled="true" />
+          <ExpressionBindings>
+            <Item1 Ref="23" Expression="[Name]" PropertyName="Text" EventName="BeforePrint" />
+          </ExpressionBindings>
+          <StylePriority Ref="24" UseFont="false" UsePadding="false" UseTextAlignment="false" />
+        </Item5>
+      </Controls>
+    </Item3>
+  </Bands>
+  <StyleSheet>
+    <Item1 Ref="25" Name="scLabel" BorderStyle="Inset" Font="Segoe UI, 9.75pt, charSet=0" StringFormat="Near;Near;0;None;Character;Default" />
+    <Item2 Ref="26" Name="scMainTitle" BorderStyle="Inset" Font="Segoe UI, 14.25pt, style=Bold, charSet=0" StringFormat="Near;Near;0;None;Character;Default" />
+    <Item3 Ref="27" Name="scDataMin" BorderStyle="Inset" Font="Segoe UI, 9.75pt, style=Italic, charSet=0" StringFormat="Near;Near;0;None;Character;Default" />
+  </StyleSheet>
+  <ComponentStorage>
+    <Item1 Ref="0" />
+  </ComponentStorage>
+</XtraReportsLayoutSerializer>

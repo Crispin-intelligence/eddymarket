@@ -1,0 +1,23 @@
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_NULLS ON
+GO
+
+create FUNCTION [Alls].[f_SeeRowIn](@TypeIs int)  RETURNS NVARCHAR(MAX)
+AS
+BEGIN
+
+RETURN CASE @TypeIs
+WHEN 0 THEN N'Available'
+WHEN 1 THEN N'History'
+ELSE N'N/A'
+
+
+END
+
+END
+
+
+
+
+GO

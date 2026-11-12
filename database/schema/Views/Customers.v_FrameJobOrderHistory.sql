@@ -1,0 +1,122 @@
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_NULLS ON
+GO
+
+
+
+
+
+CREATE VIEW [Customers].[v_FrameJobOrderHistory]
+AS
+SELECT  t.ID ,
+        t.Ref ,
+        t.RefF ,
+        t.RefPaper ,
+        t.DateIs ,
+        t.DateDelivery ,
+        t.DateInProcess ,
+        t.DateInProcessNotification ,
+        t.DateReady ,
+        t.DateReadyNotification ,
+        t.StatusIs ,
+        t.PriorityLevel ,
+        t.CustomerID ,
+        t.Customer ,
+        t.DoctorID ,
+        t.Doctor ,
+        t.SalespersonID ,
+        t.Salesperson ,
+        t.StatesID ,
+        t.StatesIs ,
+        t.RegionID ,
+        t.RegionIs ,
+        t.StreetID ,
+        t.Street ,
+        t.AddressIs ,
+        t.Focal ,
+        t.WithRight ,
+        t.WithLeft ,
+        t.SphereRight ,
+        t.SphereLeft ,
+        t.CylinderRight ,
+        t.CylinderLeft ,
+        t.AxisRight ,
+        t.AxisLeft ,
+        t.PrismRight ,
+        t.PrismLeft ,
+        t.BaseRight ,
+        t.BaseLeft ,
+        t.Addition ,
+        t.HeightRight ,
+        t.HeightLeft ,
+        t.PDRight ,
+        t.PDLeft ,
+        t.PD ,
+        t.CurrencyID ,
+        t.Currency ,
+        t.ExchangeRate ,
+        t.ExchangeRateLL ,
+        t.ExchangeRateEuro ,
+        t.SubTotal ,
+        t.SubTotalF ,
+        t.SubTotalD ,
+        t.SubTotalLL ,
+        t.SubTotalEuro ,
+        t.DiscountIs ,
+        t.DiscountIsF ,
+        t.DiscountIsD ,
+        t.DiscountIsLL ,
+        t.DiscountIsEuro ,
+        t.TaxRate ,
+        t.TaxRateF ,
+        t.TaxValue ,
+        t.TaxValueF ,
+        t.TaxValueD ,
+        t.TaxValueLL ,
+        t.TaxValueEuro ,
+        t.Total ,
+        t.TotalF ,
+        t.TotalD ,
+        t.TotalLL ,
+        t.TotalEuro ,
+        t.Payment ,
+        t.PaymentF ,
+        t.PaymentD ,
+        t.PaymentLL ,
+        t.PaymentEuro ,
+        t.Rest ,
+        t.RestF ,
+        t.RestD ,
+        t.RestLL ,
+        t.RestEuro ,
+        t.Cost ,
+        t.CostF ,
+        t.CostD ,
+        t.CostLL ,
+        t.CostEuro ,
+        t.Profit ,
+        t.ProfitF ,
+        t.ProfitD ,
+        t.ProfitLL ,
+        t.ProfitEuro ,
+        t.Qtys ,
+        t.DescriptionIs ,
+        t.WhyCanceled ,
+        t.SoldID ,
+        t.SoldRefF ,
+        t.ItemsNames ,
+        t.DateCreate ,
+        t.IsSync
+FROM    Customers.t_FrameJobOrderHistory AS t;
+
+
+
+
+
+
+
+
+
+
+GO

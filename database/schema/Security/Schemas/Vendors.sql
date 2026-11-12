@@ -1,0 +1,3 @@
+CREATE SCHEMA [Vendors]
+AUTHORIZATION [dbo]
+GO

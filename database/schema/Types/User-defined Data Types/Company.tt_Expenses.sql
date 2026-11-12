@@ -1,0 +1,31 @@
+CREATE TYPE [Company].[tt_Expenses] AS TABLE
+(
+[ID] [uniqueidentifier] NOT NULL,
+[BoxAccountID] [uniqueidentifier] NOT NULL,
+[ExpenseAccountID] [uniqueidentifier] NOT NULL,
+[VendorAccountID] [uniqueidentifier] NOT NULL,
+[VendorTaxAccountID] [uniqueidentifier] NOT NULL,
+[PaymentMethod] [tinyint] NOT NULL,
+[CurrencyID] [uniqueidentifier] NOT NULL,
+[ExchangeRate] [decimal] (18, 2) NOT NULL,
+[ExchangeRateLL] [decimal] (18, 2) NOT NULL,
+[ExchangeRateEuro] [decimal] (18, 2) NOT NULL,
+[TaxExchangeRateLL] [decimal] (18, 2) NOT NULL,
+[TaxExchangeRateEuro] [decimal] (18, 2) NOT NULL,
+[TaxExchangeRateEvent] [nvarchar] (max) COLLATE Arabic_CI_AS NOT NULL,
+[Balance] [float] NOT NULL,
+[TaxRate] [decimal] (4, 2) NOT NULL,
+[TaxValue] [float] NOT NULL,
+[NetIs] [float] NOT NULL,
+[TransactionDetailTypeIs] [tinyint] NOT NULL,
+[ChequeNumber] [nvarchar] (max) COLLATE Arabic_CI_AS NOT NULL,
+[ChequeImage] [image] NOT NULL,
+[ChequeNote] [nvarchar] (max) COLLATE Arabic_CI_AS NOT NULL,
+[ChequeDateGet] [date] NOT NULL,
+[ChequeStopNotificationGet] [bit] NOT NULL,
+[NotificationTextAR] [nvarchar] (max) COLLATE Arabic_CI_AS NOT NULL,
+[NotificationTextEN] [nvarchar] (max) COLLATE Arabic_CI_AS NOT NULL,
+[DescriptionIs] [nvarchar] (max) COLLATE Arabic_CI_AS NOT NULL,
+[StatementIs] [nvarchar] (max) COLLATE Arabic_CI_AS NOT NULL
+)
+GO

@@ -1,0 +1,66 @@
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_NULLS ON
+GO
+CREATE PROCEDURE [Items].[s_ItemProductionUpdateNotSyncAll]
+AS
+BEGIN
+  BEGIN TRY
+    BEGIN TRANSACTION;
+
+    DISABLE TRIGGER Items.tr_ItemProduction ON Items.t_ItemProduction;
+    DISABLE TRIGGER Items.tr_ItemProductionMaterial ON Items.t_ItemProductionMaterial;
+    DISABLE TRIGGER Items.tr_ItemProductionMaterialSerial ON Items.t_ItemProductionMaterialSerial;
+    DISABLE TRIGGER Items.tr_ItemProductionSerial ON Items.t_ItemProductionSerial;
+
+    BEGIN --Update
+
+      UPDATE Items.t_ItemProduction
+        SET IsSync = 0;
+
+      UPDATE Items.t_ItemProductionMaterial
+        SET IsSync = 0;
+
+      UPDATE Items.t_ItemProductionMaterialSerial
+        SET IsSync = 0;
+
+      UPDATE Items.t_ItemProductionSerial
+        SET IsSync = 0;
+
+    END;
+
+    ENABLE TRIGGER Items.tr_ItemProduction ON Items.t_ItemProduction;
+    ENABLE TRIGGER Items.tr_ItemProductionMaterial ON Items.t_ItemProductionMaterial;
+    ENABLE TRIGGER Items.tr_ItemProductionMaterialSerial ON Items.t_ItemProductionMaterialSerial;
+    ENABLE TRIGGER Items.tr_ItemProductionSerial ON Items.t_ItemProductionSerial;
+		  
+    BEGIN --Live
+
+      UPDATE Alls.t_LiveVersion
+        SET VersionLive = STUFF(VersionLive, ItemProduction, 3, FORMAT(DATEPART(MILLISECOND, GETDATE()), '000')) ,
+            SchemasIs = STUFF(SchemasIs, SchemaItem, 3, FORMAT(DATEPART(MILLISECOND, GETDATE()), '000'));
+
+    END;
+
+    COMMIT TRANSACTION;
+
+    RETURN 1;
+
+  END TRY
+  BEGIN CATCH
+
+    ROLLBACK;
+
+    RETURN 0;
+
+  END CATCH;
+
+END;
+
+
+
+
+
+
+
+GO

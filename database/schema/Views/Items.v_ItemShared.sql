@@ -1,0 +1,325 @@
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_NULLS ON
+GO
+
+
+
+
+
+CREATE VIEW [Items].[v_ItemShared]
+AS
+SELECT t.ID,
+       t.Name,
+       t.NameInvoice,
+       t.Barcode,
+       t.Barcodes,
+       t.MainCategoryID,
+       t.MainCategory,
+       t.SubCategoryID,
+       t.SubCategory,
+       t.BrandID,
+       t.Brand,
+       t.InList,
+       t.QtyCurrent,
+       t.QtyCurrentByUnit,
+       t.QtyToReorder,
+       t.QtySalesAlert,
+       t.IsSerial,
+       t.IsExpiryDate,
+       t.LifeSpanDays,
+       t.NoticeDaysBeforeExpiryDate,
+       t.NetWeight,
+       t.GrossWeight,
+       t.SizeIs,
+       t.ColorIs,
+       t.CurrencyID,
+       t.Currency,
+       t.Purchase,
+       t.PurchaseF,
+       t.PurchaseD,
+       t.PurchaseLL,
+       t.PurchaseEuro,
+       t.PurchaseTotal,
+       t.PurchaseTotalF,
+       t.PurchaseTotalD,
+       t.PurchaseTotalLL,
+       t.PurchaseTotalEuro,
+	   t.PurchaseWithTax,
+       t.PurchaseWithTaxF,
+       t.PurchaseWithTaxD,
+       t.PurchaseWithTaxLL,
+       t.PurchaseWithTaxEuro,
+       t.PurchaseTotalWithTax,
+       t.PurchaseTotalWithTaxF,
+       t.PurchaseTotalWithTaxD,
+       t.PurchaseTotalWithTaxLL,
+       t.PurchaseTotalWithTaxEuro,
+       t.SellCurrencyID,
+       t.SellCurrency,
+       t.Sell,
+       t.SellF,
+       t.SellD,
+       t.SellLL,
+       t.SellEuro,
+       t.SellTotal,
+       t.SellTotalF,
+       t.SellTotalD,
+       t.SellTotalLL,
+       t.SellTotalEuro,
+       t.SellWithTax,
+       t.SellWithTaxF,
+       t.SellWithTaxD,
+       t.SellWithTaxLL,
+       t.SellWithTaxEuro,
+       t.SellTotalWithTax,
+       t.SellTotalWithTaxF,
+       t.SellTotalWithTaxD,
+       t.SellTotalWithTaxLL,
+       t.SellTotalWithTaxEuro,
+       t.StandardSalePrice,
+       t.Discount,
+       t.DiscountF,
+       t.TaxRate,
+       t.ScaleType,
+       t.PLUNumber,
+       t.TypeIs,
+       t.ReplenishmentSystem,
+	   t.MaterialsNames,
+	   t.MaterialsCounts,
+       t.ImageIs,
+	   t.ImagePath,
+       t.ImageThumbnail,
+       t.ImageThumbnailFixed,
+       t.DescriptionAR,
+       t.DescriptionEN,
+       t.DescriptionSearch,
+       t.DescriptionIs,
+       t.UnityC,
+       t.UnityNames,
+       t.VendorC,
+       t.VendorNames,
+       t.FileStorageC,
+       t.AdditionalProperty1,
+       t.AdditionalProperty2,
+       t.AdditionalProperty3,
+       t.AdditionalProperty4,
+       t.AdditionalProperty5,
+       t.AdditionalProperty6,
+       t.AdditionalProperty7,
+       t.AdditionalProperty8,
+       t.AdditionalProperty9,
+       t.AdditionalProperty10,
+	   t.DateLastSale,
+	   t.DaysLastSale,
+	   t.MakeInactiveAfter,
+	   t.MakeInactiveAfterType,
+       t.StatusIs,
+       t.WhyThisStatus,
+       t.OpticType ,
+       t.SpectacleLensesFocal ,
+       t.SpectacleLensesMaterial ,
+       t.SpectacleLensesUncoated ,
+       t.SpectacleLensesSuperHardCoat ,
+       t.SpectacleLensesAntiReflection ,
+       t.SpectacleLensesUVProtection ,
+       t.SpectacleLensesBlueFilterBlueControl ,
+       t.SpectacleLensesPhotochromic ,
+       t.SpectacleLensesBCPhotochromic ,
+       t.SpectacleLensesPolariod ,
+       t.SpectacleLensesTintedSolid ,
+       t.SpectacleLensesTintedGradient ,
+       t.SpectacleLensesTintedMirror ,
+       t.SpectacleLensesIndex ,
+       t.SpectacleLensesDiameter ,
+       t.SpectacleLensesBase ,
+       t.SpectacleLensesSphere ,
+       t.SpectacleLensesCylinder ,
+       t.SpectacleLensesAxis ,
+       t.ContactLensesBC ,
+       t.ContactLensesDIA ,
+       t.ContactLensesTransparency ,
+       t.ContactLensesColor ,
+       t.ContactLensesType ,
+       t.ContactLensesPeriod ,
+       t.ContactLensesSphere ,
+       t.ContactLensesCylinder ,
+       t.ContactLensesAxis ,
+       t.ProfitPartnersCount ,
+       t.ProfitPartners ,
+       t.OrderBy ,
+       t.DateCreate
+FROM Items.t_ItemShared AS t;
+
+
+
+
+GO
+EXEC sp_addextendedproperty N'MS_DiagramPane1', N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
+Begin DesignProperties = 
+   Begin PaneConfigurations = 
+      Begin PaneConfiguration = 0
+         NumPanes = 4
+         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
+      End
+      Begin PaneConfiguration = 1
+         NumPanes = 3
+         Configuration = "(H (1 [50] 4 [25] 3))"
+      End
+      Begin PaneConfiguration = 2
+         NumPanes = 3
+         Configuration = "(H (1[50] 2[25] 3) )"
+      End
+      Begin PaneConfiguration = 3
+         NumPanes = 3
+         Configuration = "(H (4 [30] 2 [40] 3))"
+      End
+      Begin PaneConfiguration = 4
+         NumPanes = 2
+         Configuration = "(H (1 [56] 3))"
+      End
+      Begin PaneConfiguration = 5
+         NumPanes = 2
+         Configuration = "(H (2 [66] 3))"
+      End
+      Begin PaneConfiguration = 6
+         NumPanes = 2
+         Configuration = "(H (4 [50] 3))"
+      End
+      Begin PaneConfiguration = 7
+         NumPanes = 1
+         Configuration = "(V (3))"
+      End
+      Begin PaneConfiguration = 8
+         NumPanes = 3
+         Configuration = "(H (1[56] 4[18] 2) )"
+      End
+      Begin PaneConfiguration = 9
+         NumPanes = 2
+         Configuration = "(H (1 [75] 4))"
+      End
+      Begin PaneConfiguration = 10
+         NumPanes = 2
+         Configuration = "(H (1[66] 2) )"
+      End
+      Begin PaneConfiguration = 11
+         NumPanes = 2
+         Configuration = "(H (4 [60] 2))"
+      End
+      Begin PaneConfiguration = 12
+         NumPanes = 1
+         Configuration = "(H (1) )"
+      End
+      Begin PaneConfiguration = 13
+         NumPanes = 1
+         Configuration = "(V (4))"
+      End
+      Begin PaneConfiguration = 14
+         NumPanes = 1
+         Configuration = "(V (2))"
+      End
+      ActivePaneConfig = 2
+   End
+   Begin DiagramPane = 
+      Begin Origin = 
+         Top = 0
+         Left = 0
+      End
+      Begin Tables = 
+         Begin Table = "t"
+            Begin Extent = 
+               Top = 14
+               Left = 57
+               Bottom = 354
+               Right = 319
+            End
+            DisplayFlags = 280
+            TopColumn = 43
+         End
+         Begin Table = "t3"
+            Begin Extent = 
+               Top = 90
+               Left = 395
+               Bottom = 220
+               Right = 586
+            End
+            DisplayFlags = 344
+            TopColumn = 0
+         End
+         Begin Table = "t4"
+            Begin Extent = 
+               Top = 133
+               Left = 396
+               Bottom = 326
+               Right = 607
+            End
+            DisplayFlags = 344
+            TopColumn = 0
+         End
+         Begin Table = "t2"
+            Begin Extent = 
+               Top = 51
+               Left = 394
+               Bottom = 181
+               Right = 585
+            End
+            DisplayFlags = 344
+            TopColumn = 0
+         End
+         Begin Table = "t1"
+            Begin Extent = 
+               Top = 9
+               Left = 395
+               Bottom = 139
+               Right = 586
+            End
+            DisplayFlags = 344
+            TopColumn = 0
+         End
+      End
+   End
+   Begin SQLPane = 
+   End
+   Begin DataPane = 
+      Begin ParameterDefaults = ""
+      End
+      Begin ColumnWidths = 10
+         Width = 284
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+      End
+   End
+   Begin CriteriaPane = 
+      PaneHidden = 
+      Begin ColumnWidths = 11
+         Column = 1440
+         Al', 'SCHEMA', N'Items', 'VIEW', N'v_ItemShared', NULL, NULL
+GO
+EXEC sp_addextendedproperty N'MS_DiagramPane2', N'ias = 900
+         Table = 1170
+         Output = 720
+         Append = 1400
+         NewValue = 1170
+         SortType = 1350
+         SortOrder = 1410
+         GroupBy = 1350
+         Filter = 1350
+         Or = 1350
+         Or = 1350
+         Or = 1350
+      End
+   End
+End
+', 'SCHEMA', N'Items', 'VIEW', N'v_ItemShared', NULL, NULL
+GO
+DECLARE @xp int
+SELECT @xp=2
+EXEC sp_addextendedproperty N'MS_DiagramPaneCount', @xp, 'SCHEMA', N'Items', 'VIEW', N'v_ItemShared', NULL, NULL
+GO

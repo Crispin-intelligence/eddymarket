@@ -1,0 +1,81 @@
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_NULLS ON
+GO
+
+CREATE VIEW [Invoices].[v_TransferAllList]
+AS
+SELECT 0 AS RowIn,
+       t.ID,
+       t.Ref,
+       t.RefF,
+       t.DateIs,
+       t.FromWarehouseID,
+       t.FromWarehouse,
+       t.ToWarehouseID,
+       t.ToWarehouse,
+       t.UserID,
+       t.UserIs,
+       t.CurrencyID,
+       t.Currency,
+       t.ExchangeRate,
+       t.ExchangeRateLL,
+       t.ExchangeRateEuro,
+       t.TotalF,
+       t.TotalD,
+       t.TotalLL,
+       t.TotalEuro,
+       t.TaxRate,
+       t.TaxRateF,
+       t.TaxValueF,
+       t.TaxValueD,
+       t.TaxValueLL,
+       t.TaxValueEuro,
+       t.NetIsF,
+       t.NetIsD,
+       t.NetIsLL,
+       t.NetIsEuro,
+       t.DescriptionIs,
+       t.ItemsNames,
+       t.Qtys,
+       t.DateCreate
+FROM Invoices.t_TransferAwaited AS t
+UNION ALL
+SELECT 1 AS RowIn,
+       t.ID,
+       t.Ref,
+       t.RefF,
+       t.DateIs,
+       t.FromWarehouseID,
+       t.FromWarehouse,
+       t.ToWarehouseID,
+       t.ToWarehouse,
+       t.UserID,
+       t.UserIs,
+       t.CurrencyID,
+       t.Currency,
+       t.ExchangeRate,
+       t.ExchangeRateLL,
+       t.ExchangeRateEuro,
+       t.TotalF,
+       t.TotalD,
+       t.TotalLL,
+       t.TotalEuro,
+       t.TaxRate,
+       t.TaxRateF,
+       t.TaxValueF,
+       t.TaxValueD,
+       t.TaxValueLL,
+       t.TaxValueEuro,
+       t.NetIsF,
+       t.NetIsD,
+       t.NetIsLL,
+       t.NetIsEuro,
+       t.DescriptionIs,
+       t.ItemsNames,
+       t.Qtys,
+       t.DateCreate
+FROM Invoices.t_Transfer AS t;
+
+
+GO

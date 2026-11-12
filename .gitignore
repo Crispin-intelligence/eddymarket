@@ -1,0 +1,14 @@
+# Secrets / machine-local state - never commit
+MyConnections.txt
+FireStoreKeyBase.json
+*.key
+*.pem
+.env
+Text.log
+# Binaries (too large for GitHub / third-party licensed) - ship via release or file share
+*.exe
+*.dll
+*.pdb
+*.rar
+SaveLayoutGrid/
+SaveLayoutTree/

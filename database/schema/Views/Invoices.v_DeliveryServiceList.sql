@@ -1,0 +1,70 @@
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_NULLS ON
+GO
+
+
+
+
+CREATE VIEW [Invoices].[v_DeliveryServiceList]
+AS
+    SELECT  t.ID ,
+            t.Ref ,
+            t.RefF ,
+            t.RefPaper ,
+            t.DateIs ,
+            t.TypeIs ,
+            t.StatusIs ,
+            t.DescriptionIs ,
+            t.UserID ,
+            t.UserIs ,
+            t.AccountVendor ,
+            t.AccountVendorNumber ,
+            t.FromAddress ,
+            t.ItemsNames ,
+            t.CostCurrency ,
+            t.CostExchangeRateLL ,
+            t.CostExchangeRateEuro ,
+            t.CostF ,
+            t.CostD ,
+            t.CostLL ,
+            t.CostEuro ,
+            t.PaymentF ,
+            t.PaymentD ,
+            t.PaymentLL ,
+            t.PaymentEuro ,
+            t.RestF ,
+            t.RestD ,
+            t.RestLL ,
+            t.RestEuro ,
+            t.AccountCustomer ,
+            t.AccountCustomerNumber ,
+            t.ToAddress ,
+            t.DeliveryDate ,
+            t.DeliveryChargeCurrency ,
+            t.DeliveryChargeExchangeRateLL ,
+            t.DeliveryChargeExchangeRateEuro ,
+            t.DeliveryChargeF ,
+            t.DeliveryChargeD ,
+            t.DeliveryChargeLL ,
+            t.DeliveryChargeEuro ,
+            t.DeliveryChargeStatus ,
+            t.AccountEmployee ,
+            t.AccountEmployeeNumber ,
+            t.AssignDate ,
+            t.ExpenseF ,
+            t.ExpenseD ,
+            t.ExpenseLL ,
+            t.ExpenseEuro ,
+            t.ExpenseStatus ,
+            t.ExpensePaymentDate ,
+			t.ProcessIn,
+            t.DateCreate ,
+            t.IsSync
+    FROM    Invoices.t_DeliveryService AS t;
+
+
+
+
+
+GO

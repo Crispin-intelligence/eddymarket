@@ -1,0 +1,3 @@
+CREATE SCHEMA [Quotations]
+AUTHORIZATION [dbo]
+GO

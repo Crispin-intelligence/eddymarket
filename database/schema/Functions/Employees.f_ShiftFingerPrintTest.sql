@@ -1,0 +1,13 @@
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_NULLS ON
+GO
+CREATE FUNCTION [Employees].[f_ShiftFingerPrintTest] ()
+RETURNS BIT
+AS
+BEGIN
+
+    RETURN IIF(COALESCE(DB_ID('FingerPrint'), 0) = 0, 0, 1);
+
+END;
+GO

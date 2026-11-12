@@ -1,0 +1,19 @@
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_NULLS ON
+GO
+
+CREATE VIEW [Company].[v_ChequeHistoryBase]
+AS
+SELECT t.ID,
+       t.Ref,
+       t.RefF,
+	   t.NumberIs,
+	   t.BankID,
+	   t.DateCreate
+FROM Company.t_ChequeHistory AS t;
+
+
+
+
+GO

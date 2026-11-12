@@ -1,0 +1,294 @@
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_NULLS ON
+GO
+
+CREATE PROCEDURE [Cars].[s_CarRentalNewPaidUp]
+  @DateIs DATE ,
+  @AccountBoxID UNIQUEIDENTIFIER ,
+  @PaidUp FLOAT ,
+  @StatementIs NVARCHAR(MAX) ,
+  @UserID UNIQUEIDENTIFIER ,
+  @Event NVARCHAR(MAX) ,
+  @EventType TINYINT ,
+  @EventTypeTransaction TINYINT ,
+  @ComputerIP NVARCHAR(MAX) ,
+  @Computer NVARCHAR(MAX) ,
+  @ComputerAccount NVARCHAR(MAX) ,
+  @ID UNIQUEIDENTIFIER
+AS
+BEGIN
+  BEGIN TRY
+
+    BEGIN TRANSACTION;
+
+    BEGIN --Declare
+
+      DECLARE @IDs TABLE
+        (
+          ID UNIQUEIDENTIFIER NOT NULL
+        );
+
+      DECLARE @TrnIDs TABLE
+        (
+          ID UNIQUEIDENTIFIER NOT NULL ,
+          RefF NVARCHAR(MAX) NOT NULL
+        );
+
+      DECLARE @RefF NVARCHAR(MAX) ,
+        @AccountID UNIQUEIDENTIFIER ,
+        @Account NVARCHAR(MAX) ,
+        @AccountBox NVARCHAR(MAX) ,
+        @PaidUpD FLOAT ,
+        @PaidUpLL FLOAT ,
+        @PaidUpEuro FLOAT ,
+        @TrnID UNIQUEIDENTIFIER ,
+        @TrnRef BIGINT ,
+        @TrnRN INT ,
+        @TrnStatementBase NVARCHAR(MAX) ,
+        @TrnStatement NVARCHAR(MAX) ,
+        @TrnLinkType TINYINT = 185 ,
+        @CID UNIQUEIDENTIFIER ,
+        @E DECIMAL(18, 2) ,
+        @ELL DECIMAL(18, 2) ,
+        @EEuro DECIMAL(18, 2) ,
+        @V FLOAT ,
+        @return INT;
+		
+
+    END;
+
+    BEGIN --Set info
+
+      SELECT TOP ( 1 )
+              @RefF = s.RefF ,
+              @AccountID = s.AccountID ,
+              @Account = s.Account ,
+              @CID = s.CurrencyID ,
+              @E = s.ExchangeRate ,
+              @ELL = s.ExchangeRateLL ,
+              @EEuro = s.ExchangeRateEuro
+      FROM    Cars.t_CarRental AS s
+      WHERE   s.ID = @ID;
+  
+      SET @AccountBox = Company.f_AccountGetName(@AccountBoxID);
+    
+      SET @PaidUpD = @PaidUp / @E;
+      SET @PaidUpLL = @PaidUpD * @ELL;
+      SET @PaidUpEuro = @PaidUpD * @EEuro;
+       
+      SET @TrnStatementBase = N'CR:' + @RefF + N' ' + @StatementIs;
+		      
+    END;
+
+    BEGIN --Insert
+
+      SET @return = 0;
+
+      UPDATE  Cars.t_CarRental
+      SET     PaidUp += @PaidUp ,
+              PaidUpF = Currencys.f_Format(@CID, PaidUp + @PaidUp) ,
+              PaidUpD += @PaidUpD ,
+              PaidUpLL += @PaidUpD * @ELL ,
+              PaidUpEuro += @PaidUpD * @EEuro ,
+              Rest -= @PaidUp ,
+              RestF = Currencys.f_Format(@CID, Rest - @PaidUp) ,
+              RestD -= @PaidUpD ,
+              RestLL -= @PaidUpD * @ELL ,
+              RestEuro -= @PaidUpD * @EEuro ,
+              Paid = IIF(( Rest - @PaidUp ) = 0, 2, 1)
+      WHERE   ID = @ID;
+		
+    END;
+
+    BEGIN --Insert Event
+
+      SET @return = -1;
+
+      INSERT  INTO Cars.t_CarRentalMoving
+              ( UserID ,
+                SectionID ,
+                EventIs ,
+                EventType ,
+                ComputerIP ,
+                Computer ,
+                ComputerAccount
+              )
+      VALUES  ( @UserID ,
+                @ID ,
+                @Event ,
+                @EventType ,
+                @ComputerIP ,
+                @Computer ,
+                @ComputerAccount
+              );
+
+    END;
+
+    BEGIN --Transaction
+
+      BEGIN --Set info
+      
+        SET @return = 0;
+
+        SELECT  @TrnRef = ISNULL(MAX(s.Ref), 0) + 1
+        FROM    Transactions.t_Transaction AS s
+        WHERE   s.TypeIs = N'RV';
+
+      END;
+
+      BEGIN --Insert transaction
+
+        INSERT  INTO Transactions.t_Transaction
+                ( Ref ,
+                  TypeIs ,
+                  DateIs ,
+                  DescriptionIs ,
+                  LinkType ,
+                  LinkTypeSub ,
+                  LinkID ,
+                  UserID
+                )
+        OUTPUT  Inserted.ID
+                INTO @IDs ( ID )
+        VALUES  ( @TrnRef ,
+                  N'RV' ,
+                  @DateIs ,
+                  @TrnStatementBase ,
+                  @TrnLinkType ,
+                  9 ,
+                  @ID ,
+                  @UserID
+                );
+
+        SET @TrnID = ( SELECT TOP ( 1 )
+                              s.ID
+                       FROM   @IDs AS s
+                       ORDER BY s.ID
+                     );
+
+        INSERT  @TrnIDs
+                ( ID, RefF )
+        VALUES  ( @TrnID, FORMAT(@TrnRef, 'n0') );
+
+      END;
+
+      BEGIN --t_TransactionDetail
+
+        SET @V = @PaidUp;
+        SET @TrnRN = 1;
+        SET @TrnStatement = @TrnStatementBase + ' \ ' + @Account;
+        EXECUTE Transactions.s_TransactionDetailInsertDebit @TrnRN, @TrnID, @AccountBoxID, @DateIs, @CID, @V, @E, @ELL, @EEuro, @TrnStatement;
+		
+        SET @TrnRN += 1;
+        SET @TrnStatement = @TrnStatementBase;
+        EXECUTE Transactions.s_TransactionDetailInsertCredit @TrnRN, @TrnID, @AccountID, @DateIs, @CID, @V, @E, @ELL, @EEuro, @TrnStatement;
+
+      END;
+
+    END;
+
+    BEGIN --Insert t_TransactionMoving
+
+      SET @return = -1;
+
+      INSERT  INTO Transactions.t_TransactionMoving
+              ( UserID ,
+                SectionID ,
+                EventIs ,
+                EventType ,
+                ComputerIP ,
+                Computer ,
+                ComputerAccount
+              )
+      SELECT  @UserID ,
+              @TrnID ,
+              @Event + s.RefF ,
+              @EventTypeTransaction ,
+              @ComputerIP ,
+              @Computer ,
+              @ComputerAccount
+      FROM    @TrnIDs AS s;
+
+    END;
+
+    BEGIN --Fix data
+
+      UPDATE  Company.t_Account
+      SET     StatusIs = 0 ,
+              LastAction = GETDATE()
+      WHERE   ID IN ( @AccountID, @AccountBoxID )
+              AND StatusIs = 1;
+               
+      UPDATE  Transactions.t_Transaction
+      SET     RefF = FORMAT(Ref, 'n0') ,
+              DateOnly = DateIs ,
+              DateFirstDayInMonth = DATEFROMPARTS(YEAR(DateIs), MONTH(DateIs), 1) ,
+              DateFirstDayInYear = DATEFROMPARTS(YEAR(DateIs), 1, 1) ,
+              AccountsNames = Alls.f_FixXML(( SELECT DISTINCT
+                                                      ', ' + t.Account AS [text()]
+                                              FROM    Transactions.t_TransactionDetail AS t
+                                              WHERE   t.TransactionID = @TrnID
+                                            FOR
+                                              XML PATH('')
+                                            )) ,
+              BalanceD = COALESCE(( SELECT  SUM(s.Balance)
+                                    FROM    Transactions.t_TransactionDetail AS s
+                                    WHERE   s.TransactionID = t_Transaction.ID
+                                            AND s.CurrencyTypeIs = 0
+                                            AND s.Balance > 0
+                                  ), 0) ,
+              BalanceLL = COALESCE(( SELECT SUM(s.Balance)
+                                     FROM   Transactions.t_TransactionDetail AS s
+                                     WHERE  s.TransactionID = t_Transaction.ID
+                                            AND s.CurrencyTypeIs = 1
+                                            AND s.Balance > 0
+                                   ), 0) ,
+              BalanceEuro = COALESCE(( SELECT SUM(s.Balance)
+                                       FROM   Transactions.t_TransactionDetail AS s
+                                       WHERE  s.TransactionID = t_Transaction.ID
+                                              AND s.CurrencyTypeIs = 2
+                                              AND s.Balance > 0
+                                     ), 0) ,
+              UserIs = Users.f_UserGetName(UserID)
+      WHERE   EXISTS ( SELECT TOP ( 1 )
+                              s.ID
+                       FROM   @TrnIDs AS s
+                       WHERE  s.ID = t_Transaction.ID );
+
+      UPDATE  Transactions.t_TransactionDetail
+      SET     Account = Company.f_AccountGetName(AccountID) ,
+              DateOnly = DateIs ,
+              DateFirstDayInMonth = DATEFROMPARTS(YEAR(DateIs), MONTH(DateIs), 1) ,
+              DateFirstDayInYear = DATEFROMPARTS(YEAR(DateIs), 1, 1) ,
+              Currency = Currencys.f_CurrencyGetName(CurrencyID) ,
+              CurrencyTypeIs = Currencys.f_CurrencyGetTypeIs(CurrencyID) ,
+              BalanceF = Currencys.f_Format(CurrencyID, Balance) ,
+              BalanceAR = Currencys.f_ToWordAR(Balance, CurrencyID, 1) ,
+              BalanceEN = Currencys.f_ToWordEN(Balance, CurrencyID, 1)
+      WHERE   EXISTS ( SELECT TOP ( 1 )
+                              s.ID
+                       FROM   @TrnIDs AS s
+                       WHERE  s.ID = t_TransactionDetail.TransactionID );
+
+    END;
+     
+    COMMIT TRANSACTION;
+
+    RETURN 1;
+
+  END TRY
+  BEGIN CATCH
+
+    ROLLBACK;
+
+    RETURN @return;
+
+  END CATCH;
+
+END;
+
+
+
+
+GO

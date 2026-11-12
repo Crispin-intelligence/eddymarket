@@ -1,0 +1,3 @@
+CREATE SCHEMA [DateTimes]
+AUTHORIZATION [dbo]
+GO

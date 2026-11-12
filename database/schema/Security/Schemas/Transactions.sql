@@ -1,0 +1,3 @@
+CREATE SCHEMA [Transactions]
+AUTHORIZATION [dbo]
+GO

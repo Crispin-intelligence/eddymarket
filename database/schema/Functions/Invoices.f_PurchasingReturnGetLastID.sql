@@ -1,0 +1,31 @@
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_NULLS ON
+GO
+
+CREATE FUNCTION [Invoices].[f_PurchasingReturnGetLastID] ( )
+RETURNS UNIQUEIDENTIFIER
+AS
+BEGIN
+
+  BEGIN --DECLARE
+
+    DECLARE @ID UNIQUEIDENTIFIER;
+
+  END;
+
+  BEGIN --Set
+
+    SELECT TOP ( 1 ) @ID = t.ID
+      FROM Invoices.t_PurchasingReturn AS t
+      ORDER BY t.DateCreate DESC;
+
+  END;
+
+  RETURN COALESCE(@ID, '00000000-0000-0000-0000-000000000000');
+
+END;
+
+
+
+GO

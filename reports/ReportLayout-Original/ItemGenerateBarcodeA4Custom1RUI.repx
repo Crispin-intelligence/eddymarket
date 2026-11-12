@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XtraReportsLayoutSerializer SerializerVersion="19.1.3.0" Ref="1" ControlType="DevExpress.XtraReports.UI.XtraReport, DevExpress.XtraReports.v19.1, Version=19.1.3.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Name="ItemGenerateBarcodeA4Custom1RUI" SnapGridSize="1" SnapGridStepCount="1" SnappingMode="SnapToGridAndSnapLines" ShowPreviewMarginLines="false" Margins="24, 0, 35, 0" PaperKind="A4" PageWidth="827" PageHeight="1169" ScriptLanguage="VisualBasic" Version="19.1" ShowPrintMarginsWarning="false" DataMember="BarcodeR" DataSource="#Ref-0">
+  <FormattingRuleSheet>
+    <Item1 Ref="2" Name="fBarcode" DataMember="BarcodeR" Condition="[Barcode] = ''">
+      <Formatting Ref="3" Visible="False" BorderStyle="Inset" StringFormat="Near;Near;0;None;Character;Default" />
+    </Item1>
+    <Item2 Ref="4" Name="frQRCode" DataMember="BarcodeR" Condition="[QRCode] = ''">
+      <Formatting Ref="5" Visible="False" BorderStyle="Inset" StringFormat="Near;Near;0;None;Character;Default" />
+    </Item2>
+  </FormattingRuleSheet>
+  <Bands>
+    <Item1 Ref="6" ControlType="TopMarginBand" Name="TopMargin" HeightF="35" />
+    <Item2 Ref="7" ControlType="BottomMarginBand" Name="BottomMargin" HeightF="0" />
+    <Item3 Ref="8" ControlType="DetailBand" Name="Detail" HeightF="167.32" KeepTogether="true">
+      <HierarchyPrintOptions Ref="9" Indent="7.874016" />
+      <MultiColumn Ref="10" ColumnCount="5" ColumnWidth="374" Layout="AcrossThenDown" Mode="UseColumnWidth" />
+      <Controls>
+        <Item1 Ref="11" ControlType="XRPictureBox" Name="XrPictureBox1" Padding="1,1,1,1,100" Sizing="ZoomImage" ImageAlignment="MiddleCenter" SizeF="86.89998,59.99997" LocationFloat="247.47, 84.00002">
+          <DataBindings>
+            <Item1 Ref="12" PropertyName="ImageSource" DataMember="BarcodeR.ImageIs" />
+          </DataBindings>
+          <StylePriority Ref="13" UsePadding="false" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" />
+        </Item1>
+        <Item2 Ref="14" ControlType="XRLabel" Name="teName" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleLeft" WordWrap="false" SizeF="190.9,19.99999" LocationFloat="39.10001, 84" StyleName="scLabel" Padding="0,0,0,0,100">
+          <DataBindings>
+            <Item1 Ref="15" PropertyName="Text" DataMember="BarcodeR.Barcode" />
+          </DataBindings>
+          <StylePriority Ref="16" UseFont="false" UsePadding="false" UseTextAlignment="false" />
+        </Item2>
+        <Item3 Ref="17" ControlType="XRBarCode" Name="teBarCode" AutoModule="true" TextAlignment="MiddleCenter" ShowText="false" SizeF="190.9,19.99998" LocationFloat="39.10001, 124" StyleName="scLabel" Padding="0,0,0,0,100">
+          <Symbology Ref="18" Name="Code128" CharacterSet="CharsetAuto" />
+          <FormattingRuleLinks>
+            <Item1 Ref="19" Value="#Ref-2" />
+          </FormattingRuleLinks>
+          <DataBindings>
+            <Item1 Ref="20" PropertyName="Text" DataMember="BarcodeR.Barcode" />
+          </DataBindings>
+          <StylePriority Ref="21" UseFont="false" UsePadding="false" UseTextAlignment="false" />
+        </Item3>
+        <Item4 Ref="22" ControlType="XRLabel" Name="tePrice" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleLeft" WordWrap="false" SizeF="190.9,20" LocationFloat="39.10001, 104" StyleName="scData" Padding="0,0,0,0,100">
+          <DataBindings>
+            <Item1 Ref="23" PropertyName="Text" DataMember="BarcodeR.Info1" />
+          </DataBindings>
+          <StylePriority Ref="24" UseFont="false" UsePadding="false" UseTextAlignment="false" />
+        </Item4>
+      </Controls>
+    </Item3>
+  </Bands>
+  <StyleSheet>
+    <Item1 Ref="25" Name="scData" BorderStyle="Inset" Font="Segoe UI, 11.25pt, style=Bold, charSet=0" StringFormat="Near;Near;0;None;Character;Default" />
+    <Item2 Ref="26" Name="scLabel" BorderStyle="Inset" Font="Segoe UI, 9.75pt, charSet=0" StringFormat="Near;Near;0;None;Character;Default" />
+    <Item3 Ref="27" Name="scMainTitle" BorderStyle="Inset" Font="Segoe UI, 14.25pt, style=Bold, charSet=0" StringFormat="Near;Near;0;None;Character;Default" />
+    <Item4 Ref="28" Name="scDataMin" BorderStyle="Inset" Font="Segoe UI, 9.75pt, charSet=0" StringFormat="Near;Near;0;None;Character;Default" />
+    <Item5 Ref="29" Name="scDataCheque" BorderStyle="Inset" Font="Segoe UI, 9.75pt, style=Bold, charSet=0" StringFormat="Near;Near;0;None;Character;Default" />
+  </StyleSheet>
+  <ComponentStorage>
+    <Item1 Ref="0" />
+  </ComponentStorage>
+</XtraReportsLayoutSerializer>

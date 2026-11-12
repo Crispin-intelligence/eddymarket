@@ -1,0 +1,17 @@
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_NULLS ON
+GO
+
+
+CREATE FUNCTION [Gym].[f_GymMemberAttendanceTypeIsARConvert] ( @TypeIs TINYINT )
+RETURNS NVARCHAR(MAX)
+AS
+BEGIN
+
+  RETURN CASE @TypeIs WHEN 0 THEN N'يدويا' ELSE N'تلقائيًا' END;
+
+END;
+
+
+GO

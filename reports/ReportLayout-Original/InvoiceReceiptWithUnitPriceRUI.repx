@@ -1,0 +1,687 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XtraReportsLayoutSerializer SerializerVersion="19.1.3.0" Ref="1" ControlType="DevExpress.XtraReports.UI.XtraReport, DevExpress.XtraReports.v19.1, Version=19.1.3.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Name="InvoiceReceiptWithUnitPriceRUI" SnapGridSize="5" SnappingMode="SnapToGridAndSnapLines" RollPaper="true" Margins="0, 0, 0, 20" PaperKind="Custom" PageWidth="270" PageHeight="1169" ScriptLanguage="VisualBasic" Version="19.1" ShowPrintMarginsWarning="false" DataMember="InvoiceReceiptR" DataSource="#Ref-0">
+  <Bands>
+    <Item1 Ref="2" ControlType="DetailBand" Name="Detail" HeightF="0" TextAlignment="TopLeft" Padding="0,0,0,0,100" />
+    <Item2 Ref="3" ControlType="TopMarginBand" Name="TopMargin" HeightF="0" TextAlignment="TopLeft" Padding="0,0,0,0,100" />
+    <Item3 Ref="4" ControlType="BottomMarginBand" Name="BottomMargin" HeightF="20" TextAlignment="TopLeft" Padding="0,0,0,0,100" />
+    <Item4 Ref="5" ControlType="PageHeaderBand" Name="PageHeader" Expanded="false" HeightF="40">
+      <Controls>
+        <Item1 Ref="6" ControlType="XRTable" Name="tHeader" ProcessHiddenCellMode="ResizeCellsProportionally" SizeF="270,20" LocationFloat="0, 20" Padding="2,2,0,0,96">
+          <Rows>
+            <Item1 Ref="7" ControlType="XRTableRow" Name="trHeader" Weight="0.64">
+              <Cells>
+                <Item1 Ref="8" ControlType="XRTableCell" Name="lcItemPrice" Weight="1.8836979896291914" CanGrow="false" Multiline="true" TextFitMode="ShrinkOnly" Text="Price" TextAlignment="MiddleLeft" StyleName="scLabel" BorderColor="Gray" Borders="All" BorderWidth="0.5" BorderDashStyle="Dot">
+                  <StylePriority Ref="9" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseBorderDashStyle="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="10" ControlType="XRTableCell" Name="lcItemQty" Weight="0.94185108038228149" CanGrow="false" Multiline="true" TextFitMode="ShrinkOnly" Text="Qty" TextAlignment="MiddleCenter" StyleName="scLabel" Padding="0,0,0,0,100" BorderColor="Gray" Borders="All" BorderWidth="0.5" BorderDashStyle="Dot">
+                  <StylePriority Ref="11" UsePadding="false" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseBorderDashStyle="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="12" ControlType="XRTableCell" Name="XrLabel1" Weight="1.8836978993368128" CanGrow="false" Multiline="true" TextFitMode="ShrinkOnly" Text="Unit" TextAlignment="MiddleLeft" StyleName="scLabel" Padding="0,0,0,0,100" BorderColor="Gray" Borders="All" BorderWidth="0.5" BorderDashStyle="Dot">
+                  <StylePriority Ref="13" UsePadding="false" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseBorderDashStyle="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="14" ControlType="XRTableCell" Name="lcItemDiscount" Weight="1.5697489936926146" CanGrow="false" Multiline="true" TextFitMode="ShrinkOnly" Text="Dis%" TextAlignment="MiddleCenter" StyleName="scLabel" BorderColor="Gray" Borders="All" BorderWidth="0.5" BorderDashStyle="Dot">
+                  <StylePriority Ref="15" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseBorderDashStyle="false" UseTextAlignment="false" />
+                </Item4>
+                <Item5 Ref="16" ControlType="XRTableCell" Name="lcItemTotal" Weight="2.1976488489179662" CanGrow="false" Multiline="true" TextFitMode="ShrinkOnly" Text="Total" TextAlignment="MiddleRight" StyleName="scLabel" BorderColor="Gray" Borders="All" BorderWidth="0.5" BorderDashStyle="Dot">
+                  <StylePriority Ref="17" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseBorderDashStyle="false" UseTextAlignment="false" />
+                </Item5>
+              </Cells>
+            </Item1>
+          </Rows>
+          <StylePriority Ref="18" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseBorderDashStyle="false" />
+        </Item1>
+        <Item2 Ref="19" ControlType="XRLabel" Name="lcItemName" CanGrow="false" TextFitMode="ShrinkOnly" Text="Name" TextAlignment="MiddleLeft" SizeF="269.999878,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" BorderColor="Gray" Borders="Top, Bottom" BorderWidth="0.5" BorderDashStyle="Dot">
+          <StylePriority Ref="20" UseFont="false" UseForeColor="false" UseBackColor="false" UsePadding="false" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseBorderDashStyle="false" UseTextAlignment="false" />
+        </Item2>
+      </Controls>
+    </Item4>
+    <Item5 Ref="21" ControlType="ReportFooterBand" Name="ReportFooter" HeightF="17.92383">
+      <SubBands>
+        <Item1 Ref="22" ControlType="SubBand" Name="sbItemsCount" HeightF="20">
+          <Controls>
+            <Item1 Ref="23" ControlType="XRLabel" Name="lcItemsCount_" CanGrow="false" TextFitMode="ShrinkOnly" Text="Items Count:" TextAlignment="MiddleLeft" SizeF="94.99994,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" BorderColor="Gray" Borders="None" BorderWidth="0.5">
+              <StylePriority Ref="24" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="25" ControlType="XRLabel" Name="lcItemsCount" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleRight" SizeF="174.999878,20" LocationFloat="95, 0" StyleName="scData" Padding="2,2,0,0,100" BorderColor="Gray" Borders="None" BorderWidth="0.5">
+              <Summary Ref="26" Running="Report" />
+              <ExpressionBindings>
+                <Item1 Ref="27" Expression="sumCount([FK_InvoiceReceiptR_InvoiceReceiptDetailR].[ID])" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="28" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+        </Item1>
+        <Item2 Ref="29" ControlType="SubBand" Name="sbTotalQtys" Expanded="false" HeightF="20">
+          <Controls>
+            <Item1 Ref="30" ControlType="XRLabel" Name="lcTotalQtys_" CanGrow="false" TextFitMode="ShrinkOnly" Text="Total Qtys:" TextAlignment="MiddleLeft" SizeF="94.99994,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" BorderColor="Gray" Borders="None" BorderWidth="0.5">
+              <StylePriority Ref="31" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="32" ControlType="XRLabel" Name="lcTotalQtys" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleRight" SizeF="174.999878,20" LocationFloat="95, 0" StyleName="scData" Padding="2,2,0,0,100" BorderColor="Gray" Borders="None" BorderWidth="0.5">
+              <ExpressionBindings>
+                <Item1 Ref="33" Expression="[TotalQtys]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="34" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+        </Item2>
+        <Item3 Ref="35" ControlType="SubBand" Name="sbTotal" Expanded="false" HeightF="20">
+          <Controls>
+            <Item1 Ref="36" ControlType="XRLabel" Name="XrLabel24" CanGrow="false" TextFitMode="ShrinkOnly" Text="Last Balance:" TextAlignment="MiddleRight" SizeF="174.999878,20" LocationFloat="95, 0" StyleName="scData" Padding="2,2,0,0,100" BorderColor="Gray" Borders="None" BorderWidth="0.5">
+              <ExpressionBindings>
+                <Item1 Ref="37" Expression="[Total]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="38" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="39" ControlType="XRLabel" Name="XrLabel23" CanGrow="false" TextFitMode="ShrinkOnly" Text="Subtotal:" TextAlignment="MiddleLeft" SizeF="94.99994,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" BorderColor="Gray" Borders="None" BorderWidth="0.5">
+              <StylePriority Ref="40" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+          <ExpressionBindings>
+            <Item1 Ref="41" Expression="Iif([Total] = '', False, ?)" PropertyName="Visible" EventName="BeforePrint" />
+          </ExpressionBindings>
+        </Item3>
+        <Item4 Ref="42" ControlType="SubBand" Name="sbDiscount" Expanded="false" HeightF="20">
+          <Controls>
+            <Item1 Ref="43" ControlType="XRLabel" Name="XrLabel10" CanGrow="false" TextFitMode="ShrinkOnly" Text="Last Balance:" TextAlignment="MiddleRight" SizeF="174.999878,20" LocationFloat="95, 0" StyleName="scData" Padding="2,2,0,0,100" Borders="None">
+              <ExpressionBindings>
+                <Item1 Ref="44" Expression="[Discount]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="45" UseBorders="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="46" ControlType="XRLabel" Name="XrLabel9" CanGrow="false" TextFitMode="ShrinkOnly" Text="Discount:" TextAlignment="MiddleLeft" SizeF="94.99994,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" Borders="None">
+              <StylePriority Ref="47" UseBorders="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+          <ExpressionBindings>
+            <Item1 Ref="48" Expression="Iif([Discount] = '', False, ?)" PropertyName="Visible" EventName="BeforePrint" />
+          </ExpressionBindings>
+        </Item4>
+        <Item5 Ref="49" ControlType="SubBand" Name="sbTax" Expanded="false" HeightF="20">
+          <Controls>
+            <Item1 Ref="50" ControlType="XRLabel" Name="XrLabel5" CanGrow="false" TextFitMode="ShrinkOnly" Text="Last Balance:" TextAlignment="MiddleRight" SizeF="174.999878,20" LocationFloat="95, 0" StyleName="scData" Padding="2,2,0,0,100" Borders="None">
+              <ExpressionBindings>
+                <Item1 Ref="51" Expression="[TaxValue]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="52" UseBorders="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="53" ControlType="XRLabel" Name="XrLabel7" CanGrow="false" TextFitMode="ShrinkOnly" Text="Tax:" TextAlignment="MiddleLeft" SizeF="94.99994,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" Borders="None">
+              <StylePriority Ref="54" UseBorders="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+          <ExpressionBindings>
+            <Item1 Ref="55" Expression="Iif([TaxValue] = '', False, ?)" PropertyName="Visible" EventName="BeforePrint" />
+          </ExpressionBindings>
+        </Item5>
+        <Item6 Ref="56" ControlType="SubBand" Name="sbTaxLL" Expanded="false" HeightF="20">
+          <Controls>
+            <Item1 Ref="57" ControlType="XRLabel" Name="lcTaxLL_" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleLeft" SizeF="94.99994,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" BorderColor="Gray" Borders="None" BorderWidth="0.5">
+              <ExpressionBindings>
+                <Item1 Ref="58" Expression="[TaxValueLLLabel]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="59" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="60" ControlType="XRLabel" Name="lcTaxLL" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleRight" SizeF="174.999878,20" LocationFloat="95, 0" StyleName="scData" Padding="2,2,0,0,100" BorderColor="Gray" Borders="None" BorderWidth="0.5">
+              <ExpressionBindings>
+                <Item1 Ref="61" Expression="[TaxValueLL]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="62" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+          <ExpressionBindings>
+            <Item1 Ref="63" Expression="Iif([TaxValueLL] = '', False, ?)" PropertyName="Visible" EventName="BeforePrint" />
+          </ExpressionBindings>
+        </Item6>
+        <Item7 Ref="64" ControlType="SubBand" Name="sbRounding" Expanded="false" HeightF="20">
+          <Controls>
+            <Item1 Ref="65" ControlType="XRLabel" Name="lcRounding_" CanGrow="false" TextFitMode="ShrinkOnly" Text="Rounding:" TextAlignment="MiddleLeft" SizeF="94.99994,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" Borders="None">
+              <StylePriority Ref="66" UseBorders="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="67" ControlType="XRLabel" Name="lcRounding" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleRight" SizeF="174.999878,20" LocationFloat="95, 0" StyleName="scData" Padding="2,2,0,0,100" Borders="None">
+              <ExpressionBindings>
+                <Item1 Ref="68" Expression="[Rounding]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="69" UseBorders="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+          <ExpressionBindings>
+            <Item1 Ref="70" Expression="Iif([Rounding] = '', False, ?)" PropertyName="Visible" EventName="BeforePrint" />
+          </ExpressionBindings>
+        </Item7>
+        <Item8 Ref="71" ControlType="SubBand" Name="sbNet" Expanded="false" HeightF="20">
+          <Controls>
+            <Item1 Ref="72" ControlType="XRLabel" Name="teNet" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleRight" SizeF="174.999878,20" LocationFloat="95, 0" StyleName="scData" Padding="2,2,0,0,100" Borders="None">
+              <ExpressionBindings>
+                <Item1 Ref="73" Expression="[Net]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="74" UseBorders="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="75" ControlType="XRLabel" Name="XrLabel15" CanGrow="false" TextFitMode="ShrinkOnly" Text="Total:" TextAlignment="MiddleLeft" SizeF="94.99994,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" Borders="None">
+              <StylePriority Ref="76" UseBorders="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+        </Item8>
+        <Item9 Ref="77" ControlType="SubBand" Name="sbNetBy" Expanded="false" HeightF="20">
+          <Controls>
+            <Item1 Ref="78" ControlType="XRLabel" Name="XrLabel20" CanGrow="false" TextFitMode="ShrinkOnly" Text="Total Is Equal:" TextAlignment="MiddleLeft" SizeF="94.99994,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" Borders="None">
+              <StylePriority Ref="79" UseBorders="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="80" ControlType="XRLabel" Name="teNetBy" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleRight" SizeF="174.999878,20" LocationFloat="95, 0" StyleName="scData" Padding="2,2,0,0,100" Borders="None">
+              <ExpressionBindings>
+                <Item1 Ref="81" Expression="[NetBy]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="82" UseBorders="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+          <ExpressionBindings>
+            <Item1 Ref="83" Expression="Iif([NetBy] = '', False, ?)" PropertyName="Visible" EventName="BeforePrint" />
+          </ExpressionBindings>
+        </Item9>
+        <Item10 Ref="84" ControlType="SubBand" Name="sbExchangeRate" Expanded="false" HeightF="20">
+          <Controls>
+            <Item1 Ref="85" ControlType="XRLabel" Name="lcExchangeRate_" CanGrow="false" TextFitMode="ShrinkOnly" Text="Exchange Rate:" TextAlignment="MiddleLeft" SizeF="94.99994,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" Borders="None">
+              <StylePriority Ref="86" UseBorders="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="87" ControlType="XRLabel" Name="lcExchangeRate" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleRight" SizeF="174.999878,20" LocationFloat="95, 0" StyleName="scData" Padding="2,2,0,0,100" Borders="None">
+              <ExpressionBindings>
+                <Item1 Ref="88" Expression="[ExchangeRateLL]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="89" UseBorders="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+          <ExpressionBindings>
+            <Item1 Ref="90" Expression="Iif([ExchangeRate] = '', False, ?)" PropertyName="Visible" EventName="BeforePrint" />
+          </ExpressionBindings>
+        </Item10>
+        <Item11 Ref="91" ControlType="SubBand" Name="sbExchangeRateLL" Expanded="false" HeightF="20">
+          <Controls>
+            <Item1 Ref="92" ControlType="XRLabel" Name="lcExchangeRateLL_" CanGrow="false" TextFitMode="ShrinkOnly" Text="Exchange Rate:" TextAlignment="MiddleLeft" SizeF="94.99994,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" BorderColor="Gray" Borders="None" BorderWidth="0.5">
+              <StylePriority Ref="93" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="94" ControlType="XRLabel" Name="lcExchangeRateLL" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleRight" SizeF="174.999878,20" LocationFloat="95, 0" StyleName="scData" Padding="2,2,0,0,100" BorderColor="Gray" Borders="None" BorderWidth="0.5">
+              <ExpressionBindings>
+                <Item1 Ref="95" Expression="[ExchangeRateLL]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="96" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+          <ExpressionBindings>
+            <Item1 Ref="97" Expression="Iif([ExchangeRateLL] = '', False, ?)" PropertyName="Visible" EventName="BeforePrint" />
+          </ExpressionBindings>
+        </Item11>
+        <Item12 Ref="98" ControlType="SubBand" Name="sbExchangeRateEuro" Expanded="false" HeightF="20">
+          <Controls>
+            <Item1 Ref="99" ControlType="XRLabel" Name="lcExchangeRateEuro_" CanGrow="false" TextFitMode="ShrinkOnly" Text="Exchange Rate:" TextAlignment="MiddleLeft" SizeF="94.99994,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" BorderColor="Gray" Borders="None" BorderWidth="0.5">
+              <StylePriority Ref="100" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="101" ControlType="XRLabel" Name="lcExchangeRateEuro" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleRight" SizeF="174.999878,20" LocationFloat="95, 0" StyleName="scData" Padding="2,2,0,0,100" BorderColor="Gray" Borders="None" BorderWidth="0.5">
+              <ExpressionBindings>
+                <Item1 Ref="102" Expression="[ExchangeRateEuro]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="103" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+          <ExpressionBindings>
+            <Item1 Ref="104" Expression="Iif([ExchangeRateEuro] = '', False, ?)" PropertyName="Visible" EventName="BeforePrint" />
+          </ExpressionBindings>
+        </Item12>
+        <Item13 Ref="105" ControlType="SubBand" Name="sbPaymentMethod" Expanded="false" HeightF="20">
+          <Controls>
+            <Item1 Ref="106" ControlType="XRLabel" Name="lcPaymentMethod_" CanGrow="false" TextFitMode="ShrinkOnly" Text="Payment Method:" TextAlignment="MiddleLeft" SizeF="120.000015,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" BorderColor="Gray" Borders="None" BorderWidth="0.5">
+              <StylePriority Ref="107" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="108" ControlType="XRLabel" Name="lcPaymentMethod" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleRight" SizeF="149.999863,20" LocationFloat="120, 0" StyleName="scData" Padding="2,2,0,0,100" BorderColor="Gray" Borders="None" BorderWidth="0.5">
+              <ExpressionBindings>
+                <Item1 Ref="109" Expression="[PaymentMethod]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="110" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+          <ExpressionBindings>
+            <Item1 Ref="111" Expression="Iif([PaymentMethod] = '', False, ?)" PropertyName="Visible" EventName="BeforePrint" />
+          </ExpressionBindings>
+        </Item13>
+        <Item14 Ref="112" ControlType="SubBand" Name="sbFirstPayment" Expanded="false" HeightF="20">
+          <Controls>
+            <Item1 Ref="113" ControlType="XRLabel" Name="lcFirstPayment_" CanGrow="false" TextFitMode="ShrinkOnly" Text="First Payment:" TextAlignment="MiddleLeft" SizeF="120.000015,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" BorderColor="Gray" Borders="None" BorderWidth="0.5">
+              <StylePriority Ref="114" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="115" ControlType="XRLabel" Name="lcFirstPayment" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleRight" SizeF="149.999863,20" LocationFloat="120, 0" StyleName="scData" Padding="2,2,0,0,100" BorderColor="Gray" Borders="None" BorderWidth="0.5">
+              <ExpressionBindings>
+                <Item1 Ref="116" Expression="[FirstPayment]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="117" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+          <ExpressionBindings>
+            <Item1 Ref="118" Expression="Iif([FirstPayment] = '', False, ?)" PropertyName="Visible" EventName="BeforePrint" />
+          </ExpressionBindings>
+        </Item14>
+        <Item15 Ref="119" ControlType="SubBand" Name="sbSecondPayment" Expanded="false" HeightF="20">
+          <Controls>
+            <Item1 Ref="120" ControlType="XRLabel" Name="lcSecondPayment_" CanGrow="false" TextFitMode="ShrinkOnly" Text="Second Payment:" TextAlignment="MiddleLeft" SizeF="120.000015,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" BorderColor="Gray" Borders="None" BorderWidth="0.5">
+              <StylePriority Ref="121" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="122" ControlType="XRLabel" Name="lcSecondPayment" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleRight" SizeF="149.999863,20" LocationFloat="120, 0" StyleName="scData" Padding="2,2,0,0,100" BorderColor="Gray" Borders="None" BorderWidth="0.5">
+              <ExpressionBindings>
+                <Item1 Ref="123" Expression="[SecondPayment]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="124" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+          <ExpressionBindings>
+            <Item1 Ref="125" Expression="Iif([SecondPayment] = '', False, ?)" PropertyName="Visible" EventName="BeforePrint" />
+          </ExpressionBindings>
+        </Item15>
+        <Item16 Ref="126" ControlType="SubBand" Name="sbPaidUp" Expanded="false" HeightF="20">
+          <Controls>
+            <Item1 Ref="127" ControlType="XRLabel" Name="lcPaidUp_" CanGrow="false" TextFitMode="ShrinkOnly" Text="Paid Up:" TextAlignment="MiddleLeft" SizeF="120.000015,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" BorderColor="Gray" Borders="None" BorderWidth="0.5">
+              <StylePriority Ref="128" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="129" ControlType="XRLabel" Name="lcPaidUp" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleRight" SizeF="149.999863,20" LocationFloat="120, 0" StyleName="scData" Padding="2,2,0,0,100" BorderColor="Gray" Borders="None" BorderWidth="0.5">
+              <ExpressionBindings>
+                <Item1 Ref="130" Expression="[PaidUp]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="131" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+          <ExpressionBindings>
+            <Item1 Ref="132" Expression="Iif([PaidUp] = '', False, ?)" PropertyName="Visible" EventName="BeforePrint" />
+          </ExpressionBindings>
+        </Item16>
+        <Item17 Ref="133" ControlType="SubBand" Name="sbMoneyReceived" Expanded="false" HeightF="22">
+          <Controls>
+            <Item1 Ref="134" ControlType="XRLabel" Name="lcMoneyReceived_" CanGrow="false" TextFitMode="ShrinkOnly" Text="Money Received:" AnchorVertical="Both" TextAlignment="MiddleLeft" SizeF="120.000015,22" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,2,0,100" Borders="None">
+              <StylePriority Ref="135" UsePadding="false" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="136" ControlType="XRLabel" Name="lcMoneyReceived" Multiline="true" TextAlignment="TopRight" SizeF="150,22" LocationFloat="120, 0" StyleName="scData" Padding="2,2,2,0,100" Borders="None">
+              <ExpressionBindings>
+                <Item1 Ref="137" Expression="[MoneyReceived]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="138" UsePadding="false" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+        </Item17>
+        <Item18 Ref="139" ControlType="SubBand" Name="sbMoneyReturned" Expanded="false" HeightF="22">
+          <Controls>
+            <Item1 Ref="140" ControlType="XRLabel" Name="lcMoneyReturned_" CanGrow="false" TextFitMode="ShrinkOnly" Text="Money Returned:" AnchorVertical="Both" TextAlignment="MiddleLeft" SizeF="120.000015,22" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,2,0,100" Borders="None">
+              <StylePriority Ref="141" UsePadding="false" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="142" ControlType="XRLabel" Name="lcMoneyReturned" Multiline="true" TextAlignment="TopRight" SizeF="150,22" LocationFloat="120, 0" StyleName="scData" Padding="2,2,2,0,100" Borders="None">
+              <ExpressionBindings>
+                <Item1 Ref="143" Expression="[MoneyReturned]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="144" UsePadding="false" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+        </Item18>
+        <Item19 Ref="145" ControlType="SubBand" Name="sbPreviousBalance" Expanded="false" HeightF="20">
+          <Controls>
+            <Item1 Ref="146" ControlType="XRLabel" Name="lcPreviousBalance_" CanGrow="false" TextFitMode="ShrinkOnly" Text="Previous Balance:" TextAlignment="MiddleLeft" SizeF="120.000015,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" BorderColor="Gray" Borders="None" BorderWidth="0.5">
+              <StylePriority Ref="147" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="148" ControlType="XRLabel" Name="lcPreviousBalance" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleRight" SizeF="149.999863,20" LocationFloat="120, 0" StyleName="scData" Padding="2,2,0,0,100" BorderColor="Gray" Borders="None" BorderWidth="0.5">
+              <ExpressionBindings>
+                <Item1 Ref="149" Expression="[PreviousBalance]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="150" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+          <ExpressionBindings>
+            <Item1 Ref="151" Expression="Iif([PreviousBalance] = '', False, ?)" PropertyName="Visible" EventName="BeforePrint" />
+          </ExpressionBindings>
+        </Item19>
+        <Item20 Ref="152" ControlType="SubBand" Name="sbRest" Expanded="false" HeightF="20">
+          <Controls>
+            <Item1 Ref="153" ControlType="XRLabel" Name="lcRest_" CanGrow="false" TextFitMode="ShrinkOnly" Text="Rest:" TextAlignment="MiddleLeft" SizeF="120.000015,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" BorderColor="Gray" Borders="None" BorderWidth="0.5">
+              <StylePriority Ref="154" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="155" ControlType="XRLabel" Name="lcRest" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleRight" SizeF="149.999863,20" LocationFloat="120, 0" StyleName="scData" Padding="2,2,0,0,100" BorderColor="Gray" Borders="None" BorderWidth="0.5">
+              <ExpressionBindings>
+                <Item1 Ref="156" Expression="[Rest]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="157" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+          <ExpressionBindings>
+            <Item1 Ref="158" Expression="Iif([Rest] = '', False, ?)" PropertyName="Visible" EventName="BeforePrint" />
+          </ExpressionBindings>
+        </Item20>
+        <Item21 Ref="159" ControlType="SubBand" Name="sbCurrentBalance" Expanded="false" HeightF="20">
+          <Controls>
+            <Item1 Ref="160" ControlType="XRLabel" Name="lcCurrentBalance_" CanGrow="false" TextFitMode="ShrinkOnly" Text="Current Balance:" TextAlignment="MiddleLeft" SizeF="120.000015,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" Borders="None">
+              <EditOptions Ref="161" Enabled="true" />
+              <StylePriority Ref="162" UseBorders="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="163" ControlType="XRLabel" Name="lcCurrentBalance" CanGrow="false" TextFitMode="ShrinkOnly" Text="Last Balance:" TextAlignment="MiddleRight" SizeF="149.999863,20" LocationFloat="120, 0" StyleName="scData" Padding="2,2,0,0,100" Borders="None">
+              <EditOptions Ref="164" Enabled="true" />
+              <ExpressionBindings>
+                <Item1 Ref="165" Expression="[CurrentBalance]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="166" UseBorders="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+        </Item21>
+        <Item22 Ref="167" ControlType="SubBand" Name="sbInvoicePoints" HeightF="20">
+          <Controls>
+            <Item1 Ref="168" ControlType="XRLabel" Name="lcInvoicePoints_" CanGrow="false" TextFitMode="ShrinkOnly" Text="Invoice Points:" TextAlignment="MiddleLeft" SizeF="120.000015,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" Borders="None">
+              <EditOptions Ref="169" Enabled="true" />
+              <StylePriority Ref="170" UseBorders="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="171" ControlType="XRLabel" Name="lcInvoicePoints" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleRight" SizeF="149.999863,20" LocationFloat="120, 0" StyleName="scData" Padding="2,2,0,0,100" Borders="None">
+              <EditOptions Ref="172" Enabled="true" />
+              <ExpressionBindings>
+                <Item1 Ref="173" Expression="[InvoicePoints]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="174" UseBorders="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+          <ExpressionBindings>
+            <Item1 Ref="175" Expression="Iif([InvoicePoints] = '', False, ?)" PropertyName="Visible" EventName="BeforePrint" />
+          </ExpressionBindings>
+        </Item22>
+        <Item23 Ref="176" ControlType="SubBand" Name="sbPointsBalance" HeightF="20">
+          <Controls>
+            <Item1 Ref="177" ControlType="XRLabel" Name="lcPointsBalance_" CanGrow="false" TextFitMode="ShrinkOnly" Text="Points Balance:" TextAlignment="MiddleLeft" SizeF="120.000015,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" Borders="None">
+              <EditOptions Ref="178" Enabled="true" />
+              <StylePriority Ref="179" UseBorders="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="180" ControlType="XRLabel" Name="lcPointsBalance" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleRight" SizeF="149.999863,20" LocationFloat="120, 0" StyleName="scData" Padding="2,2,0,0,100" Borders="None">
+              <EditOptions Ref="181" Enabled="true" />
+              <ExpressionBindings>
+                <Item1 Ref="182" Expression="[PointsBalance]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="183" UseBorders="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+          <ExpressionBindings>
+            <Item1 Ref="184" Expression="Iif([PointsBalance] = '', False, ?)" PropertyName="Visible" EventName="BeforePrint" />
+          </ExpressionBindings>
+        </Item23>
+        <Item24 Ref="185" ControlType="SubBand" Name="sbFooter1" Expanded="false" HeightF="55">
+          <Controls>
+            <Item1 Ref="186" ControlType="XRLine" Name="XrLine4" LineWidth="0.5" SizeF="270,2.08" LocationFloat="0, 2.5" ForeColor="Black">
+              <StylePriority Ref="187" UseForeColor="false" UseBorderDashStyle="false" />
+            </Item1>
+            <Item2 Ref="188" ControlType="XRLabel" Name="lcProgrammingBy" CanGrow="false" TextFitMode="ShrinkOnly" Text="© Powered by I-Code 2023, 71-783142" TextAlignment="MiddleCenter" SizeF="270,20" LocationFloat="0, 32.5" Font="Segoe UI, 9.75pt" BorderColor="Gray" Borders="Top" BorderWidth="0.5" BorderDashStyle="Dot">
+              <StylePriority Ref="189" UseFont="false" UsePadding="false" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseBorderDashStyle="false" UseTextAlignment="false" />
+            </Item2>
+            <Item3 Ref="190" ControlType="XRLabel" Name="XrLabel13" Multiline="true" CanShrink="true" TextAlignment="MiddleCenter" SizeF="270,20" LocationFloat="0, 9.499998" StyleName="scLabel">
+              <ExpressionBindings>
+                <Item1 Ref="191" Expression="[ReportLogo.FooterIs]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="192" UsePadding="false" UseTextAlignment="false" />
+            </Item3>
+          </Controls>
+        </Item24>
+      </SubBands>
+      <Controls>
+        <Item1 Ref="193" ControlType="XRLabel" Name="lcLineEndDetail" TextAlignment="MiddleCenter" SizeF="269.999878,10.0000038" LocationFloat="0, 5" StyleName="scLabel" Padding="0,0,0,0,100" BorderColor="Gray" Borders="Top" BorderWidth="1">
+          <Summary Ref="194" Func="Count" />
+          <StylePriority Ref="195" UseFont="false" UseForeColor="false" UseBackColor="false" UsePadding="false" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseBorderDashStyle="false" UseTextAlignment="false" />
+        </Item1>
+      </Controls>
+    </Item5>
+    <Item6 Ref="196" ControlType="DetailReportBand" Name="DetailReport2" Level="0" DataMember="InvoiceReceiptR.FK_InvoiceReceiptR_InvoiceReceiptDetailR" DataSource="#Ref-0" Expanded="false">
+      <Bands>
+        <Item1 Ref="197" ControlType="DetailBand" Name="Detail3" KeepTogetherWithDetailReports="true" HeightF="40">
+          <Controls>
+            <Item1 Ref="198" ControlType="XRTable" Name="tItem" ProcessHiddenCellMode="ResizeCellsProportionally" SizeF="270,40" LocationFloat="0, 0" BorderColor="Gray" BorderWidth="0.5">
+              <Rows>
+                <Item1 Ref="199" ControlType="XRTableRow" Name="XrTableRow1" Weight="11.5">
+                  <Cells>
+                    <Item1 Ref="200" ControlType="XRTableCell" Name="tcItemName" Weight="1.0588348440921966" Multiline="true" TextAlignment="BottomLeft" StyleName="scData" Padding="2,2,0,0,100" BorderColor="0,0,0,0">
+                      <ExpressionBindings>
+                        <Item1 Ref="201" Expression="[Name]" PropertyName="Text" EventName="BeforePrint" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="202" UsePadding="false" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseTextAlignment="false" />
+                    </Item1>
+                  </Cells>
+                </Item1>
+                <Item2 Ref="203" ControlType="XRTableRow" Name="trDetail" Weight="11.5">
+                  <Cells>
+                    <Item1 Ref="204" ControlType="XRTableCell" Name="tcItemPrice" Weight="0.36020714447163804" CanGrow="false" Multiline="true" TextFitMode="ShrinkOnly" TextAlignment="TopLeft" StyleName="scData" Padding="2,2,0,0,100" Borders="None">
+                      <ExpressionBindings>
+                        <Item1 Ref="205" Expression="[Price]" PropertyName="Text" EventName="BeforePrint" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="206" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item1>
+                    <Item2 Ref="207" ControlType="XRTableCell" Name="tcItemDiscount" Weight="0.18010398174860196" CanGrow="false" Multiline="true" TextFitMode="ShrinkOnly" TextAlignment="TopCenter" StyleName="scData" Padding="2,2,0,0,100" Borders="None">
+                      <ExpressionBindings>
+                        <Item1 Ref="208" Expression="[Qty]" PropertyName="Text" EventName="BeforePrint" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="209" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item2>
+                    <Item3 Ref="210" ControlType="XRTableCell" Name="tcItemQty" Weight="0.36020713722011072" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="TopLeft" WordWrap="false" StyleName="scData" Padding="0,0,0,0,100" Borders="None">
+                      <ExpressionBindings>
+                        <Item1 Ref="211" Expression="[Unit]" PropertyName="Text" EventName="BeforePrint" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="212" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item3>
+                    <Item4 Ref="213" ControlType="XRTableCell" Name="lcDiscount" Weight="0.30017276859473052" CanGrow="false" Multiline="true" TextFitMode="ShrinkOnly" TextAlignment="TopCenter" StyleName="scData" Padding="0,0,0,0,100" Borders="None">
+                      <ExpressionBindings>
+                        <Item1 Ref="214" Expression="[Discount]" PropertyName="Text" EventName="BeforePrint" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="215" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item4>
+                    <Item5 Ref="216" ControlType="XRTableCell" Name="tcItemTotal" Weight="0.42024186754482212" CanGrow="false" Multiline="true" TextFitMode="ShrinkOnly" TextAlignment="TopRight" StyleName="scData" Padding="2,2,0,0,100" Borders="None">
+                      <ExpressionBindings>
+                        <Item1 Ref="217" Expression="[Total]" PropertyName="Text" EventName="BeforePrint" />
+                      </ExpressionBindings>
+                      <StylePriority Ref="218" UsePadding="false" UseBorders="false" UseTextAlignment="false" />
+                    </Item5>
+                  </Cells>
+                </Item2>
+              </Rows>
+              <StylePriority Ref="219" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" />
+            </Item1>
+          </Controls>
+        </Item1>
+      </Bands>
+    </Item6>
+    <Item7 Ref="220" ControlType="ReportHeaderBand" Name="ReportHeader" Expanded="false" HeightF="0">
+      <SubBands>
+        <Item1 Ref="221" ControlType="SubBand" Name="sbImage" Expanded="false" HeightF="95.00004">
+          <Controls>
+            <Item1 Ref="222" ControlType="XRPictureBox" Name="peLogo" Padding="7,7,7,7,100" Sizing="ZoomImage" SizeF="269.999969,95.00004" LocationFloat="0, 0">
+              <ExpressionBindings>
+                <Item1 Ref="223" Expression="[ReportLogo.ImageIs]" PropertyName="ImageSource" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="224" UsePadding="false" />
+            </Item1>
+          </Controls>
+        </Item1>
+        <Item2 Ref="225" ControlType="SubBand" Name="sbHeaderReport" Expanded="false" HeightF="77.23484">
+          <Controls>
+            <Item1 Ref="226" ControlType="XRLine" Name="XrLine1" LineWidth="0.5" SizeF="270,2.08" LocationFloat="0, 65" ForeColor="Black">
+              <StylePriority Ref="227" UseForeColor="false" UseBorderDashStyle="false" />
+            </Item1>
+            <Item2 Ref="228" ControlType="XRLabel" Name="lcLogoAddress" Multiline="true" CanShrink="true" Text="Lebanon - Tripoli" TextAlignment="MiddleCenter" SizeF="270,19.9999657" LocationFloat="0, 34.99999" StyleName="scLabel">
+              <ExpressionBindings>
+                <Item1 Ref="229" Expression="[ReportLogo.HeaderIs]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="230" UseFont="false" UsePadding="false" UseTextAlignment="false" />
+            </Item2>
+            <Item3 Ref="231" ControlType="XRLabel" Name="lcLogoCompany" CanShrink="true" TextAlignment="MiddleCenter" SizeF="270,35.0000153" LocationFloat="0, 0" StyleName="scTitle">
+              <ExpressionBindings>
+                <Item1 Ref="232" Expression="[ReportLogo.TitleReport]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="233" UseFont="false" UsePadding="false" UseTextAlignment="false" />
+            </Item3>
+          </Controls>
+        </Item2>
+        <Item3 Ref="234" ControlType="SubBand" Name="sbTitle" Expanded="false" HeightF="30">
+          <Controls>
+            <Item1 Ref="235" ControlType="XRLabel" Name="lcTitle" CanGrow="false" TextFitMode="ShrinkOnly" Text="INVOICE" TextAlignment="MiddleCenter" SizeF="270,30" LocationFloat="0, 0" StyleName="scTitle">
+              <EditOptions Ref="236" Enabled="true" />
+              <StylePriority Ref="237" UseFont="false" UsePadding="false" UseTextAlignment="false" />
+            </Item1>
+          </Controls>
+        </Item3>
+        <Item4 Ref="238" ControlType="SubBand" Name="sbDate" Expanded="false" HeightF="20.0000038">
+          <Controls>
+            <Item1 Ref="239" ControlType="XRLabel" Name="XrLabel2" CanGrow="false" TextFitMode="ShrinkOnly" Text="Date:" TextAlignment="MiddleLeft" SizeF="60,20" LocationFloat="0, 3.81469727E-06" StyleName="scLabel" Padding="2,2,0,0,100" Borders="None">
+              <EditOptions Ref="240" Enabled="true" />
+              <StylePriority Ref="241" UseBorders="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="242" ControlType="XRLabel" Name="XrLabel3" CanGrow="false" TextFitMode="ShrinkOnly" Text="Last Balance:" TextAlignment="MiddleLeft" SizeF="209.999969,20" LocationFloat="60, 0" StyleName="scData" Padding="2,2,0,0,100" Borders="None">
+              <EditOptions Ref="243" Enabled="true" />
+              <ExpressionBindings>
+                <Item1 Ref="244" Expression="[DateIs]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="245" UseBorders="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+        </Item4>
+        <Item5 Ref="246" ControlType="SubBand" Name="sbRef" Expanded="false" HeightF="20">
+          <Controls>
+            <Item1 Ref="247" ControlType="XRLabel" Name="XrLabel6" CanGrow="false" TextFitMode="ShrinkOnly" Text="Last Balance:" TextAlignment="MiddleLeft" SizeF="209.999954,20" LocationFloat="59.99995, 0" StyleName="scData" Padding="2,2,0,0,100" Borders="None">
+              <EditOptions Ref="248" Enabled="true" />
+              <ExpressionBindings>
+                <Item1 Ref="249" Expression="[Ref]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="250" UseBorders="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="251" ControlType="XRLabel" Name="XrLabel16" CanGrow="false" TextFitMode="ShrinkOnly" Text="Ref:" TextAlignment="MiddleLeft" SizeF="60,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" Borders="None">
+              <EditOptions Ref="252" Enabled="true" />
+              <StylePriority Ref="253" UseBorders="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+          <ExpressionBindings>
+            <Item1 Ref="254" Expression="Iif([Ref] = '', False, ?)" PropertyName="Visible" EventName="BeforePrint" />
+          </ExpressionBindings>
+        </Item5>
+        <Item6 Ref="255" ControlType="SubBand" Name="sbUser" Expanded="false" HeightF="20">
+          <Controls>
+            <Item1 Ref="256" ControlType="XRLabel" Name="XrLabel19" CanGrow="false" TextFitMode="ShrinkOnly" Text="Last Balance:" TextAlignment="MiddleLeft" SizeF="209.999954,20" LocationFloat="59.99998, 0" StyleName="scData" Padding="2,2,0,0,100" Borders="None">
+              <EditOptions Ref="257" Enabled="true" />
+              <ExpressionBindings>
+                <Item1 Ref="258" Expression="[UserIs]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="259" UseBorders="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="260" ControlType="XRLabel" Name="XrLabel12" CanGrow="false" TextFitMode="ShrinkOnly" Text="By:" TextAlignment="MiddleLeft" SizeF="60,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" Borders="None">
+              <EditOptions Ref="261" Enabled="true" />
+              <StylePriority Ref="262" UseBorders="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+        </Item6>
+        <Item7 Ref="263" ControlType="SubBand" Name="sbPricingType" Expanded="false" HeightF="20">
+          <Controls>
+            <Item1 Ref="264" ControlType="XRLabel" Name="lcPricingType" TextAlignment="MiddleLeft" SizeF="169.999924,20" LocationFloat="100.000015, 0" StyleName="scData" Padding="2,2,0,0,100" Borders="None">
+              <EditOptions Ref="265" Enabled="true" />
+              <ExpressionBindings>
+                <Item1 Ref="266" Expression="[PricingType]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="267" UseBorders="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="268" ControlType="XRLabel" Name="lcPricingType_" Text="Pricing Type:" TextAlignment="MiddleLeft" SizeF="100.000015,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" Borders="None">
+              <EditOptions Ref="269" Enabled="true" />
+              <StylePriority Ref="270" UseBorders="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+        </Item7>
+        <Item8 Ref="271" ControlType="SubBand" Name="sbSalesperson" Expanded="false" HeightF="20">
+          <Controls>
+            <Item1 Ref="272" ControlType="XRLabel" Name="lcSalesperson_" CanGrow="false" TextFitMode="ShrinkOnly" Text="Salesperson:" TextAlignment="MiddleLeft" SizeF="100.000015,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" Borders="None">
+              <EditOptions Ref="273" Enabled="true" />
+              <StylePriority Ref="274" UseBorders="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="275" ControlType="XRLabel" Name="lcSalesperson" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleLeft" SizeF="169.999924,20" LocationFloat="100.000015, 0" StyleName="scData" Padding="2,2,0,0,100" Borders="None">
+              <EditOptions Ref="276" Enabled="true" />
+              <ExpressionBindings>
+                <Item1 Ref="277" Expression="[Salesperson]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="278" UseBorders="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+        </Item8>
+        <Item9 Ref="279" ControlType="SubBand" Name="sbCustomer" Expanded="false" HeightF="20">
+          <Controls>
+            <Item1 Ref="280" ControlType="XRLabel" Name="lcAccount" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleLeft" SizeF="234.999939,20" LocationFloat="35.0000076, 0" StyleName="scData" Padding="2,2,0,0,100" Borders="None">
+              <EditOptions Ref="281" Enabled="true" />
+              <ExpressionBindings>
+                <Item1 Ref="282" Expression="[Name]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="283" UseBorders="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="284" ControlType="XRLabel" Name="XrLabel17" CanGrow="false" TextFitMode="ShrinkOnly" Text="To:" TextAlignment="MiddleLeft" SizeF="35.0000076,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" Borders="None">
+              <EditOptions Ref="285" Enabled="true" />
+              <StylePriority Ref="286" UseBorders="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+        </Item9>
+        <Item10 Ref="287" ControlType="SubBand" Name="sbPhones" Expanded="false" HeightF="20">
+          <Controls>
+            <Item1 Ref="288" ControlType="XRLabel" Name="lcPhones" Multiline="true" TextAlignment="TopLeft" SizeF="235,20" LocationFloat="35.0000076, 0" StyleName="scData" Padding="2,2,0,0,100" Borders="None" BorderDashStyle="Dash">
+              <ExpressionBindings>
+                <Item1 Ref="289" Expression="[Phones]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="290" UseBorders="false" UseBorderDashStyle="false" UseTextAlignment="false" />
+            </Item1>
+          </Controls>
+        </Item10>
+        <Item11 Ref="291" ControlType="SubBand" Name="sbAddress" Expanded="false" HeightF="20">
+          <Controls>
+            <Item1 Ref="292" ControlType="XRLabel" Name="lcAddress" Multiline="true" TextAlignment="TopLeft" SizeF="270,20" LocationFloat="0, 0" StyleName="scData" Padding="2,2,0,0,100" Borders="None">
+              <ExpressionBindings>
+                <Item1 Ref="293" Expression="[AddressIs]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="294" UseBorders="false" UseBorderDashStyle="false" UseTextAlignment="false" />
+            </Item1>
+          </Controls>
+          <ExpressionBindings>
+            <Item1 Ref="295" Expression="Iif([AddressIs] = '', False, ?)" PropertyName="Visible" EventName="BeforePrint" />
+          </ExpressionBindings>
+        </Item11>
+        <Item12 Ref="296" ControlType="SubBand" Name="sbSubjectIs" Expanded="false" HeightF="40">
+          <Controls>
+            <Item1 Ref="297" ControlType="XRLabel" Name="lcSubjectIs" Multiline="true" TextAlignment="MiddleLeft" SizeF="269.999878,20" LocationFloat="0, 20" StyleName="scData" Padding="2,2,0,0,100" Borders="None">
+              <EditOptions Ref="298" Enabled="true" />
+              <ExpressionBindings>
+                <Item1 Ref="299" Expression="[SubjectIs]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="300" UseBorders="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="301" ControlType="XRLabel" Name="lcSubjectIs_" CanGrow="false" TextFitMode="ShrinkOnly" Text="Subject:" TextAlignment="MiddleLeft" SizeF="109.999939,20" LocationFloat="0, 0" StyleName="scLabel" Padding="2,2,0,0,100" Borders="None">
+              <EditOptions Ref="302" Enabled="true" />
+              <StylePriority Ref="303" UseBorders="false" UseTextAlignment="false" />
+            </Item2>
+          </Controls>
+          <ExpressionBindings>
+            <Item1 Ref="304" Expression="Iif([SubjectIs] = '', False, ?)" PropertyName="Visible" EventName="BeforePrint" />
+          </ExpressionBindings>
+        </Item12>
+        <Item13 Ref="305" ControlType="SubBand" Name="sbItemLine" Expanded="false" HeightF="15">
+          <Controls>
+            <Item1 Ref="306" ControlType="XRLabel" Name="XrLabel11" TextAlignment="MiddleCenter" SizeF="270,2" LocationFloat="0, 5" StyleName="scLabel" Padding="0,0,0,0,100" BorderColor="Gray" Borders="Top" BorderWidth="1">
+              <Summary Ref="307" Func="Count" />
+              <StylePriority Ref="308" UseFont="false" UseForeColor="false" UseBackColor="false" UsePadding="false" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseBorderDashStyle="false" UseTextAlignment="false" />
+            </Item1>
+          </Controls>
+        </Item13>
+        <Item14 Ref="309" ControlType="SubBand" Name="sbInvoiceTitle" Expanded="false" HeightF="30">
+          <Controls>
+            <Item1 Ref="310" ControlType="XRLabel" Name="lcInvoiceTitle" CanGrow="false" TextFitMode="ShrinkOnly" TextAlignment="MiddleCenter" SizeF="270,30" LocationFloat="0, 0" StyleName="scTitle">
+              <EditOptions Ref="311" Enabled="true" />
+              <ExpressionBindings>
+                <Item1 Ref="312" Expression="[InvoiceTitle]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="313" UseFont="false" UsePadding="false" UseTextAlignment="false" />
+            </Item1>
+          </Controls>
+          <ExpressionBindings>
+            <Item1 Ref="314" Expression="Iif([InvoiceTitle] = '' Or [InvoiceTitle] = '-', False, ?)" PropertyName="Visible" EventName="BeforePrint" />
+          </ExpressionBindings>
+        </Item14>
+      </SubBands>
+    </Item7>
+  </Bands>
+  <StyleSheet>
+    <Item1 Ref="315" Name="scTitle" BorderStyle="Inset" Font="Segoe UI, 12pt, style=Bold" StringFormat="Near;Near;0;None;Character;Default" />
+    <Item2 Ref="316" Name="scData" BorderStyle="Inset" Font="Segoe UI, 8.25pt" StringFormat="Near;Near;0;None;Character;Default" />
+    <Item3 Ref="317" Name="scLabel" BorderStyle="Inset" Font="Segoe UI, 8.25pt, style=Bold, charSet=0" StringFormat="Near;Near;0;None;Character;Default" />
+  </StyleSheet>
+  <ComponentStorage>
+    <Item1 Ref="0" />
+  </ComponentStorage>
+</XtraReportsLayoutSerializer>
