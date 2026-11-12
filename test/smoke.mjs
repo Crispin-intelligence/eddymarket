@@ -1,0 +1,45 @@
+// End-to-end smoke test: starts a throwaway store on a random port and exercises the main flows.
+import { spawn } from 'node:child_process';
+import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import assert from 'node:assert/strict';
+const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'eddy-')); const port = 3100 + Math.floor(Math.random() * 500);
+const srv = spawn('node', ['--disable-warning=ExperimentalWarning', new URL('../server.js', import.meta.url).pathname], { env: { ...process.env, PORT: port, DATA_DIR: dir, STORE_ID: 'test' } });
+let out = ''; srv.stdout.on('data', (d) => (out += d)); srv.stderr.on('data', (d) => (out += d));
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+const base = `http://localhost:${port}`;
+const call = async (p, o = {}, tok) => { const r = await fetch(base + p, { method: o.method || 'GET', headers: { 'Content-Type': 'application/json', ...(tok ? { Authorization: 'Bearer ' + tok } : {}) }, body: o.body ? JSON.stringify(o.body) : undefined }); return { s: r.status, j: await r.json().catch(() => null) }; };
+let pass = 0; const ok = (c, m) => { assert.ok(c, m); pass++; console.log('  ok  ' + m); };
+try {
+  for (let n = 0; n < 40 && !out.includes('Eddy OS'); n++) await wait(150);
+  const pin = fs.readFileSync(path.join(dir, 'test.owner-pin.txt'), 'utf8').trim();
+  const users = (await call('/api/users')).j; ok(users.length === 1 && users[0].role === 'owner', 'first run creates one owner');
+  ok((await call('/api/login', { method: 'POST', body: { user_id: users[0].id, pin: '000000' } })).s === 401, 'wrong PIN rejected');
+  const L = await call('/api/login', { method: 'POST', body: { user_id: users[0].id, pin } }); ok(L.s === 200 && L.j.token, 'owner logs in'); const tok = L.j.token;
+  ok((await call('/api/items')).s === 401, 'items need login');
+  const items = (await call('/api/items?limit=500', {}, tok)).j; ok(items.total >= 40, `demo catalogue loaded (${items.total})`);
+  const lab = (await call('/api/items?q=labneh', {}, tok)).j.items[0]; ok(lab && lab.price_ll === Math.round(lab.price_cents / 100 * 90000 / 1000) * 1000, 'price has LL equivalent');
+  const ar = (await call('/api/items?q=' + encodeURIComponent('لبنه'), {}, tok)).j; ok(ar.total >= 1, 'Arabic search finds item despite spelling variant (ة/ه)');
+  const bc = await call('/api/items/barcode/' + lab.barcode, {}, tok); ok(bc.s === 200 && bc.j.id === lab.id, 'barcode lookup');
+  const k = await call('/api/kiosk/lookup?barcode=' + lab.barcode); ok(k.s === 200 && !('stock' in k.j) && !('cost_cents' in k.j), 'kiosk lookup is public and hides stock and cost');
+  const ks = await call('/api/kiosk/search?q=' + encodeURIComponent('how much is the labneh')); ok(ks.j.length >= 1, 'kiosk loose search handles a spoken sentence');
+  const kg = (await call('/api/items?q=tomatoes', {}, tok)).j.items[0]; const before = lab.stock;
+  const bad = await call('/api/sales', { method: 'POST', body: { lines: [{ item_id: lab.id, qty: 1 }], method: 'cash', currency: 'USD', tendered: 1 } }, tok); ok(bad.s === 400, 'underpayment rejected');
+  const sale = await call('/api/sales', { method: 'POST', body: { lines: [{ item_id: lab.id, qty: 2 }, { item_id: kg.id, qty: 1.5 }], method: 'cash', currency: 'USD', tendered: 10 } }, tok);
+  const expect = lab.price_cents * 2 + Math.round(1.5 * kg.price_cents);
+  ok(sale.s === 200 && sale.j.total_cents === expect, `sale total computed on the server (${expect} cents)`); ok(sale.j.change_cents === 1000 - expect, 'change computed');
+  const after = (await call('/api/items/barcode/' + lab.barcode, {}, tok)).j; ok(after.stock === before - 2, 'stock decreased');
+  const ll = await call('/api/sales', { method: 'POST', body: { lines: [{ item_id: lab.id, qty: 1 }], method: 'cash', currency: 'LL', tendered: lab.price_ll } }, tok); ok(ll.s === 200, 'exact LL payment accepted');
+  const dash = (await call('/api/dashboard', {}, tok)).j; ok(dash.today.count === 2 && dash.top_week.length > 0 && dash.days.length === 7, 'dashboard counts today and 7 days');
+  const v = await call(`/api/sales/${sale.j.id}/void`, { method: 'POST' }, tok); ok(v.j.status === 'void', 'void works');
+  ok((await call('/api/items/barcode/' + lab.barcode, {}, tok)).j.stock === before - 1, 'void returns stock');
+  ok((await call('/api/dashboard', {}, tok)).j.today.count === 1, 'voided sale leaves the totals');
+  const cu = await call('/api/admin/users', { method: 'POST', body: { name: 'Rima', role: 'cashier', pin: '4321' } }, tok); ok(cu.s === 200, 'owner adds a cashier');
+  const c = await call('/api/login', { method: 'POST', body: { user_id: cu.j.id, pin: '4321' } }); const ct = c.j.token;
+  ok((await call('/api/dashboard', {}, ct)).s === 403, 'cashier cannot open the dashboard');
+  ok((await call('/api/items', { method: 'POST', body: { barcode: '1', name: 'x', price_usd: 1 } }, ct)).s === 403, 'cashier cannot add items');
+  ok(!('cost_cents' in (await call('/api/items?q=labneh', {}, ct)).j.items[0]), 'cashier does not see item cost');
+  const imp = await call('/api/items/import', { method: 'POST', body: { rows: [{ barcode: '7777', name: 'Test item', name_ar: 'صنف', category: 'snacks', price_usd: '1.25', stock: '5', extra_barcodes: '8888;9999' }] } }, tok); ok(imp.j.created === 1, 'CSV import creates an item');
+  ok((await call('/api/items/barcode/9999', {}, tok)).s === 200, 'extra barcode resolves to the item');
+  ok((await fetch(base + '/../../etc/passwd')).status !== 200 && (await fetch(base + '/%2e%2e/server.js')).status === 404, 'static path traversal blocked');
+  ok((await fetch(base + '/')).status === 200 && (await fetch(base + '/kiosk')).status === 200, 'till and kiosk pages are served');
+  console.log(`\n${pass} checks passed`);
+} catch (e) { console.error('\nFAILED:', e.message, '\n', out.slice(-600)); process.exitCode = 1; } finally { srv.kill(); fs.rmSync(dir, { recursive: true, force: true }); }

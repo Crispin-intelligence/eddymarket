@@ -1,3 +1,5 @@
+> Needs for the **legacy** FlexiBills system Eddy OS is replacing. Section B (security) still applies today. For Eddy OS itself see [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
+
 # Needs & next steps
 
 ## A. Blockers / decisions (need Crispin)

@@ -13,3 +13,5 @@ Text.log
 SaveLayoutGrid/
 SaveLayoutTree/
 *.bak
+data/
+node_modules/

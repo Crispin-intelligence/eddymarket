@@ -1,0 +1,9 @@
+{
+  "name": "eddy-os",
+  "version": "0.1.0",
+  "description": "Eddy OS - web POS and customer price screen for supermarkets, by Ci",
+  "type": "module",
+  "private": true,
+  "engines": { "node": ">=22.5" },
+  "scripts": { "start": "node --disable-warning=ExperimentalWarning server.js", "test": "node --disable-warning=ExperimentalWarning test/smoke.mjs" }
+}
