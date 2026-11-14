@@ -99,7 +99,7 @@ function authUser(req) {
 // ---------- money + search ----------
 const toLL = (cents, rate) => Math.round((cents / 100) * rate / 1000) * 1000;
 const AR_DIGITS = '٠١٢٣٤٥٦٧٨٩';
-const norm = (s) => String(s ?? '').toLowerCase()
+const norm = (s) => String(s ?? '').toLowerCase().replace(/[\u00C0-\u024F]/g, (c) => c.normalize('NFD').replace(/[\u0300-\u036f]/g, ''))
   .replace(/[ً-ْٰـ]/g, '').replace(/[إأآ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه')
   .replace(/[٠-٩]/g, (d) => AR_DIGITS.indexOf(d)).replace(/\s+/g, ' ').trim();
 
@@ -114,22 +114,73 @@ function loadCache() {
   }
   cache = db.prepare('SELECT id,barcode,name,name_ar,category,price_cents,cost_cents,stock,min_stock,unit,updated_at,(image IS NOT NULL AND image<>\'\') AS has_image FROM items WHERE active=1 ORDER BY name').all()
     .map((i) => ({ ...i, has_image: !!i.has_image, extra: extra.get(i.id) || [], h: norm(`${i.name} ${i.name_ar} ${i.category} ${i.barcode} ${(extra.get(i.id) || []).join(' ')}`) }));
+  cache.vocab = new Set(); for (const i of cache) for (const w of i.h.split(' ')) if (w && !/^\d+$/.test(w)) cache.vocab.add(w);
   return cache;
+}
+// Synonym groups (EN / FR / AR / common misspellings). A query word matches an item if the item contains the word or any synonym.
+const SYN = [
+  ['cigarette', 'cigarettes', 'cigarete', 'cigarret', 'cigar', 'tobacco', 'tabac', 'دخان', 'سجاير', 'سجائر', 'سيجاره', 'سيجارة', 'تبغ', 'دخّان'],
+  ['chocolat', 'chocolate', 'choco', 'choc', 'شوكولا', 'شوكولاته', 'شوكلاته', 'شوكولاتة', 'شوكلا'],
+  ['biscuit', 'biscuits', 'cookie', 'cookies', 'بسكويت', 'بسكوت'],
+  ['water', 'eau', 'ماء', 'مياه', 'موية'],
+  ['juice', 'jus', 'عصير'],
+  ['milk', 'lait', 'حليب'],
+  ['bread', 'pain', 'خبز'],
+  ['coffee', 'cafe', 'قهوه', 'قهوة', 'نسكافيه', 'nescafe'],
+  ['cheese', 'fromage', 'جبنه', 'جبنة'],
+  ['chips', 'crisps', 'شيبس'],
+  ['soda', 'drink', 'drinks', 'boisson', 'مشروب', 'مشروبات'],
+  ['mars', 'مارس'], ['cedars', 'cedar', 'cedre', 'سيدرز', 'سيدرس', 'ارز'], ['pepsi', 'بيبسي'], ['cola', 'كولا', 'coca'], ['snickers', 'سنيكرز'], ['twix', 'تويكس'], ['kitkat', 'كيتكات'], ['nutella', 'نوتيلا'],
+].map((g) => [...new Set(g.map((w) => norm(w)))]);
+const SYNMAP = new Map(); for (const g of SYN) for (const w of g) SYNMAP.set(w, g);
+const isWordy = (t) => t.length < 3 && !/^\d+$/.test(t);
+const matches = (h, t) => (isWordy(t) ? (' ' + h + ' ').includes(' ' + t + ' ') : h.includes(t));
+function editDist(a, b, max) {
+  if (Math.abs(a.length - b.length) > max) return max + 1;
+  let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    const cur = [i]; let min = i;
+    for (let j = 1; j <= b.length; j++) { cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); if (cur[j] < min) min = cur[j]; }
+    if (min > max) return max + 1; prev = cur;
+  }
+  return prev[b.length];
+}
+function expand(t) {
+  const alts = new Set([t]);
+  for (const w of SYNMAP.get(t) || []) alts.add(w);
+  if (t.length >= 8 && t.endsWith('s')) alts.add(t.slice(0, -1));
+  return [...alts];
 }
 function search(q, { loose = false, category = '', limit = 60, offset = 0 } = {}) {
   let list = loadCache();
   if (category) list = list.filter((i) => i.category === category);
-  const tokens = norm(q).split(' ').filter(Boolean);
+  const tokens = norm(q).replace(/[^\p{L}\p{N}\s.]/gu, ' ').replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
   let out = list;
   if (tokens.length) {
-    const need = loose ? 1 : tokens.length;
-    out = [];
-    for (const i of list) {
-      const score = tokens.reduce((n, t) => n + (i.h.includes(t) ? 1 : 0), 0);
-      if (score >= need) out.push({ i, score });
-    }
-    out.sort((a, b) => b.score - a.score || a.i.name.length - b.i.name.length);
-    out = out.map((x) => x.i);
+    const terms = tokens.map(expand);
+    const col = (alts) => list.map((i) => alts.some((a) => matches(i.h, a)));
+    let cols = terms.map(col);
+    // A word nothing matches (typo): borrow the closest words from the catalogue's vocabulary.
+    cols.forEach((c, k) => {
+      if (c.some(Boolean) || tokens[k].length < 4 || /^\d+$/.test(tokens[k])) return;
+      const max = tokens[k].length >= 7 ? 2 : 1, near = [];
+      for (const w of loadCache().vocab) if (w.length >= 3 && editDist(tokens[k], w, max) <= max) near.push(w);
+      if (near.length) { terms[k] = [...terms[k], ...near.slice(0, 12)]; cols[k] = col(terms[k]); }
+    });
+    const df = cols.map((c) => c.reduce((n, x) => n + (x ? 1 : 0), 0));
+    const w = df.map((d) => Math.log((list.length + 1) / (d + 1)) + 0.1);
+    const rows = [];
+    list.forEach((i, r) => {
+      let score = 0, all = true;
+      cols.forEach((c, k) => { if (c[r]) score += w[k]; else all = false; });
+      if (score > 0) rows.push({ i, score, all });
+    });
+    const strict = rows.filter((x) => x.all);
+    let pick = strict;
+    if (loose || !strict.length) pick = rows; // nothing matches every word: show what matches the most distinctive ones
+    const first = tokens[0];
+    pick.sort((a, b) => (b.all - a.all) || b.score - a.score || (b.i.name.toLowerCase().startsWith(first) - a.i.name.toLowerCase().startsWith(first)) || a.i.name.length - b.i.name.length);
+    out = pick.map((x) => x.i);
   }
   return { total: out.length, rows: out.slice(offset, offset + limit) };
 }

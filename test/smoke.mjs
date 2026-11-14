@@ -46,6 +46,9 @@ try {
   const bd = await fetch(base + '/api/admin/backups/' + bk.j.name, { headers: { Authorization: 'Bearer ' + tok } }); ok(bd.status === 200 && (await bd.arrayBuffer()).byteLength > 4096, 'backup downloads as a database file');
   ok((await call('/api/admin/backups', {}, ct)).s === 403 && (await fetch(base + '/api/admin/backups/..%2Fserver.js', { headers: { Authorization: 'Bearer ' + tok } })).status === 404, 'cashier cannot reach backups; path traversal blocked');
   ok((await fetch(base + '/sw.js')).status === 200 && (await fetch(base + '/manifest.webmanifest')).status === 200, 'offline shell files are served');
+  ok((await call('/api/items?q=cigarettes', {}, tok)).j.total >= 1, 'search: "cigarettes" finds the tobacco items');
+  ok((await call('/api/items?q=lebneh', {}, tok)).j.items.some((i) => /labneh/i.test(i.name)), 'search: a misspelling still finds the item');
+  const rl = (await call('/api/items?q=' + encodeURIComponent('labneh chocolat'), {}, tok)).j; ok(rl.total >= 1 && /labneh/i.test(rl.items[0].name), 'search: when no item has every word, the best partial match is shown');
   // --- printer: fake ESC/POS device on a local TCP port ---
   const net = await import('node:net'); const got = []; const fake = net.createServer((sk) => { const b = []; sk.on('data', (d) => b.push(d)); sk.on('end', () => got.push(Buffer.concat(b))); }); await new Promise((r) => fake.listen(0, '127.0.0.1', r)); const pp = fake.address().port;
   ok((await call('/api/admin/printer', {}, ct)).s === 403 && (await call('/api/admin/printer', { method: 'PUT', body: { mode: 'lan' } }, ct)).s === 403, 'cashier cannot change printer settings');
