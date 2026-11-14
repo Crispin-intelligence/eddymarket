@@ -1,16 +1,16 @@
-// Eddy Market customer shop: browse, cart, order for pickup or delivery. Orders land in the till's Orders screen.
+// Eddy’s Market customer shop: browse, cart, order for pickup or delivery. Orders land in the till's Orders screen.
 (() => {
   const $ = (s, r = document) => r.querySelector(s);
   const LS = { get(k, d) { try { const v = localStorage.getItem('eddyshop.' + k); return v == null ? d : JSON.parse(v); } catch { return d; } }, set(k, v) { try { localStorage.setItem('eddyshop.' + k, JSON.stringify(v)); } catch { /* private mode */ } } };
   const T = {
     en: { store: 'Store', cats: 'Categories', saved: 'Saved', orders: 'Orders', search: 'Search products', open: 'Open', closed: 'Closed', closed_msg: 'Ordering is closed right now. Come back soon.',
-      hero: 'Fresh from Eddy Market', hero_sub: 'Order here. Pick up or get it delivered.', rate: 'You can pay in Lebanese pounds', pickup: 'Pickup', delivery: 'Delivery', pickup_sub: 'Ready when you arrive', delivery_sub: 'Brought to your door',
+      hero: 'Fresh from Eddy’s Market', hero_sub: 'Order here. Pick up or get it delivered.', rate: 'You can pay in Lebanese pounds', pickup: 'Pickup', delivery: 'Delivery', pickup_sub: 'Ready when you arrive', delivery_sub: 'Brought to your door',
       featured: 'Featured', recent: 'Recently added', shop_cat: 'Shop by category', see_all: 'See all', add: 'Add', add_cart: 'Add to cart', in_cart: 'In your cart', similar: 'Similar products', load_more: 'Show more',
       cart: 'Cart', cart_empty: 'Your cart is empty', cart_empty_sub: 'Add something you like.', keep: 'Keep shopping', total: 'Total', your_details: 'Your details', name: 'Your name', phone: 'Phone number (WhatsApp)', address: 'Delivery address', note: 'Note for the store (optional)',
       place: 'Place order', placing: 'Sending…', pay_note: 'You pay when you pick up or when it arrives.', no_results: 'Nothing found', no_results_sub: 'Try another word or check the spelling.', saved_empty: 'Nothing saved yet', saved_empty_sub: 'Tap the heart on a product to keep it here.',
       buy_again: 'Buy it again', wishlist: 'Wish list', no_orders: 'No orders yet', no_orders_sub: 'Your orders will show here.', order: 'Order', thanks: 'Order sent!', thanks_sub: 'The store will confirm it shortly. Keep this code:', send_wa: 'Send on WhatsApp', track: 'Track my order', again: 'Order again', items: 'items',
       s_new: 'Received', s_accepted: 'Accepted', s_ready: 'Ready', s_done: 'Completed', s_rejected: 'Not available', lang: 'عربي', pc: 'piece', added: 'Added to cart', unavail: 'This item is no longer available',
-      wa_hi: 'Hello Eddy Market, my order', cat_dairy: 'Dairy', cat_bakery: 'Bakery', cat_produce: 'Fruits & vegetables', cat_meat: 'Meat & poultry', cat_frozen: 'Frozen', cat_pantry: 'Pantry', cat_snacks: 'Snacks & sweets', cat_drinks: 'Drinks', cat_cleaning: 'Cleaning', cat_personal: 'Personal care', cat_other: 'More products', cat_tobacco: 'Tobacco', cat_alcohol: 'Alcohol', pay_title: 'Payment', pay_cash: 'Cash on delivery / pickup', pay_card: 'Card machine on delivery / pickup', pay_whish: 'Whish Money', whish_note: 'Send the total on Whish to', whish_ref: 'and write your order code in the note.', paid: 'Paid', unpaid: 'Not paid yet' },
+      wa_hi: 'Hello Eddy’s Market, my order', cat_dairy: 'Dairy', cat_bakery: 'Bakery', cat_produce: 'Fruits & vegetables', cat_meat: 'Meat & poultry', cat_frozen: 'Frozen', cat_pantry: 'Pantry', cat_snacks: 'Snacks & sweets', cat_drinks: 'Drinks', cat_cleaning: 'Cleaning', cat_personal: 'Personal care', cat_other: 'More products', cat_tobacco: 'Tobacco', cat_alcohol: 'Alcohol', pay_title: 'Payment', pay_cash: 'Cash on delivery / pickup', pay_card: 'Card machine on delivery / pickup', pay_whish: 'Whish Money', whish_note: 'Send the total on Whish to', whish_ref: 'and write your order code in the note.', paid: 'Paid', unpaid: 'Not paid yet' },
     ar: { store: 'المتجر', cats: 'الأقسام', saved: 'المفضلة', orders: 'طلباتي', search: 'ابحث عن منتج', open: 'مفتوح', closed: 'مغلق', closed_msg: 'الطلبات متوقفة حالياً. عد قريباً.',
       hero: 'طازج من إيدي ماركت', hero_sub: 'اطلب من هنا. استلام أو توصيل.', rate: 'يمكنك الدفع بالليرة اللبنانية', pickup: 'استلام', delivery: 'توصيل', pickup_sub: 'جاهز عند وصولك', delivery_sub: 'يصلك إلى الباب', 
       featured: 'مميزة', recent: 'أضيفت حديثاً', shop_cat: 'تسوّق حسب القسم', see_all: 'عرض الكل', add: 'أضف', add_cart: 'أضف إلى السلة', in_cart: 'في سلتك', similar: 'منتجات مشابهة', load_more: 'عرض المزيد',
@@ -26,7 +26,7 @@
   const catName = (c) => T[lang]['cat_' + c] || c.replace(/[_-]/g, ' ');
   const nm = (i) => (lang === 'ar' && i.name_ar) || i.name;
   const usd = (c) => '$' + (c / 100).toFixed(2);
-  let HOME = { rate: 90000, open: true, wa: '', store_name: 'Eddy Market' };
+  let HOME = { rate: 90000, open: true, wa: '', store_name: 'Eddy’s Market' };
   const llOf = (c) => (Math.round((c / 100) * HOME.rate / 1000) * 1000).toLocaleString('en-US') + ' LL';
   const ITEMS = new Map(); const keep = (list) => { list.forEach((i) => ITEMS.set(i.id, i)); return list; };
   let cart = LS.get('cart', []), wish = LS.get('wish', []), myOrders = LS.get('orders', []), me = LS.get('me', { name: '', phone: '', address: '' }), mode = LS.get('mode', 'pickup'), pay = LS.get('pay', 'cash');

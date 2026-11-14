@@ -1,8 +1,8 @@
 {
  "id": "/",
- "name": "Eddy OS",
+ "name": "Eddy’s Market",
  "short_name": "Eddy",
- "description": "Point of sale and price screen for Eddy Market",
+ "description": "Point of sale and price screen for Eddy’s Market",
  "start_url": "/",
  "scope": "/",
  "display": "standalone",

@@ -3,7 +3,7 @@
   const I = window.I18N, t = (k, v) => I.t(k, v);
   const $ = (s) => document.querySelector(s);
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  let store = 'Eddy Market', resetTimer, rec = null, stream = null, camTimer = null;
+  let store = 'Eddy’s Market', resetTimer, rec = null, stream = null, camTimer = null;
   const FILLER = new Set(['how', 'much', 'is', 'the', 'price', 'of', 'for', 'a', 'an', 'what', 'whats', "what's", 'does', 'cost', 'costs', 'do', 'you', 'have', 'i', 'want', 'need', 'please', 'are', 'this', 'that', 'كم', 'سعر', 'بكم', 'شو', 'ما', 'هو', 'هل', 'عندكم', 'عندك', 'بدي', 'لو', 'سمحت', 'ثمن', 'تمن', 'قديش', 'أريد', 'اريد', 'هذا', 'هاد', 'هيدا']);
   const stripFiller = (s) => { const w = s.split(/\s+/).filter((x) => !FILLER.has(x.toLowerCase())); return w.length ? w.join(' ') : s; };
   const pic = (i) => i.has_image ? `<img src="/img/${i.id}?v=${encodeURIComponent(i.v)}" alt="">` : I.catIcon(i.category);

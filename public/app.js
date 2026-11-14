@@ -3,7 +3,7 @@
   const $ = (s, el = document) => el.querySelector(s);
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const SS = { get: (k) => { try { return sessionStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { sessionStorage.setItem(k, v); } catch { /* storage may be blocked */ } }, del: (k) => { try { sessionStorage.removeItem(k); } catch { /* ignore */ } } };
-  const S = { token: SS.get('tok') || '', user: null, set: { store_name: 'Eddy Market', rate: 90000, tz: 'Asia/Beirut' }, view: 'sell',
+  const S = { token: SS.get('tok') || '', user: null, set: { store_name: 'Eddy’s Market', rate: 90000, tz: 'Asia/Beirut' }, view: 'sell',
     cart: [], cat: '', q: '', items: [], total: 0, cats: [], seq: 0, pay: null, itemQ: '', pinUser: null, pin: '' };
   const isOwner = () => S.user?.role === 'owner';
   const toLL = (c) => Math.round((c / 100) * S.set.rate / 1000) * 1000;
@@ -380,7 +380,7 @@
       <div class="card"><h2>${t('photos')}</h2><div id="phcfg"></div></div>
       <div class="card"><h2>${t('shop_card')}</h2><div id="shopcfg"></div></div>
       <div class="card"><h2>${t('printer')}</h2><div id="prn"></div></div>
-      <div class="card"><h2>Eddy OS</h2><p class="muted" style="margin:0">Designed and built by <b>Crispin Intelligence (Ci)</b>, Lebanon.<br>© 2026 Crispin Geagea. All rights reserved.<br><a href="https://ci-ccg.com" target="_blank" rel="noopener">ci-ccg.com</a></p></div>
+      <div class="card"><h2>Eddy’s Market</h2><p class="muted" style="margin:0">Designed and built by <b>Crispin Intelligence (Ci)</b>, Lebanon.<br>© 2026 Crispin Geagea. All rights reserved.<br><a href="https://ci-ccg.com" target="_blank" rel="noopener">ci-ccg.com</a></p></div>
       <div class="card"><h2>${t('backups')}</h2><p class="muted" style="margin-top:0">${t('backup_info')}</p><div id="bk"></div><div class="row"><button class="btn pri" data-act="backupnow">${t('backup_now')}</button></div></div></div>`;
     drawTeam(); drawBackups(); drawPrinter(); drawShopCfg(); drawPhotos();
   }

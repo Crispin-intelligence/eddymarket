@@ -2,7 +2,7 @@
 (function () {
   const ls = (op, v) => { try { return op === 'get' ? localStorage.getItem('lang') : localStorage.setItem('lang', v); } catch { return null; } };
   const en = {
-    app_name: 'Eddy OS', powered: 'Powered by Ci',
+    app_name: 'Eddy’s Market', powered: 'Powered by Ci',
     sell: 'Sell', items: 'Items', sales: 'Sales', dashboard: 'Dashboard', settings: 'Settings', kiosk: 'Price screen', logout: 'Sign out',
     login_title: 'Who is at the till?', enter_pin: 'Enter your PIN', wrong_pin: 'Wrong PIN. Try again.', locked: 'Too many tries. Wait 5 minutes.',
     search_ph: 'Scan a barcode or type a name', all: 'All', cart: 'Current sale', cart_empty: 'Scan an item or tap one to start the sale.',

@@ -47,10 +47,11 @@ CREATE INDEX IF NOT EXISTS ix_saleitems_item ON sale_items(item_id);
 `);
 
 // ---------- settings ----------
-const DEFAULTS = { store_name: 'Eddy Market', rate: '90000', footer: 'Thank you for shopping with us', tz: 'Asia/Beirut', shop_on: '1', shop_wa: '', shop_card: '1', shop_whish: '', photo_auto: '1' };
+const DEFAULTS = { store_name: 'Eddy’s Market', rate: '90000', footer: 'Thank you for shopping with us', tz: 'Asia/Beirut', shop_on: '1', shop_wa: '', shop_card: '1', shop_whish: '', photo_auto: '1' };
 const getSetting = (k) => db.prepare('SELECT value FROM settings WHERE key=?').get(k)?.value ?? DEFAULTS[k];
 const setSetting = (k, v) => db.prepare('INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value').run(k, String(v));
 const publicSettings = () => ({ shop_card: getSetting('shop_card') === '1', shop_whish: getSetting('shop_whish'), photo_auto: getSetting('photo_auto') === '1', shop_on: getSetting('shop_on') === '1', shop_wa: getSetting('shop_wa'), store_name: getSetting('store_name'), rate: +getSetting('rate'), footer: getSetting('footer'), tz: getSetting('tz'), store_id: STORE, print_mode: getSetting('print_mode') || 'browser', print_auto: getSetting('print_auto') === '1', print_drawer: getSetting('print_drawer') === '1' });
+if (getSetting('store_name') === 'Eddy Market') setSetting('store_name', DEFAULTS.store_name); // renamed brand
 
 // ---------- users / auth ----------
 const hashPin = (pin, salt) => crypto.scryptSync(String(pin), salt, 32).toString('hex');

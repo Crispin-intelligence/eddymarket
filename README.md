@@ -1,4 +1,4 @@
-# Eddy OS
+# Eddy’s Market
 
 A web point-of-sale and customer price screen for supermarkets, built by Ci (Crispin Intelligence). Made first for Eddy Market, designed so other village shops can run the same system.
 
@@ -46,4 +46,4 @@ Items > Import CSV, with these columns: `barcode, name, name_ar, category, price
 `server.js` API and database, `seed.js` demo items, `public/` till and kiosk, `test/` end-to-end test, `sql/` and `database/` reference material from the old system, `docs/` notes. Next steps are in [ROADMAP.md](ROADMAP.md).
 
 ---
-Eddy OS is designed and built by Crispin Intelligence (Ci). © 2026 Crispin Geagea. All rights reserved. See LICENSE.
+Eddy’s Market is designed and built by Crispin Intelligence (Ci). © 2026 Crispin Geagea. All rights reserved. See LICENSE.
