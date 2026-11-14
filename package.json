@@ -4,7 +4,8 @@
   "description": "Eddy OS - web POS and customer price screen for supermarkets, by Ci",
   "type": "module",
   "private": true,
-  "author": "Crispin Geagea - Crispin Intelligence (Ci)",
+  "author": "Crispin Intelligence (Ci)",
+  "homepage": "https://ccg.support",
   "license": "UNLICENSED",
   "engines": { "node": ">=22.5" },
   "scripts": { "start": "node --disable-warning=ExperimentalWarning server.js", "test": "node --disable-warning=ExperimentalWarning test/smoke.mjs && node --disable-warning=ExperimentalWarning test/photos.mjs" }

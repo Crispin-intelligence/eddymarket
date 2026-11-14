@@ -46,4 +46,4 @@ Items > Import CSV, with these columns: `barcode, name, name_ar, category, price
 `server.js` API and database, `seed.js` demo items, `public/` till and kiosk, `test/` end-to-end test, `sql/` and `database/` reference material from the old system, `docs/` notes. Next steps are in [ROADMAP.md](ROADMAP.md).
 
 ---
-Eddy’s Market is designed and built by Crispin Intelligence (Ci). © 2026 Crispin Geagea. All rights reserved. See LICENSE.
+Eddy’s Market is a product of Crispin Intelligence (Ci), Lebanon. © 2026 Crispin Intelligence. All rights reserved. See LICENSE. https://ccg.support

@@ -66,7 +66,7 @@
   function drawLogin(err) {
     const head = `<span class="tag">${esc(S.set.store_name)}</span>`;
     if (!S.pinUser) {
-      $('#lbox').innerHTML = `${head}<h1>${t('login_title')}</h1><div class="users">${S.users.map((u) => `<button data-act="pickuser" data-id="${u.id}">${esc(u.name)}</button>`).join('')}</div><div class="by">${t('powered')}</div>`;
+      $('#lbox').innerHTML = `${head}<h1>${t('login_title')}</h1><div class="users">${S.users.map((u) => `<button data-act="pickuser" data-id="${u.id}">${esc(u.name)}</button>`).join('')}</div><div class="by"><a href="https://ccg.support" target="_blank" rel="noopener">${t('powered')}</a></div>`;
       return;
     }
     const dots = Array.from({ length: Math.max(4, S.pin.length) }, (_, n) => `<i class="${n < S.pin.length ? 'f' : ''}"></i>`).join('');
@@ -380,7 +380,7 @@
       <div class="card"><h2>${t('photos')}</h2><div id="phcfg"></div></div>
       <div class="card"><h2>${t('shop_card')}</h2><div id="shopcfg"></div></div>
       <div class="card"><h2>${t('printer')}</h2><div id="prn"></div></div>
-      <div class="card"><h2>Eddy’s Market</h2><p class="muted" style="margin:0">Designed and built by <b>Crispin Intelligence (Ci)</b>, Lebanon.<br>© 2026 Crispin Geagea. All rights reserved.<br><a href="https://ci-ccg.com" target="_blank" rel="noopener">ci-ccg.com</a></p></div>
+      <div class="card"><h2>Eddy’s Market</h2><p class="muted" style="margin:0;line-height:1.7">A product of <b>Crispin Intelligence (Ci)</b>, Lebanon.<br>© 2026 Crispin Intelligence. All rights reserved.<br>Copying, resale or use in another business without a licence is not permitted.<br><a href="https://ccg.support" target="_blank" rel="noopener">ccg.support</a></p></div>
       <div class="card"><h2>${t('backups')}</h2><p class="muted" style="margin-top:0">${t('backup_info')}</p><div id="bk"></div><div class="row"><button class="btn pri" data-act="backupnow">${t('backup_now')}</button></div></div></div>`;
     drawTeam(); drawBackups(); drawPrinter(); drawShopCfg(); drawPhotos();
   }
