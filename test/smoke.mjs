@@ -45,6 +45,7 @@ try {
   const bl = await call('/api/admin/backups', {}, tok); ok(bl.s === 200 && bl.j.length >= 1, 'backups are listed');
   const bd = await fetch(base + '/api/admin/backups/' + bk.j.name, { headers: { Authorization: 'Bearer ' + tok } }); ok(bd.status === 200 && (await bd.arrayBuffer()).byteLength > 4096, 'backup downloads as a database file');
   ok((await call('/api/admin/backups', {}, ct)).s === 403 && (await fetch(base + '/api/admin/backups/..%2Fserver.js', { headers: { Authorization: 'Bearer ' + tok } })).status === 404, 'cashier cannot reach backups; path traversal blocked');
+  const ih = await (await fetch(base + '/')).text(); ok(/app\.js\?v=\d+/.test(ih) && /style\.css\?v=\d+/.test(ih) && /shop\.js\?v=\d+/.test(await (await fetch(base + '/shop')).text()), 'pages load scripts and styles with a version stamp (no stale cached files)');
   ok((await fetch(base + '/sw.js')).status === 200 && (await fetch(base + '/manifest.webmanifest')).status === 200, 'offline shell files are served');
   ok((await call('/api/items?q=cigarettes', {}, tok)).j.total >= 1, 'search: "cigarettes" finds the tobacco items');
   ok((await call('/api/items?q=lebneh', {}, tok)).j.items.some((i) => /labneh/i.test(i.name)), 'search: a misspelling still finds the item');

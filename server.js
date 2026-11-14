@@ -746,7 +746,12 @@ function serveStatic(req, res, pathname) {
   let p = pathname === '/' ? '/index.html' : pathname === '/kiosk' ? '/kiosk.html' : pathname === '/shop' || pathname === '/shop/' ? '/shop.html' : pathname;
   const file = path.normalize(path.join(PUB, p));
   if (!file.startsWith(PUB + path.sep) || !fs.existsSync(file) || !fs.statSync(file).isFile()) { res.writeHead(404); return res.end('Not found'); }
-  res.writeHead(200, { 'Content-Type': MIME[path.extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-cache' });
+  const ext = path.extname(file);
+  if (ext === '.html') { // version every script/stylesheet by its modified time, so a new deploy is never hidden behind a cached copy (Cloudflare adds its own browser cache TTL)
+    const html = fs.readFileSync(file, 'utf8').replace(/((?:src|href)=")(\/[^"?#]+\.(?:js|css))(")/g, (m, a, u, z) => { try { return `${a}${u}?v=${Math.floor(fs.statSync(path.join(PUB, u)).mtimeMs / 1000)}${z}`; } catch { return m; } });
+    res.writeHead(200, { 'Content-Type': MIME['.html'], 'Cache-Control': 'no-cache, no-store' }); return res.end(html);
+  }
+  res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream', 'Cache-Control': 'no-cache' });
   fs.createReadStream(file).pipe(res);
 }
 const SEC = {
