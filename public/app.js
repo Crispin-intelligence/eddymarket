@@ -2,7 +2,8 @@
   const I = window.I18N, t = (k, v) => I.t(k, v);
   const $ = (s, el = document) => el.querySelector(s);
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const S = { token: sessionStorage.getItem('tok') || '', user: null, set: { store_name: 'Eddy Market', rate: 90000, tz: 'Asia/Beirut' }, view: 'sell',
+  const SS = { get: (k) => { try { return sessionStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { sessionStorage.setItem(k, v); } catch { /* storage may be blocked */ } }, del: (k) => { try { sessionStorage.removeItem(k); } catch { /* ignore */ } } };
+  const S = { token: SS.get('tok') || '', user: null, set: { store_name: 'Eddy Market', rate: 90000, tz: 'Asia/Beirut' }, view: 'sell',
     cart: [], cat: '', q: '', items: [], total: 0, cats: [], seq: 0, pay: null, itemQ: '', pinUser: null, pin: '' };
   const isOwner = () => S.user?.role === 'owner';
   const toLL = (c) => Math.round((c / 100) * S.set.rate / 1000) * 1000;
@@ -76,11 +77,11 @@
     if (S.pin.length < 4) return;
     try {
       const r = await api('/api/login', { method: 'POST', body: { user_id: S.pinUser.id, pin: S.pin } });
-      S.token = r.token; S.user = r.user; sessionStorage.setItem('tok', r.token); S.pin = ''; S.pinUser = null; S.view = 'sell'; S.cart = [];
+      S.token = r.token; S.user = r.user; SS.set('tok', r.token); S.pin = ''; S.pinUser = null; S.view = 'sell'; S.cart = [];
       S.set = await api('/api/settings'); render();
     } catch (e) { S.pin = ''; drawLogin(e.code === 429 ? t('locked') : t('wrong_pin')); }
   }
-  function signedOut() { S.token = ''; S.user = null; sessionStorage.removeItem('tok'); S.cart = []; S.pin = ''; S.pinUser = null; renderLogin(); }
+  function signedOut() { S.token = ''; S.user = null; SS.del('tok'); S.cart = []; S.pin = ''; S.pinUser = null; renderLogin(); }
 
   // ---------- shell ----------
   function render() { if (!S.user) return renderLogin(); renderShell(); }

@@ -1,5 +1,6 @@
 // Shared by the till and the kiosk. English + Arabic (RTL).
 (function () {
+  const ls = (op, v) => { try { return op === 'get' ? localStorage.getItem('lang') : localStorage.setItem('lang', v); } catch { return null; } };
   const en = {
     app_name: 'Eddy OS', powered: 'Powered by Ci',
     sell: 'Sell', items: 'Items', sales: 'Sales', dashboard: 'Dashboard', settings: 'Settings', kiosk: 'Price screen', logout: 'Sign out',
@@ -25,7 +26,7 @@
     back: 'Start over', choose: 'Did you mean one of these?', point_cam: 'Hold the barcode in front of the camera', search_kiosk: 'Type an item name or barcode',
     pc: 'each', kg: 'kg', error: 'Something went wrong. Try again.', offline: 'No connection to the server.',
     cat_dairy: 'Dairy and eggs', cat_bakery: 'Bakery', cat_produce: 'Fruit and vegetables', cat_meat: 'Meat and poultry', cat_frozen: 'Frozen', cat_pantry: 'Pantry',
-    cat_snacks: 'Snacks', cat_drinks: 'Drinks', cat_cleaning: 'Cleaning and paper', cat_personal: 'Personal care', cat_other: 'Other',
+    cat_snacks: 'Snacks', cat_drinks: 'Drinks', cat_cleaning: 'Cleaning and paper', cat_personal: 'Personal care', cat_tobacco: 'Tobacco and vapes', cat_other: 'Other',
   };
   const ar = {
     app_name: 'إيدي أو إس', powered: 'بقوة Ci',
@@ -52,15 +53,15 @@
     back: 'البداية', choose: 'هل تقصد أحد هذه الأصناف؟', point_cam: 'قرّب الباركود من الكاميرا', search_kiosk: 'اكتب اسم الصنف أو الباركود',
     pc: 'للقطعة', kg: 'كلغ', error: 'حدث خطأ. حاول مرة ثانية.', offline: 'لا يوجد اتصال بالخادم.',
     cat_dairy: 'ألبان وبيض', cat_bakery: 'مخبوزات', cat_produce: 'خضار وفواكه', cat_meat: 'لحوم ودجاج', cat_frozen: 'مجمدات', cat_pantry: 'مؤونة',
-    cat_snacks: 'تسالي', cat_drinks: 'مشروبات', cat_cleaning: 'تنظيف وورقيات', cat_personal: 'عناية شخصية', cat_other: 'أخرى',
+    cat_snacks: 'تسالي', cat_drinks: 'مشروبات', cat_cleaning: 'تنظيف وورقيات', cat_personal: 'عناية شخصية', cat_tobacco: 'دخان وأراكيل', cat_other: 'أخرى',
   };
   const dict = { en, ar };
   const I = {
-    lang: localStorage.getItem('lang') || 'en',
+    lang: ls('get') || 'en',
     t(k, v) { let s = (dict[I.lang] && dict[I.lang][k]) || en[k] || k; if (v) for (const x in v) s = s.replace(`{${x}}`, v[x]); return s; },
-    setLang(l) { I.lang = l; localStorage.setItem('lang', l); I.apply(); },
+    setLang(l) { I.lang = l; ls('set', l); I.apply(); },
     apply() { document.documentElement.lang = I.lang; document.documentElement.dir = I.lang === 'ar' ? 'rtl' : 'ltr'; },
-    CATS: { dairy: '🥛', bakery: '🥖', produce: '🥬', meat: '🍗', frozen: '🧊', pantry: '🥫', snacks: '🍫', drinks: '🥤', cleaning: '🧴', personal: '🧼', other: '📦' },
+    CATS: { dairy: '🥛', bakery: '🥖', produce: '🥬', meat: '🍗', frozen: '🧊', pantry: '🥫', snacks: '🍫', drinks: '🥤', cleaning: '🧴', personal: '🧼', tobacco: '🚬', other: '📦' },
     catName(c) { return c ? (en['cat_' + c] ? I.t('cat_' + c) : c) : I.t('cat_other'); },
     catIcon(c) { return I.CATS[c] || '🏷️'; },
     itemName(i) { return I.lang === 'ar' ? (i.name_ar || i.name) : i.name; },

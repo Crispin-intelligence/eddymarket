@@ -1,6 +1,6 @@
 // Demo catalogue so a fresh install is not empty. Generic products, invented in-store barcodes.
 // Replace with real data via Items > Import CSV.
-const DEMO = [
+export const DEMO = [
   // name, name_ar, category, price USD, unit
   ['Labneh 500 g', 'لبنة 500 غ', 'dairy', 2.5, 'pc'], ['White cheese', 'جبنة بيضاء', 'dairy', 7, 'kg'],
   ['Full-fat milk 1 L', 'حليب كامل الدسم 1 ل', 'dairy', 1.6, 'pc'], ['Plain yogurt 1 kg', 'لبن زبادي 1 كلغ', 'dairy', 2.2, 'pc'],
@@ -19,6 +19,10 @@ const DEMO = [
   ['Dish soap 750 ml', 'سائل جلي 750 مل', 'cleaning', 2, 'pc'], ['Laundry detergent 3 kg', 'مسحوق غسيل 3 كلغ', 'cleaning', 8.5, 'pc'], ['Bleach 1 L', 'كلور 1 ل', 'cleaning', 1.2, 'pc'],
   ['Toilet paper, 12 rolls', 'محارم حمام 12 رول', 'cleaning', 5, 'pc'], ['Paper towels', 'مناديل مطبخ', 'cleaning', 2.5, 'pc'],
   ['Shampoo 400 ml', 'شامبو 400 مل', 'personal', 3.8, 'pc'], ['Toothpaste 100 ml', 'معجون أسنان 100 مل', 'personal', 2, 'pc'], ['Soap bar', 'صابونة', 'personal', 0.8, 'pc'],
+  ['Cigarette pack', 'علبة سجائر', 'tobacco', 2, 'pc'], ['Hookah tobacco 250 g', 'معسل 250 غ', 'tobacco', 6, 'pc'], ['Disposable vape', 'فيب يستعمل مرة واحدة', 'tobacco', 9, 'pc'],
+  ['Lighter', 'ولاعة', 'tobacco', 0.7, 'pc'], ['Rolling papers', 'ورق لف', 'tobacco', 0.5, 'pc'],
+  ['Water 6-pack, 1.5 L', 'مياه ٦ قوارير 1.5 ل'.replace('٦','6'), 'drinks', 2.6, 'pc'], ['Instant cappuccino sachet', 'كابتشينو سريع', 'pantry', 0.4, 'pc'],
+  ['Wafer chocolate', 'ويفر شوكولا', 'snacks', 0.5, 'pc'], ['AA batteries, 4 pack', 'بطاريات AA 4', 'other', 3, 'pc'], ['Tissue box', 'علبة مناديل', 'cleaning', 1.2, 'pc'],
 ];
 const ean13 = (body12) => {
   const s = [...body12].reduce((a, d, i) => a + Number(d) * (i % 2 ? 3 : 1), 0);
