@@ -26,6 +26,9 @@ export const DEMO = [
   ['Lighter', 'ولاعة', 'tobacco', 0.7, 'pc'], ['Rolling papers', 'ورق لف', 'tobacco', 0.5, 'pc'],
   ['Water 6-pack, 1.5 L', 'مياه ٦ قوارير 1.5 ل'.replace('٦','6'), 'drinks', 2.6, 'pc'], ['Instant cappuccino sachet', 'كابتشينو سريع', 'pantry', 0.4, 'pc'],
   ['Wafer chocolate', 'ويفر شوكولا', 'snacks', 0.5, 'pc'], ['AA batteries, 4 pack', 'بطاريات AA 4', 'other', 3, 'pc'], ['Tissue box', 'علبة مناديل', 'cleaning', 1.2, 'pc'],
+  ['Water 0.5 L bottle', 'مياه 0.5 ل قنينة', 'drinks', 0.3, 'pc'], ['Water 1.5 L, case of 6', 'مياه 1.5 ل علبة 6', 'drinks', 2.6, 'pc'], ['Water 1.5 L, full case of 12', 'مياه 1.5 ل كرتونة 12', 'drinks', 4.8, 'pc'],
+  ['Soda 330 ml can, single', 'مشروب غازي 330 مل حبة', 'drinks', 0.6, 'pc'], ['Soda 330 ml, pack of 6', 'مشروب غازي 330 مل 6 حبات', 'drinks', 3.2, 'pc'], ['Soda 330 ml, full case of 24', 'مشروب غازي 330 مل كرتونة 24', 'drinks', 11.5, 'pc'],
+  ['Juice 1 L, single', 'عصير 1 ل حبة', 'drinks', 1.8, 'pc'], ['Juice 1 L, pack of 6', 'عصير 1 ل 6 حبات', 'drinks', 10, 'pc'], ['Juice 1 L, full case of 12', 'عصير 1 ل كرتونة 12', 'drinks', 19, 'pc'],
 ];
 const ean13 = (body12) => {
   const s = [...body12].reduce((a, d, i) => a + Number(d) * (i % 2 ? 3 : 1), 0);
@@ -33,7 +36,7 @@ const ean13 = (body12) => {
 };
 // Pictures for the showcase items (generated, replace from Items > edit any time).
 const IMG = { 'Olive oil 1 L': 'olive', 'Labneh 500 g': 'labneh', 'Arabic bread': 'bread', Tomatoes: 'tomato', 'Chicken breast': 'chicken', 'Eggs, tray of 30': 'eggs',
-  'Soda can': 'soda', 'Chocolate bar': 'choco', 'Potato chips': 'chips', 'Ground coffee 250 g': 'coffee', 'Rice 5 kg': 'rice', 'Water 1.5 L': 'water' };
+  'Soda can': 'soda', 'Chocolate bar': 'choco', 'Potato chips': 'chips', 'Ground coffee 250 g': 'coffee', 'Rice 5 kg': 'rice', 'Water 1.5 L': 'water', 'Water 0.5 L bottle': 'water', 'Water 1.5 L, case of 6': 'water', 'Water 1.5 L, full case of 12': 'water', 'Soda 330 ml can, single': 'soda', 'Soda 330 ml, pack of 6': 'soda', 'Soda 330 ml, full case of 24': 'soda', 'Juice 1 L, single': 'soda', 'Juice 1 L, pack of 6': 'soda', 'Juice 1 L, full case of 12': 'soda' };
 const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'seed-img');
 const pic = (name) => { const f = IMG[name] && path.join(dir, IMG[name] + '.jpg'); return f && fs.existsSync(f) ? 'data:image/jpeg;base64,' + fs.readFileSync(f).toString('base64') : null; };
 // Safe to run on every start: adds missing demo items and pictures, never overwrites anything the shop has edited.
