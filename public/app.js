@@ -431,5 +431,15 @@
   const banner = (on) => { let b = document.getElementById('conn'); if (!on && b) return b.remove(); if (on && !b) { b = document.createElement('div'); b.id = 'conn'; b.setAttribute('role', 'status'); b.textContent = t('conn_lost'); document.body.appendChild(b); } };
   addEventListener('offline', () => banner(true)); addEventListener('online', () => { banner(false); toast(t('conn_back')); });
   if (navigator.onLine === false) banner(true);
+  // "Install app" button: shown only when the browser says the app can be installed
+  let deferred = null;
+  addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault(); deferred = e;
+    if (document.getElementById('inst')) return;
+    const b = document.createElement('button'); b.id = 'inst'; b.type = 'button'; b.textContent = '⬇ ' + t('install_app');
+    b.addEventListener('click', async () => { b.remove(); try { deferred.prompt(); await deferred.userChoice; } catch { /* ignore */ } deferred = null; });
+    document.body.appendChild(b);
+  });
+  addEventListener('appinstalled', () => document.getElementById('inst')?.remove());
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
 })();

@@ -26,7 +26,7 @@
     back: 'Start over', choose: 'Did you mean one of these?', point_cam: 'Hold the barcode in front of the camera', search_kiosk: 'Type an item name or barcode',
     pc: 'each', kg: 'kg', error: 'Something went wrong. Try again.', offline: 'No connection to the server.',
     cat_dairy: 'Dairy and eggs', cat_bakery: 'Bakery', cat_produce: 'Fruit and vegetables', cat_meat: 'Meat and poultry', cat_frozen: 'Frozen', cat_pantry: 'Pantry',
-    cat_snacks: 'Snacks', cat_drinks: 'Drinks', cat_cleaning: 'Cleaning and paper', cat_personal: 'Personal care', cat_tobacco: 'Tobacco and vapes', cat_alcohol: 'Alcohol', backups: 'Backups', backup_now: 'Back up now', backup_done: 'Backup saved', backup_info: 'A backup is saved automatically every day. Download one to keep a copy off this computer.', no_backups: 'No backups yet', download: 'Download', conn_lost: 'Connection lost. Trying to reconnect…', conn_back: 'Back online', cat_other: 'Other',
+    cat_snacks: 'Snacks', cat_drinks: 'Drinks', cat_cleaning: 'Cleaning and paper', cat_personal: 'Personal care', cat_tobacco: 'Tobacco and vapes', cat_alcohol: 'Alcohol', backups: 'Backups', backup_now: 'Back up now', backup_done: 'Backup saved', backup_info: 'A backup is saved automatically every day. Download one to keep a copy off this computer.', no_backups: 'No backups yet', download: 'Download', install_app: 'Install app', conn_lost: 'Connection lost. Trying to reconnect…', conn_back: 'Back online', cat_other: 'Other',
   };
   const ar = {
     app_name: 'إيدي أو إس', powered: 'بقوة Ci',
@@ -53,7 +53,7 @@
     back: 'البداية', choose: 'هل تقصد أحد هذه الأصناف؟', point_cam: 'قرّب الباركود من الكاميرا', search_kiosk: 'اكتب اسم الصنف أو الباركود',
     pc: 'للقطعة', kg: 'كلغ', error: 'حدث خطأ. حاول مرة ثانية.', offline: 'لا يوجد اتصال بالخادم.',
     cat_dairy: 'ألبان وبيض', cat_bakery: 'مخبوزات', cat_produce: 'خضار وفواكه', cat_meat: 'لحوم ودجاج', cat_frozen: 'مجمدات', cat_pantry: 'مؤونة',
-    cat_snacks: 'تسالي', cat_drinks: 'مشروبات', cat_cleaning: 'تنظيف وورقيات', cat_personal: 'عناية شخصية', cat_tobacco: 'دخان وأراكيل', cat_alcohol: 'مشروبات كحولية', backups: 'النسخ الاحتياطية', backup_now: 'خذ نسخة الآن', backup_done: 'تم حفظ النسخة', backup_info: 'تُحفظ نسخة احتياطية تلقائياً كل يوم. حمّل نسخة لتحتفظ بها خارج هذا الكمبيوتر.', no_backups: 'لا توجد نسخ بعد', download: 'تحميل', conn_lost: 'انقطع الاتصال. جارٍ إعادة المحاولة…', conn_back: 'عاد الاتصال', cat_other: 'أخرى',
+    cat_snacks: 'تسالي', cat_drinks: 'مشروبات', cat_cleaning: 'تنظيف وورقيات', cat_personal: 'عناية شخصية', cat_tobacco: 'دخان وأراكيل', cat_alcohol: 'مشروبات كحولية', backups: 'النسخ الاحتياطية', backup_now: 'خذ نسخة الآن', backup_done: 'تم حفظ النسخة', backup_info: 'تُحفظ نسخة احتياطية تلقائياً كل يوم. حمّل نسخة لتحتفظ بها خارج هذا الكمبيوتر.', no_backups: 'لا توجد نسخ بعد', download: 'تحميل', install_app: 'ثبّت التطبيق', conn_lost: 'انقطع الاتصال. جارٍ إعادة المحاولة…', conn_back: 'عاد الاتصال', cat_other: 'أخرى',
   };
   const dict = { en, ar };
   const I = {
