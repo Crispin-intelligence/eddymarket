@@ -626,6 +626,13 @@ const pubOrder = (o) => ({ code: o.code, status: o.status, mode: o.mode, created
 const staffOrder = (o) => ({ id: o.id, ...pubOrder(o), name: o.name, phone: o.phone, address: o.address, note: o.note });
 
 if (process.env.SHOP_WA && !db.prepare("SELECT 1 FROM settings WHERE key='shop_wa'").get()) setSetting('shop_wa', normPhone(process.env.SHOP_WA));
+let _bv = { at: 0, v: '' };
+function buildStamp() { // changes whenever any app file is updated
+  if (Date.now() - _bv.at < 10e3) return _bv.v;
+  let m = 0; try { for (const f of fs.readdirSync(PUB)) m = Math.max(m, Math.floor(fs.statSync(path.join(PUB, f)).mtimeMs / 1000)); } catch { /* ignore */ }
+  _bv = { at: Date.now(), v: String(m) }; return _bv.v;
+}
+route('GET', '/api/version', null, () => ({ build: buildStamp(), photos: db.prepare("SELECT COUNT(*) n FROM items WHERE active=1 AND image IS NOT NULL AND image<>''").get().n }));
 route('GET', '/api/shop/home', null, () => {
   const rate = +getSetting('rate'), all = loadCache().filter(shopOk), counts = new Map();
   for (const i of all) counts.set(i.category, (counts.get(i.category) || 0) + 1);

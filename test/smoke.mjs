@@ -52,6 +52,7 @@ try {
   const rl = (await call('/api/items?q=' + encodeURIComponent('labneh chocolat'), {}, tok)).j; ok(rl.total >= 1 && /labneh/i.test(rl.items[0].name), 'search: when no item has every word, the best partial match is shown');
   // --- online shop ---
   const home = await call('/api/shop/home'); ok(home.s === 200 && home.j.open && home.j.featured.length >= 1 && home.j.cats.some((c) => c.category === 'tobacco') && home.j.pay.card === true, 'shop home is public, shows every category and the payment options');
+  const ver = await call('/api/version'); ok(ver.s === 200 && /^\d+$/.test(ver.j.build) && typeof ver.j.photos === 'number', 'version check is public and reports build and photo count');
   const sl = (await call('/api/shop/items?q=labneh')).j; ok(sl.items.length >= 1 && !('cost_cents' in sl.items[0]) && !('stock' in sl.items[0]), 'shop items hide cost and stock');
   ok((await call('/api/shop/items?q=cigarettes')).j.total >= 1, 'everything is sold online, tobacco included');
   const so = { name: 'Maya', phone: '03 123 456', mode: 'pickup', lines: [{ item_id: sl.items[0].id, qty: 2 }, { item_id: kg.id, qty: 1.5 }] };
