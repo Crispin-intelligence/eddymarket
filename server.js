@@ -17,9 +17,20 @@ const STORE = (process.env.STORE_ID || 'eddy').replace(/[^a-z0-9_-]/gi, '') || '
 const DATA = process.env.DATA_DIR || path.join(ROOT, 'data');
 fs.mkdirSync(DATA, { recursive: true });
 
-const db = new DatabaseSync(path.join(DATA, `${STORE}.db`));
+const DBF = path.join(DATA, `${STORE}.db`);
+(function guardDatabase() { // after a power cut: if the database file is damaged, set it aside and restore the newest backup automatically
+  if (!fs.existsSync(DBF)) return;
+  let good = false; try { const t = new DatabaseSync(DBF); good = t.prepare('PRAGMA quick_check').get().quick_check === 'ok'; t.close(); } catch { /* damaged */ }
+  if (good) return;
+  const bkDir = process.env.BACKUP_DIR || path.join(DATA, 'backups'), re = new RegExp(`^${STORE}-\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}\\.db$`);
+  const newest = fs.existsSync(bkDir) ? fs.readdirSync(bkDir).filter((n) => re.test(n)).sort().reverse()[0] : null;
+  const stamp = Date.now(); for (const x of ['', '-wal', '-shm']) if (fs.existsSync(DBF + x)) fs.renameSync(DBF + x, `${DBF}${x}.corrupt-${stamp}`);
+  if (newest) { fs.copyFileSync(path.join(bkDir, newest), DBF); console.error(`  DATABASE WAS DAMAGED. Restored backup ${newest}. The damaged file was kept as ${path.basename(DBF)}.corrupt-${stamp}`); }
+  else console.error('  DATABASE WAS DAMAGED and no backup exists. Starting empty; the damaged file was kept.');
+})();
+const db = new DatabaseSync(DBF);
 db.exec(`
-PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON;
+PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA fullfsync=ON; PRAGMA checkpoint_fullfsync=ON; PRAGMA busy_timeout=5000; PRAGMA foreign_keys=ON;
 CREATE TABLE IF NOT EXISTS settings(key TEXT PRIMARY KEY, value TEXT);
 CREATE TABLE IF NOT EXISTS users(
   id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL,
@@ -841,4 +852,5 @@ const server = http.createServer(async (req, res) => {
     json(res, 500, { error: 'Something went wrong on the server' });
   }
 });
+for (const sig of ['SIGTERM', 'SIGINT']) process.on(sig, () => { try { db.exec('PRAGMA wal_checkpoint(TRUNCATE)'); db.close(); } catch { /* ignore */ } process.exit(0); }); // clean shutdown: everything saved to the main file
 server.listen(PORT, () => console.log(`  Eddy OS (${STORE}) -> http://localhost:${PORT}   kiosk -> http://localhost:${PORT}/kiosk`));

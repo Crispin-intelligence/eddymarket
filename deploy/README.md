@@ -1,4 +1,12 @@
-# Keep Eddy OS online (macOS)
+# Keep Eddy online (macOS)
+
+**After a power cut or restart, run this once** (it replaces the manual steps below):
+```
+deploy/install-mac.sh
+```
+It makes Eddy and the tunnel start by themselves, restart if they ever stop or freeze, and sets the Mac to switch itself back on after a power cut and never sleep.
+Then tick **System Settings > Users & Groups > Automatic login** for the till user (needs FileVault off). A small UPS on the Mac, router and printer is the best protection of all: it rides through short cuts and shuts down cleanly.
+Eddy's database is crash-safe (every sale is written to disk immediately), checks itself on every start, and automatically restores the newest backup if a power cut ever damaged it.
 
 1. Stop the manual app and tunnel sessions.
 2. Test the script once: `./deploy/start-eddy.sh` (Ctrl+C to stop).
