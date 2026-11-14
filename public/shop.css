@@ -103,3 +103,17 @@ label.f input:focus,label.f textarea:focus{outline:2px solid var(--sig);border-c
 footer.ci{max-width:980px;margin:26px auto 10px;padding:0 16px;text-align:center;font-size:12.5px;line-height:1.6;color:#7a809c}footer.ci a{color:#4a56b0;text-decoration:none;font-weight:600}
 
 footer.ci b{color:#121733;font-size:14px}
+
+/* ---- polish: instant feel, smooth motion ---- */
+html{-webkit-tap-highlight-color:transparent}
+button,a,.card,label{touch-action:manipulation}
+button,.card,.cartbar{transition:transform .12s ease,box-shadow .18s ease,background-color .18s ease}
+button:active,.card:active,.cartbar:active{transform:scale(.97)}
+#main>*{animation:viewin .28s cubic-bezier(.2,.8,.2,1) both}
+@keyframes viewin{from{opacity:0;transform:translateY(10px)}}
+.card .pic img,.pbig img,.ln .th img{animation:imgin .35s ease both}
+@keyframes imgin{from{opacity:0}}
+.cartbar{animation:barin .3s cubic-bezier(.2,.8,.2,1) both}
+@keyframes barin{from{opacity:0;transform:translateY(16px)}}
+.toast{animation:viewin .25s ease both}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}

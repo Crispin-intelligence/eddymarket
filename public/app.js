@@ -3,7 +3,8 @@
   const $ = (s, el = document) => el.querySelector(s);
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const SS = { get: (k) => { try { return sessionStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { sessionStorage.setItem(k, v); } catch { /* storage may be blocked */ } }, del: (k) => { try { sessionStorage.removeItem(k); } catch { /* ignore */ } } };
-  const S = { token: SS.get('tok') || '', user: null, set: { store_name: 'Eddy’s Market', rate: 90000, tz: 'Asia/Beirut' }, view: 'sell',
+  const LS = { get: (k) => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch { /* ignore */ } }, del: (k) => { try { localStorage.removeItem(k); } catch { /* ignore */ } } };
+  const S = { keep: LS.get('eddy.keep') !== '0', locked: false, token: LS.get('eddy.tok') || SS.get('tok') || '', user: null, set: { store_name: 'Eddy’s Market', rate: 90000, tz: 'Asia/Beirut' }, view: 'sell',
     cart: [], cat: '', q: '', items: [], total: 0, cats: [], seq: 0, pay: null, itemQ: '', pinUser: null, pin: '' };
   const isOwner = () => S.user?.role === 'owner';
   const toLL = (c) => Math.round((c / 100) * S.set.rate / 1000) * 1000;
@@ -70,22 +71,25 @@
       return;
     }
     const dots = Array.from({ length: Math.max(4, S.pin.length) }, (_, n) => `<i class="${n < S.pin.length ? 'f' : ''}"></i>`).join('');
-    $('#lbox').innerHTML = `${head}<h1>${esc(S.pinUser.name)}</h1><div class="dots" aria-hidden="true">${dots}</div><div class="err" role="alert">${esc(err || '')}</div>
+    $('#lbox').innerHTML = `${head}<h1>${esc(S.pinUser.name)}</h1><div class="dots${err ? ' shake' : ''}" aria-hidden="true">${dots}</div><div class="err" role="alert">${esc(err || '')}</div>
       <div class="pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<button data-act="pin" data-d="${n}">${n}</button>`).join('')}<button data-act="pinback" aria-label="Back">⌫</button><button data-act="pin" data-d="0">0</button><button data-act="pinok" aria-label="OK">✓</button></div>
-      <button class="lnk" data-act="changeuser">${t('login_title')}</button>`;
+      ${S.locked ? `<p class="lockhint">${t('locked_hint')}</p>` : `<label class="keep"><input type="checkbox" id="keep" ${S.keep ? 'checked' : ''}><span>${t('keep_signed')}</span></label>`}
+      <button class="lnk" data-act="${S.locked ? 'logout' : 'changeuser'}">${S.locked ? t('logout') : t('login_title')}</button>`;
   }
   async function submitPin() {
     if (S.pin.length < 4) return;
     try {
-      const r = await api('/api/login', { method: 'POST', body: { user_id: S.pinUser.id, pin: S.pin } });
-      S.token = r.token; S.user = r.user; SS.set('tok', r.token); S.pin = ''; S.pinUser = null; S.view = 'sell'; S.cart = [];
+      const keep = !S.locked && S.keep, r = await api('/api/login', { method: 'POST', body: { user_id: S.pinUser.id, pin: S.pin, keep: keep || (S.locked && !!LS.get('eddy.tok')) } });
+      S.token = r.token; S.user = r.user; LS.set('eddy.keep', S.keep ? '1' : '0');
+      if (keep || (S.locked && LS.get('eddy.tok'))) { LS.set('eddy.tok', r.token); SS.del('tok'); } else { SS.set('tok', r.token); LS.del('eddy.tok'); }
+      const was = S.locked; S.locked = false; LS.del('eddy.lock'); touch(); S.pin = ''; S.pinUser = null; if (!was) { S.view = 'sell'; S.cart = []; }
       S.set = await api('/api/settings'); render();
     } catch (e) { S.pin = ''; drawLogin(e.code === 429 ? t('locked') : t('wrong_pin')); }
   }
-  function signedOut() { S.orderSeen = false; S.newOrders = 0; S.token = ''; S.user = null; SS.del('tok'); S.cart = []; S.pin = ''; S.pinUser = null; renderLogin(); }
+  function signedOut() { S.orderSeen = false; S.newOrders = 0; S.token = ''; S.user = null; S.locked = false; SS.del('tok'); LS.del('eddy.tok'); LS.del('eddy.lock'); S.cart = []; S.pin = ''; S.pinUser = null; renderLogin(); }
 
   // ---------- shell ----------
-  function render() { if (!S.user) return renderLogin(); renderShell(); }
+  function render() { if (!S.user || S.locked) return renderLogin(); renderShell(); }
   function renderShell() {
     const nav = [['sell', 'sell'], ['orders', 'orders'], ['items', 'items'], ['sales', 'sales']];
     if (isOwner()) nav.push(['dashboard', 'dashboard'], ['settings', 'settings']);
@@ -108,12 +112,15 @@
     $('#view').innerHTML = `<div class="sell"><section class="catalog">
       <div class="topbar"><h1>${t('sell')}</h1><span class="sp"></span><span class="who">${esc(S.user.name)}</span></div>
       <div class="search"><input id="q" type="search" autocomplete="off" placeholder="${esc(t('search_ph'))}" value="${esc(S.q)}" aria-label="${esc(t('search_ph'))}"></div>
-      <div class="chips" id="chips"></div><div class="scroll"><div class="tiles" id="tiles"></div><div id="more"></div></div></section>
+      <div class="chips" id="chips"></div><div class="scroll"><div class="tiles" id="tiles">${'<div class="tile sk"></div>'.repeat(12)}</div><div id="more"></div></div></section>
       <aside class="receipt" aria-label="${esc(t('cart'))}"><header><h2>${t('cart')}</h2><button class="btn sm" data-act="clear">${t('clear')}</button><button class="btn sm grab" data-act="cartsheet" aria-label="${esc(t('cart'))}">⌄</button></header>
       <div class="lines" id="lines"></div><footer id="cfoot"></footer></aside></div>`;
     drawCart();
-    try { S.cats = await api('/api/categories'); } catch (e) { fail(e); }
-    drawChips(); loadCatalog();
+    try { // show the last known products instantly, then refresh quietly
+      const c = JSON.parse(LS.get('eddy.cats') || 'null'); if (c && c.length) { S.cats = c; drawChips(); }
+      const f = JSON.parse(LS.get('eddy.first') || 'null'); if (f && f.items && !S.q && !S.cat) { S.items = f.items; S.total = f.total; drawTiles(); }
+    } catch { /* ignore */ }
+    api('/api/categories').then((c) => { S.cats = c; LS.set('eddy.cats', JSON.stringify(c)); drawChips(); }).catch(fail); loadCatalog();
     $('#q').focus();
   }
   function drawChips() {
@@ -127,6 +134,7 @@
       const r = await api('/api/items?' + p);
       if (my !== S.seq) return;
       S.total = r.total; S.items = append ? S.items.concat(r.items) : r.items; drawTiles();
+      if (!append && !S.q && !S.cat) LS.set('eddy.first', JSON.stringify({ items: r.items, total: r.total }));
     } catch (e) { fail(e); }
   }
   function pic(i) { return i.has_image ? `<img src="/img/${i.id}?v=${encodeURIComponent(i.v)}" alt="" loading="lazy">` : I.catIcon(i.category); }
@@ -373,7 +381,8 @@
     $('#view').innerHTML = `<div class="topbar"><h1>${t('settings')}</h1></div><div class="two"><div class="card"><h2>${t('store_name')}</h2>
       <form id="sform"><label class="f">${t('store_name')}<input name="store_name" value="${esc(S.set.store_name)}" required></label>
       <label class="f" style="margin-top:10px">${t('usd_rate')}<input name="rate" type="number" min="1" step="1" value="${S.set.rate}" required></label>
-      <label class="f" style="margin-top:10px">${t('footer')}<input name="footer" value="${esc(S.set.footer)}"></label><div class="row"><button class="btn pri" type="submit">${t('save')}</button></div></form></div>
+      <label class="f" style="margin-top:10px">${t('footer')}<input name="footer" value="${esc(S.set.footer)}"></label>
+      <label class="f" style="margin-top:10px">${t('lock_after')}<select name="lock_min">${[[0, t('lock_off')], [5, '5 min'], [15, '15 min'], [30, '30 min'], [60, '60 min']].map(([v, l]) => `<option value="${v}" ${+S.set.lock_min === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label><div class="row"><button class="btn pri" type="submit">${t('save')}</button></div></form></div>
       <div class="card"><h2>${t('team')}</h2><div id="team"></div><form id="uform" style="margin-top:14px;display:grid;gap:10px"><h2 style="margin:0;font-size:16px">${t('add_member')}</h2>
       <input name="name" placeholder="${esc(t('name'))}" required><div class="grid2"><input name="pin" inputmode="numeric" pattern="\\d{4,8}" placeholder="${esc(t('pin'))}" required>
       <select name="role"><option value="cashier">${t('cashier_role')}</option><option value="owner">${t('owner')}</option></select></div><button class="btn pri" type="submit">${t('add_member')}</button></form></div>
@@ -506,6 +515,7 @@
   document.addEventListener('change', (e) => {
     const el = e.target;
     if (el.dataset.act === 'setqty') { const l = S.cart[+el.dataset.n]; const q = num(el.value); if (q > 0) l.qty = q; else S.cart.splice(+el.dataset.n, 1); drawCart(); }
+    if (el.id === 'keep') S.keep = el.checked;
     if (el.id === 'csv' && el.files[0]) { importCSV(el.files[0]); el.value = ''; }
     if (el.classList.contains('pcap') && el.files[0]) resizeImage(el.files[0]).then((d) => api('/api/items/' + el.dataset.id + '/photo', { method: 'POST', body: { image: d } })).then(() => { el.closest('[data-pid]')?.remove(); toast(t('saved')); drawPhotos(); }).catch(fail);
     if (el.id === 'photo' && el.files[0]) resizeImage(el.files[0]).then((d) => { imgState = { changed: true, data: d }; $('#pv').innerHTML = `<img src="${d}" alt="">`; }).catch(fail);
@@ -527,18 +537,26 @@
   document.addEventListener('keydown', (e) => {
     const modalOpen = !!$('#modal .modal');
     if (e.key === 'Escape' && modalOpen) return closeModal();
-    if (!S.user && S.pinUser) { if (/^\d$/.test(e.key)) A.pin({ dataset: { d: e.key } }); else if (e.key === 'Backspace') A.pinback(); else if (e.key === 'Enter') submitPin(); return; }
+    if ((!S.user || S.locked) && S.pinUser) { if (/^\d$/.test(e.key)) A.pin({ dataset: { d: e.key } }); else if (e.key === 'Backspace') A.pinback(); else if (e.key === 'Enter') submitPin(); return; }
     if (e.key === 'Enter' && e.target.id === 'q') { e.preventDefault(); scanSubmit(e.target.value); return; }
     if (e.key === 'Enter' && modalOpen && S.pay && $('#done') && !$('#done').disabled && e.target.tagName !== 'BUTTON') { e.preventDefault(); finishSale(); return; }
     // a barcode scanner types fast with no focus: send it to the search box
     if (S.user && S.view === 'sell' && !modalOpen && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) $('#q')?.focus();
   });
 
+  // ---------- lock after being away ----------
+  let lastAct = +(LS.get('eddy.act') || Date.now()), pokedAt = 0;
+  function touch() { lastAct = Date.now(); LS.set('eddy.act', String(lastAct)); }
+  function lockApp() { if (!S.user || S.locked) return; S.locked = true; LS.set('eddy.lock', '1'); S.pinUser = { id: S.user.id, name: S.user.name }; S.pin = ''; renderLogin(); }
+  function idleCheck() { const m = +S.set.lock_min || 0; if (m > 0 && S.user && !S.locked && Date.now() - lastAct > m * 60e3) lockApp(); }
+  ['pointerdown', 'keydown'].forEach((ev) => addEventListener(ev, () => { if (S.user && !S.locked && Date.now() - pokedAt > 5000) { pokedAt = Date.now(); touch(); } }, { passive: true }));
+  document.addEventListener('visibilitychange', () => { if (document.hidden) { if (S.user && !S.locked) touch(); } else idleCheck(); });
+  setInterval(idleCheck, 15e3);
+
   // ---------- boot ----------
   (async () => {
-    $('#root').innerHTML = '';
-    if (S.token) { try { S.user = await api('/api/me'); S.set = await api('/api/settings'); } catch { S.token = ''; } }
-    render();
+    if (S.token) { try { S.user = await api('/api/me'); S.set = await api('/api/settings'); } catch (e) { if (e.message !== 'auth') S.token = ''; } }
+    if (S.user && (LS.get('eddy.lock') === '1' || ((+S.set.lock_min || 0) > 0 && Date.now() - lastAct > (+S.set.lock_min) * 60e3))) { S.locked = true; LS.set('eddy.lock', '1'); S.pinUser = { id: S.user.id, name: S.user.name }; renderLogin(); } else render();
   })();
   // connection banner + offline-ready shell
   const banner = (on) => { let b = document.getElementById('conn'); if (!on && b) return b.remove(); if (on && !b) { b = document.createElement('div'); b.id = 'conn'; b.setAttribute('role', 'status'); b.textContent = t('conn_lost'); document.body.appendChild(b); } };

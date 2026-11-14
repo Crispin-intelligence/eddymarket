@@ -47,10 +47,10 @@ CREATE INDEX IF NOT EXISTS ix_saleitems_item ON sale_items(item_id);
 `);
 
 // ---------- settings ----------
-const DEFAULTS = { store_name: 'Eddy’s Market', rate: '90000', footer: 'Thank you for shopping with us', tz: 'Asia/Beirut', shop_on: '1', shop_wa: '', shop_card: '1', shop_whish: '', photo_auto: '1' };
+const DEFAULTS = { store_name: 'Eddy’s Market', rate: '90000', footer: 'Thank you for shopping with us', tz: 'Asia/Beirut', shop_on: '1', shop_wa: '', shop_card: '1', shop_whish: '', photo_auto: '1', lock_min: '15' };
 const getSetting = (k) => db.prepare('SELECT value FROM settings WHERE key=?').get(k)?.value ?? DEFAULTS[k];
 const setSetting = (k, v) => db.prepare('INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value').run(k, String(v));
-const publicSettings = () => ({ shop_card: getSetting('shop_card') === '1', shop_whish: getSetting('shop_whish'), photo_auto: getSetting('photo_auto') === '1', shop_on: getSetting('shop_on') === '1', shop_wa: getSetting('shop_wa'), store_name: getSetting('store_name'), rate: +getSetting('rate'), footer: getSetting('footer'), tz: getSetting('tz'), store_id: STORE, print_mode: getSetting('print_mode') || 'browser', print_auto: getSetting('print_auto') === '1', print_drawer: getSetting('print_drawer') === '1' });
+const publicSettings = () => ({ shop_card: getSetting('shop_card') === '1', shop_whish: getSetting('shop_whish'), photo_auto: getSetting('photo_auto') === '1', lock_min: +getSetting('lock_min'), shop_on: getSetting('shop_on') === '1', shop_wa: getSetting('shop_wa'), store_name: getSetting('store_name'), rate: +getSetting('rate'), footer: getSetting('footer'), tz: getSetting('tz'), store_id: STORE, print_mode: getSetting('print_mode') || 'browser', print_auto: getSetting('print_auto') === '1', print_drawer: getSetting('print_drawer') === '1' });
 if (getSetting('store_name') === 'Eddy Market') setSetting('store_name', DEFAULTS.store_name); // renamed brand
 
 // ---------- users / auth ----------
@@ -86,15 +86,20 @@ if ((!db.prepare('SELECT 1 FROM items LIMIT 1').get() && process.env.SEED_DEMO !
   console.log('  Demo items loaded (set SEED_DEMO=0 to start empty).');
 }
 
-const sessions = new Map(); // token -> {user, exp}
+db.exec(`CREATE TABLE IF NOT EXISTS sessions(token TEXT PRIMARY KEY, user_id INTEGER NOT NULL, exp INTEGER NOT NULL, keep INTEGER NOT NULL DEFAULT 0);`);
+const sh = (t) => crypto.createHash('sha256').update(t).digest('hex'); // only a hash of each token is stored
+const SESS_SHORT = 12 * 3600e3, SESS_KEEP = 30 * 86400e3;
+const qSess = db.prepare('SELECT s.exp,s.keep,u.id,u.name,u.role FROM sessions s JOIN users u ON u.id=s.user_id AND u.active=1 WHERE s.token=?');
+db.prepare('DELETE FROM sessions WHERE exp<?').run(Date.now()); setInterval(() => db.prepare('DELETE FROM sessions WHERE exp<?').run(Date.now()), 3600e3).unref();
 const fails = new Map();    // ip -> {n, until}
-const SESSION_MS = 12 * 3600e3;
 function authUser(req) {
   const t = (req.headers.authorization || '').replace(/^Bearer /, '');
-  const s = sessions.get(t);
+  if (!t) return null; const h = sh(t), s = qSess.get(h);
   if (!s) return null;
-  if (s.exp < Date.now()) { sessions.delete(t); return null; }
-  return s.user;
+  const n = Date.now();
+  if (s.exp < n) { db.prepare('DELETE FROM sessions WHERE token=?').run(h); return null; }
+  if (s.keep && s.exp - n < SESS_KEEP - 86400e3) db.prepare('UPDATE sessions SET exp=? WHERE token=?').run(n + SESS_KEEP, h); // stays signed in while it keeps being used
+  return { id: s.id, name: s.name, role: s.role };
 }
 
 // ---------- money + search ----------
@@ -334,14 +339,15 @@ route('POST', '/api/login', null, ({ body, ip }) => {
   fails.delete(ip);
   const token = crypto.randomBytes(32).toString('hex');
   const user = { id: u.id, name: u.name, role: u.role };
-  sessions.set(token, { user, exp: Date.now() + SESSION_MS });
+  const keep = body.keep === true; db.prepare('INSERT INTO sessions(token,user_id,exp,keep) VALUES(?,?,?,?)').run(sh(token), u.id, Date.now() + (keep ? SESS_KEEP : SESS_SHORT), keep ? 1 : 0);
   return { token, user };
 });
 route('GET', '/api/users', null, () => db.prepare('SELECT id,name,role FROM users WHERE active=1 ORDER BY role DESC,name').all());
 route('GET', '/api/settings', null, () => publicSettings());
 route('GET', '/api/me', 'any', ({ user }) => user);
-route('POST', '/api/logout', 'any', ({ req }) => { sessions.delete((req.headers.authorization || '').replace(/^Bearer /, '')); return { ok: true }; });
+route('POST', '/api/logout', 'any', ({ req }) => { db.prepare('DELETE FROM sessions WHERE token=?').run(sh((req.headers.authorization || '').replace(/^Bearer /, ''))); return { ok: true }; });
 route('PUT', '/api/settings', 'owner', ({ body }) => {
+  if (body.lock_min !== undefined) setSetting('lock_min', Math.max(0, Math.min(240, Math.round(Number(body.lock_min)) || 0)));
   if (body.store_name !== undefined) setSetting('store_name', String(body.store_name).trim().slice(0, 80) || DEFAULTS.store_name);
   if (body.footer !== undefined) setSetting('footer', String(body.footer).slice(0, 200));
   if (body.shop_on !== undefined) setSetting('shop_on', body.shop_on ? '1' : '0');
@@ -790,7 +796,7 @@ route('POST', '/api/admin/photos', 'owner', ({ body }) => {
 });
 
 // ---------- static + server ----------
-const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.json': 'application/json', '.webmanifest': 'application/manifest+json' };
+const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2' };
 const PUB = path.join(ROOT, 'public');
 function serveStatic(req, res, pathname) {
   let p = pathname === '/' ? '/index.html' : pathname === '/kiosk' ? '/kiosk.html' : pathname === '/shop' || pathname === '/shop/' ? '/shop.html' : pathname;
@@ -801,7 +807,7 @@ function serveStatic(req, res, pathname) {
     const html = fs.readFileSync(file, 'utf8').replace(/((?:src|href)=")(\/[^"?#]+\.(?:js|css))(")/g, (m, a, u, z) => { try { return `${a}${u}?v=${Math.floor(fs.statSync(path.join(PUB, u)).mtimeMs / 1000)}${z}`; } catch { return m; } });
     res.writeHead(200, { 'Content-Type': MIME['.html'], 'Cache-Control': 'no-cache, no-store' }); return res.end(html);
   }
-  res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream', 'Cache-Control': 'no-cache' });
+  res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream', 'Cache-Control': ext === '.woff2' || /[?&]v=/.test(req.url) ? 'public, max-age=31536000, immutable' : 'no-cache' });
   fs.createReadStream(file).pipe(res);
 }
 const SEC = {
