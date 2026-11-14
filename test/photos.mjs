@@ -35,5 +35,8 @@ try {
   const up = await call(`/api/items/${zo.id}/photo`, { method: 'POST', body: { image: 'data:image/jpeg;base64,' + jpg.toString('base64') } }, tok);
   ok(up.s === 200 && (await call('/api/items?q=zorba', {}, tok)).j.items[0].has_image, 'a snapped photo is saved for the item');
   ok((await call(`/api/items/${zo.id}/photo`, { method: 'POST', body: { image: 'nope' } }, tok)).s === 400, 'bad photo data is rejected');
+  const fnd = (await call('/api/admin/photos/found', {}, tok)).j.items; ok(fnd.some((x) => x.id === al.id) && !fnd.some((x) => x.id === zo.id), 'review list shows auto-found photos only');
+  ok((await call(`/api/items/${al.id}/photo/reject`, { method: 'POST' }, tok)).s === 200 && !(await call('/api/items?q=almaza', {}, tok)).j.items[0].has_image, 'a rejected photo is removed');
+  await call('/api/admin/photos', { method: 'POST', body: { action: 'start' } }, tok); await wait(600); ok(!(await call('/api/items?q=almaza', {}, tok)).j.items[0].has_image, 'a rejected photo is not searched again');
   console.log(`\n${pass} photo checks passed`);
 } catch (e) { console.error('\nFAILED:', e.message, '\n', out.slice(-500)); process.exitCode = 1; } finally { srv.kill(); fake.close(); fs.rmSync(dir, { recursive: true, force: true }); }

@@ -713,7 +713,7 @@ async function fetchPhoto(code) {
       try {
         const ir = await fetch(u, { signal: AbortSignal.timeout(15000) }); if (!ir.ok) continue;
         const ct = (ir.headers.get('content-type') || '').split(';')[0], buf = Buffer.from(await ir.arrayBuffer());
-        if (/^image\/(jpeg|png|webp)$/.test(ct) && buf.length > 1500 && buf.length <= 60e3) return `data:${ct};base64,${buf.toString('base64')}`;
+        if (/^image\/(jpeg|png|webp)$/.test(ct) && buf.length > 1500 && buf.length <= 140e3) return `data:${ct};base64,${buf.toString('base64')}`;
       } catch { throw new Error('net'); }
     }
   }
@@ -739,7 +739,7 @@ async function fetchByName(name) { // strict fallback for items without a usable
       try {
         const ir = await fetch(p.image_front_url, { signal: AbortSignal.timeout(15000) }); if (!ir.ok) continue;
         const ct = (ir.headers.get('content-type') || '').split(';')[0], buf = Buffer.from(await ir.arrayBuffer());
-        if (/^image\/(jpeg|png|webp)$/.test(ct) && buf.length > 1500 && buf.length <= 60e3) return `data:${ct};base64,${buf.toString('base64')}`;
+        if (/^image\/(jpeg|png|webp)$/.test(ct) && buf.length > 1500 && buf.length <= 140e3) return `data:${ct};base64,${buf.toString('base64')}`;
       } catch { throw new Error('net'); }
     }
   }
@@ -768,6 +768,14 @@ setTimeout(() => { if (getSetting('photo_auto') === '1') photoJob(); }, 20e3);
 setInterval(() => { if (getSetting('photo_auto') === '1') photoJob(); }, 3600e3).unref();
 route('GET', '/api/admin/photos', 'owner', () => ({ ...photo, missing: db.prepare("SELECT COUNT(*) n FROM items WHERE active=1 AND (image IS NULL OR image='')").get().n,
   with_photo: db.prepare("SELECT COUNT(*) n FROM items WHERE active=1 AND image IS NOT NULL AND image<>''").get().n, no_match: db.prepare('SELECT COUNT(*) n FROM photo_tried WHERE found=0').get().n }));
+route('GET', '/api/admin/photos/found', 'owner', ({ url }) => {
+  const off = Math.max(0, +(url.searchParams?.get('offset') || 0) || 0);
+  return { items: db.prepare("SELECT id,name,updated_at v FROM items WHERE active=1 AND photo_src IN ('barcode','name') ORDER BY updated_at DESC, id LIMIT 60 OFFSET ?").all(off) };
+});
+route('POST', '/api/items/(\\d+)/photo/reject', 'owner', ({ m }) => {
+  db.prepare("UPDATE items SET image=NULL, photo_src='rejected', updated_at=? WHERE id=?").run(now(), +m[1]);
+  db.prepare('INSERT OR REPLACE INTO photo_tried(item_id,at,found) VALUES(?,?,1)').run(+m[1], now()); invalidate(); return { ok: true };
+});
 route('GET', '/api/admin/photos/needed', 'owner', () => ({ items: db.prepare(`SELECT i.id,i.name,i.category,COALESCE((SELECT SUM(qty) FROM sale_items si WHERE si.item_id=i.id),0) sold FROM items i WHERE i.active=1 AND (i.image IS NULL OR i.image='') ORDER BY sold DESC, i.name LIMIT 40`).all() }));
 route('POST', '/api/items/(\\d+)/photo', 'any', ({ m, body }) => {
   const img = String(body.image || ''); if (!/^data:image\/(jpeg|png|webp);base64,/.test(img) || img.length > 300000) bad('bad_image');

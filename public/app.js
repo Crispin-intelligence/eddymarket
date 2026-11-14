@@ -392,6 +392,7 @@
         <label style="display:flex;gap:10px;align-items:center;margin:8px 0"><input type="checkbox" id="phauto" style="width:auto;min-height:0" ${S.set.photo_auto ? 'checked' : ''}> ${t('photos_auto')}</label>
         <div class="row"><button class="btn pri" data-act="photostart" ${p.running ? 'disabled' : ''}>${t('photos_find')}</button>${p.running ? `<button class="btn" data-act="photostop">${t('photos_stop')}</button>` : ''}</div>
         <div class="row" style="margin-top:8px"><button class="btn" data-act="photoretry">${t('photos_retry')}</button><button class="btn" data-act="photoneeded">📷 ${t('photos_snap')}</button></div>
+        <div class="row" style="margin-top:8px"><button class="btn" data-act="photoreview">👁 ${t('photos_review')}</button></div>
         <p class="muted" style="font-size:13px;margin-top:10px">${t('photos_nomatch')} <b class="num">${p.no_match}</b></p>`;
       $('#phauto').onchange = (e) => api('/api/settings', { method: 'PUT', body: { photo_auto: e.target.checked } }).then((s) => { S.set = s; }).catch(fail);
       if (p.running) setTimeout(drawPhotos, 3000);
@@ -459,6 +460,17 @@
     async testprint() { const s = { id: 0, created_at: new Date().toISOString(), user_name: S.user.name, status: 'ok', items: [{ name: 'Test item', qty: 2, price_cents: 150 }, { name: 'صنف تجريبي', qty: 1, price_cents: 99 }], total_cents: 399, total_ll: 360000, method: 'cash', currency: 'USD', tendered: 5, change_cents: 101, rate: S.set.rate }; await printReceipt(s); toast(t('test_sent')); },
     async saveshop() { const f = $('#shform'); try { S.set = await api('/api/settings', { method: 'PUT', body: { shop_on: f.on.checked, shop_wa: f.wa.value, shop_card: f.card.checked, shop_whish: f.whish.value } }); toast(t('saved')); drawShopCfg(); } catch (e) { fail(e); } },
     async ostatus(b) { try { await api(`/api/orders/${b.dataset.id}/status`, { method: 'PUT', body: { status: b.dataset.s } }); pollOrders(); const rows = await api('/api/orders'); drawOrders(rows); } catch (e) { fail(e); } },
+    async photoreview(el) {
+      const off = el && el.dataset.off ? +el.dataset.off : 0;
+      try {
+        const r = await api('/api/admin/photos/found?offset=' + off), tiles = r.items.map((i) => `<div class="pr" data-pid="${i.id}" style="position:relative"><img src="/img/${i.id}?v=${encodeURIComponent(i.v)}" alt="" style="width:100%;aspect-ratio:1;object-fit:contain;background:#f6f7fc;border-radius:12px"><button type="button" data-act="photoreject" data-id="${i.id}" aria-label="${t('remove')}" style="position:absolute;top:4px;inset-inline-end:4px;width:34px;height:34px;border:0;border-radius:50%;background:#c8102e;color:#fff;font-size:18px">✕</button><small style="display:block;line-height:1.2;margin-top:2px">${esc(i.name)}</small></div>`).join('');
+        if (!off) modal(`<h2>👁 ${t('photos_review')}</h2><p class="muted">${t('photos_review_info')}</p><div id="prev" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">${tiles}</div><div class="row" id="pmore"></div><div class="row"><button class="btn" data-act="closem">${t('cancel')}</button></div>`, true);
+        else $('#prev').insertAdjacentHTML('beforeend', tiles);
+        $('#pmore').innerHTML = r.items.length === 60 ? `<button class="btn" data-act="photoreview" data-off="${off + 60}">${t('more')}</button>` : '';
+        if (!r.items.length && !off) $('#prev').innerHTML = `<p>${t('photos_none')}</p>`;
+      } catch (err) { fail(err); }
+    },
+    photoreject(el) { api('/api/items/' + el.dataset.id + '/photo/reject', { method: 'POST' }).then(() => { el.closest('.pr')?.remove(); drawPhotos(); }).catch(fail); },
     async photoneeded() {
       try {
         const r = await api('/api/admin/photos/needed');
