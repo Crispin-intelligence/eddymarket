@@ -807,7 +807,7 @@ route('POST', '/api/admin/photos', 'owner', ({ body }) => {
 });
 
 // ---------- static + server ----------
-const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2' };
+const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2', '.jpg': 'image/jpeg' };
 const PUB = path.join(ROOT, 'public');
 function serveStatic(req, res, pathname) {
   let p = pathname === '/' ? '/index.html' : pathname === '/kiosk' ? '/kiosk.html' : pathname === '/shop' || pathname === '/shop/' ? '/shop.html' : pathname;
@@ -816,7 +816,8 @@ function serveStatic(req, res, pathname) {
   const ext = path.extname(file);
   if (ext === '.html') { // version every script/stylesheet by its modified time, so a new deploy is never hidden behind a cached copy (Cloudflare adds its own browser cache TTL)
     const html = fs.readFileSync(file, 'utf8').replace(/((?:src|href)=")(\/[^"?#]+\.(?:js|css))(")/g, (m, a, u, z) => { try { return `${a}${u}?v=${Math.floor(fs.statSync(path.join(PUB, u)).mtimeMs / 1000)}${z}`; } catch { return m; } });
-    res.writeHead(200, { 'Content-Type': MIME['.html'], 'Cache-Control': 'no-cache, no-store' }); return res.end(html);
+    const origin = `${String(req.headers['x-forwarded-proto'] || 'https').split(',')[0]}://${String(req.headers['x-forwarded-host'] || req.headers.host || 'localhost').split(',')[0]}`.replace(/^https:\/\/(localhost|127\.)/, 'http://$1'); // absolute URLs for link previews
+    res.writeHead(200, { 'Content-Type': MIME['.html'], 'Cache-Control': 'no-cache, no-store' }); return res.end(html.replaceAll('__ORIGIN__', origin));
   }
   res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream', 'Cache-Control': ext === '.woff2' || /[?&]v=/.test(req.url) ? 'public, max-age=31536000, immutable' : 'no-cache' });
   fs.createReadStream(file).pipe(res);

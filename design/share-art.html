@@ -1,0 +1,56 @@
+<!doctype html><meta charset="utf-8"><style>
+@font-face{font-family:P;font-weight:400;src:url(file:///home/claude/eddymarket/public/fonts/ibm-plex-sans-arabic-latin-400-normal.woff2)}
+@font-face{font-family:P;font-weight:600;src:url(file:///home/claude/eddymarket/public/fonts/ibm-plex-sans-arabic-latin-600-normal.woff2)}
+@font-face{font-family:P;font-weight:700;src:url(file:///home/claude/eddymarket/public/fonts/ibm-plex-sans-arabic-latin-700-normal.woff2)}
+@font-face{font-family:P;font-weight:600;src:url(file:///home/claude/eddymarket/public/fonts/ibm-plex-sans-arabic-arabic-600-normal.woff2);unicode-range:U+0600-06FF,U+FB50-FDFF,U+FE70-FEFC}
+@font-face{font-family:P;font-weight:700;src:url(file:///home/claude/eddymarket/public/fonts/ibm-plex-sans-arabic-arabic-700-normal.woff2);unicode-range:U+0600-06FF,U+FB50-FDFF,U+FE70-FEFC}
+*{box-sizing:border-box;margin:0}
+body{font-family:P,sans-serif;color:#fff;overflow:hidden;background:#0c1030}
+.bg{position:absolute;inset:0;background:radial-gradient(900px 620px at 78% 38%,#2c3a9a 0%,#18205a 45%,#0c1030 100%)}
+.bg:after{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.07) 1.5px,transparent 1.5px);background-size:30px 30px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 60%);mask-image:linear-gradient(90deg,transparent,#000 60%)}
+.tag{position:relative;display:inline-flex;align-items:center;background:#ffd23f;color:#c8102e;font-weight:700;letter-spacing:-.5px;line-height:1;clip-path:polygon(0 50%,15% 0,100% 0,100% 100%,15% 100%);filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))}
+.tag:before{content:"";position:absolute;left:7%;top:50%;width:.2em;height:.2em;margin-top:-.1em;border-radius:50%;background:#d9a91c}
+.chip{display:inline-block;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.22);border-radius:99px;font-weight:600}
+.phone{position:absolute;background:#070a1f;border-radius:13% / 6%;padding:2.4%;box-shadow:0 40px 80px rgba(0,0,0,.55),0 0 0 2px #2b3277 inset}
+.phone img{display:block;width:100%;border-radius:11% / 5%}
+.glow{position:absolute;border-radius:50%;background:#ffd23f;filter:blur(120px);opacity:.18}
+/* og 1200x630 */
+.og{position:relative;width:1200px;height:630px}
+.og .tag{font-size:70px;padding:34px 70px 34px 120px;margin-bottom:34px}
+.og .l{position:absolute;left:64px;top:92px;width:650px}
+.og h1{font-size:50px;line-height:1.12;font-weight:700;letter-spacing:-.5px}
+.og .ar{font-size:34px;font-weight:600;color:#ffd23f;margin-top:16px;direction:rtl;text-align:left}
+.og .chips{margin-top:30px;display:flex;gap:12px}.og .chip{font-size:22px;padding:10px 20px}
+.og .url{position:absolute;left:64px;bottom:40px;font-size:24px;color:#aeb6e6;font-weight:600}
+.og .phone{width:340px;left:800px;top:46px;transform:rotate(7deg)}
+/* till card */
+.till .l{top:150px}.till h1{font-size:54px}.till .sub{font-size:28px;color:#aeb6e6;margin-top:18px;font-weight:400;line-height:1.4}
+/* status 1080x1920 */
+.st{position:relative;width:1080px;height:1920px}
+.st .tag{font-size:88px;padding:42px 88px 42px 150px}
+.st .top{position:absolute;left:0;right:0;top:230px;text-align:center}
+.st h1{font-size:76px;line-height:1.1;font-weight:700;letter-spacing:-1px;margin-top:46px;padding:0 70px}
+.st .ar{font-size:50px;font-weight:600;color:#ffd23f;margin-top:20px;direction:rtl}
+.st .chips{margin-top:34px;display:flex;gap:14px;justify-content:center}.st .chip{font-size:30px;padding:14px 26px}
+.st .phone{width:450px;left:70px;top:880px;transform:rotate(-4deg)}
+.st .qr{position:absolute;left:612px;top:1330px;width:350px;background:#fff;border-radius:34px;padding:22px;text-align:center;color:#121733;box-shadow:0 20px 50px rgba(0,0,0,.45)}
+.st .qr img{width:100%;display:block}.st .qr b{display:block;font-size:30px;margin-top:8px}
+.st .cta{position:absolute;left:590px;top:940px;width:430px;text-align:left}
+.st .cta .big{font-size:58px;font-weight:700;line-height:1.1}.st .cta .u{margin-top:18px;font-size:30px;font-weight:600;color:#ffd23f}
+</style><body>
+<div id="out"></div>
+<script>
+const v=new URLSearchParams(location.search).get('v'), P='file:///tmp/art/shop.png';
+const o=document.getElementById('out');
+if(v==='og') o.innerHTML=`<div class="og"><div class="bg"></div><div class="glow" style="width:420px;height:420px;left:820px;top:90px"></div>
+<div class="l"><div class="tag">Eddy’s Market</div><h1>Your village supermarket, on your phone.</h1><div class="ar">سوبرماركت الضيعة صار على موبايلك</div>
+<div class="chips"><span class="chip">Pickup or delivery</span><span class="chip">Pay in $ or LL</span><span class="chip">Barka</span></div></div>
+<div class="url">eddy.ci-ccg.com/shop</div><div class="phone"><img src="${P}"></div></div>`;
+if(v==='till') o.innerHTML=`<div class="og till"><div class="bg"></div><div class="l"><div class="tag">Eddy’s Market</div><h1>Staff till</h1><div class="sub">Sign in to start selling.<br>Fast checkout in Arabic and English.</div></div><div class="url" style="left:64px">Crispin Intelligence</div></div>`;
+if(v==='status') o.innerHTML=`<div class="st"><div class="bg"></div><div class="glow" style="width:700px;height:700px;left:300px;top:900px"></div>
+<div class="top"><div class="tag">Eddy’s Market</div><h1>Your village supermarket, on your phone.</h1><div class="ar">سوبرماركت الضيعة صار على موبايلك</div>
+<div class="chips"><span class="chip">Pickup or delivery</span><span class="chip">Pay in $ or LL</span></div></div>
+<div class="phone"><img src="${P}"></div>
+<div class="qr"><img src="file:///tmp/art/qr.png"><b>Scan to order</b></div>
+<div class="cta"><div class="big">Order now,<br>skip the queue.</div><div class="u">eddy.ci-ccg.com/shop</div></div></div>`;
+</script>
