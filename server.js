@@ -47,10 +47,10 @@ CREATE INDEX IF NOT EXISTS ix_saleitems_item ON sale_items(item_id);
 `);
 
 // ---------- settings ----------
-const DEFAULTS = { store_name: 'Eddy Market', rate: '90000', footer: 'Thank you for shopping with us', tz: 'Asia/Beirut' };
+const DEFAULTS = { store_name: 'Eddy Market', rate: '90000', footer: 'Thank you for shopping with us', tz: 'Asia/Beirut', shop_on: '1', shop_wa: '' };
 const getSetting = (k) => db.prepare('SELECT value FROM settings WHERE key=?').get(k)?.value ?? DEFAULTS[k];
 const setSetting = (k, v) => db.prepare('INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value').run(k, String(v));
-const publicSettings = () => ({ store_name: getSetting('store_name'), rate: +getSetting('rate'), footer: getSetting('footer'), tz: getSetting('tz'), store_id: STORE, print_mode: getSetting('print_mode') || 'browser', print_auto: getSetting('print_auto') === '1', print_drawer: getSetting('print_drawer') === '1' });
+const publicSettings = () => ({ shop_on: getSetting('shop_on') === '1', shop_wa: getSetting('shop_wa'), store_name: getSetting('store_name'), rate: +getSetting('rate'), footer: getSetting('footer'), tz: getSetting('tz'), store_id: STORE, print_mode: getSetting('print_mode') || 'browser', print_auto: getSetting('print_auto') === '1', print_drawer: getSetting('print_drawer') === '1' });
 
 // ---------- users / auth ----------
 const hashPin = (pin, salt) => crypto.scryptSync(String(pin), salt, 32).toString('hex');
@@ -343,6 +343,8 @@ route('POST', '/api/logout', 'any', ({ req }) => { sessions.delete((req.headers.
 route('PUT', '/api/settings', 'owner', ({ body }) => {
   if (body.store_name !== undefined) setSetting('store_name', String(body.store_name).trim().slice(0, 80) || DEFAULTS.store_name);
   if (body.footer !== undefined) setSetting('footer', String(body.footer).slice(0, 200));
+  if (body.shop_on !== undefined) setSetting('shop_on', body.shop_on ? '1' : '0');
+  if (body.shop_wa !== undefined) setSetting('shop_wa', normPhone(body.shop_wa));
   if (body.rate !== undefined) { const r = Math.round(num(body.rate)); if (r < 1) bad('Rate must be above zero'); setSetting('rate', r); }
   return publicSettings();
 });
@@ -589,11 +591,87 @@ route('GET', '/api/kiosk/search', null, ({ url }) => {
   return rows.map((i) => kioskView(i, rate));
 });
 
+
+// ---------- online shop (customers) ----------
+db.exec(`CREATE TABLE IF NOT EXISTS orders(id INTEGER PRIMARY KEY AUTOINCREMENT, code TEXT UNIQUE NOT NULL, created_at TEXT NOT NULL,
+  name TEXT NOT NULL, phone TEXT NOT NULL, mode TEXT NOT NULL, address TEXT, note TEXT, total_cents INTEGER NOT NULL, rate INTEGER NOT NULL,
+  status TEXT NOT NULL DEFAULT 'new', items TEXT NOT NULL);`);
+// Lebanese numbers in any common form (03 123 456, +961 3 123456, 71123456) -> 9613123456
+function normPhone(s) {
+  let d = String(s || '').replace(/\D/g, ''); if (d.startsWith('00')) d = d.slice(2);
+  if (d.startsWith('961')) { /* already international */ } else if (d.startsWith('0')) d = '961' + d.slice(1); else if (d.length >= 7 && d.length <= 8) d = '961' + d;
+  return d.length >= 10 && d.length <= 15 ? d : '';
+}
+const SHOP_HIDE = new Set(['tobacco', 'alcohol']); // age-restricted goods are not sold online
+const shopOk = (i) => !SHOP_HIDE.has(i.category) && i.price_cents > 0;
+const orderHits = new Map();
+function orderLimited(ip) {
+  const now = Date.now(), a = (orderHits.get(ip) || []).filter((t) => now - t < 3600e3);
+  if (a.length >= 8) { orderHits.set(ip, a); return true; }
+  a.push(now); orderHits.set(ip, a); return false;
+}
+const orderCode = () => Array.from(crypto.randomBytes(6), (b) => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[b % 32]).join('');
+const orderLines = (o) => JSON.parse(o.items);
+const pubOrder = (o) => ({ code: o.code, status: o.status, mode: o.mode, created_at: o.created_at, total_cents: o.total_cents, total_ll: toLL(o.total_cents, o.rate), items: orderLines(o) });
+const staffOrder = (o) => ({ id: o.id, ...pubOrder(o), name: o.name, phone: o.phone, address: o.address, note: o.note });
+
+route('GET', '/api/shop/home', null, () => {
+  const rate = +getSetting('rate'), all = loadCache().filter(shopOk), counts = new Map();
+  for (const i of all) counts.set(i.category, (counts.get(i.category) || 0) + 1);
+  const withPic = all.filter((i) => i.has_image);
+  return { store_name: getSetting('store_name'), rate, open: getSetting('shop_on') === '1', wa: getSetting('shop_wa'),
+    featured: withPic.slice(0, 12).map((i) => kioskView(i, rate)),
+    recent: [...withPic].sort((a, b) => String(b.updated_at).localeCompare(String(a.updated_at))).slice(0, 12).map((i) => kioskView(i, rate)),
+    cats: [...counts].map(([category, n]) => ({ category, n })).filter((c) => c.category !== 'other').sort((a, b) => b.n - a.n)
+      .concat(counts.has('other') ? [{ category: 'other', n: counts.get('other') }] : []) };
+});
+route('GET', '/api/shop/items', null, ({ url }) => {
+  const rate = +getSetting('rate'), q = url.searchParams.get('q') || '', category = url.searchParams.get('category') || '', ids = url.searchParams.get('ids');
+  const lim = Math.min(60, +url.searchParams.get('limit') || 24), off = Math.max(0, +url.searchParams.get('offset') || 0);
+  let rows;
+  if (ids) { const set = new Set(ids.split(',').slice(0, 60).map(Number)); rows = loadCache().filter((i) => set.has(i.id)); } else rows = search(q, { category, limit: 5000 }).rows;
+  rows = rows.filter(shopOk);
+  if (!q && !ids) rows = [...rows.filter((i) => i.has_image), ...rows.filter((i) => !i.has_image)]; // photos first when browsing
+  return { total: rows.length, items: rows.slice(off, off + lim).map((i) => kioskView(i, rate)) };
+});
+route('POST', '/api/shop/order', null, ({ body, ip }) => {
+  if (getSetting('shop_on') !== '1') bad('Online ordering is closed right now', 403);
+  const name = String(body.name || '').trim().slice(0, 60); if (name.length < 2) bad('Enter your name');
+  const phone = normPhone(body.phone); if (!phone) bad('Enter a valid phone number');
+  const mode = body.mode === 'delivery' ? 'delivery' : 'pickup';
+  const address = String(body.address || '').trim().slice(0, 200); if (mode === 'delivery' && address.length < 5) bad('Enter your delivery address');
+  const note = String(body.note || '').trim().slice(0, 200);
+  const lines = Array.isArray(body.lines) ? body.lines : []; if (!lines.length || lines.length > 60) bad('Your cart is empty');
+  const byId = new Map(loadCache().map((i) => [i.id, i])); let total = 0; const out = [];
+  for (const l of lines) {
+    const it = byId.get(+l.item_id), qty = Math.round(num(l.qty) * 100) / 100;
+    if (!it || !shopOk(it) || !(qty > 0) || qty > 99) bad('One of the items is no longer available');
+    total += Math.round(qty * it.price_cents); out.push({ item_id: it.id, name: it.name, name_ar: it.name_ar, qty, price_cents: it.price_cents, unit: it.unit });
+  }
+  if (orderLimited(ip)) bad('Too many orders from this connection. Try again later.', 429);
+  let code; do code = orderCode(); while (db.prepare('SELECT 1 FROM orders WHERE code=?').get(code));
+  const rate = +getSetting('rate');
+  db.prepare('INSERT INTO orders(code,created_at,name,phone,mode,address,note,total_cents,rate,items) VALUES(?,?,?,?,?,?,?,?,?,?)')
+    .run(code, new Date().toISOString(), name, phone, mode, address, note, total, rate, JSON.stringify(out));
+  return { code, status: 'new', total_cents: total, total_ll: toLL(total, rate) };
+});
+route('GET', '/api/shop/orders', null, ({ url }) => {
+  const codes = (url.searchParams.get('codes') || '').split(',').filter((c) => /^[A-Z0-9]{6}$/.test(c)).slice(0, 20);
+  return codes.map((c) => db.prepare('SELECT * FROM orders WHERE code=?').get(c)).filter(Boolean).map(pubOrder);
+});
+route('GET', '/api/orders', 'any', () => db.prepare(`SELECT * FROM orders WHERE status IN ('new','accepted','ready') OR created_at>? ORDER BY CASE status WHEN 'new' THEN 0 WHEN 'accepted' THEN 1 WHEN 'ready' THEN 2 ELSE 3 END, id DESC LIMIT 100`)
+  .all(new Date(Date.now() - 2 * 864e5).toISOString()).map(staffOrder));
+route('PUT', '/api/orders/(\\d+)/status', 'any', ({ m, body }) => {
+  if (!['accepted', 'ready', 'done', 'rejected'].includes(body.status)) bad('Unknown status');
+  const r = db.prepare('UPDATE orders SET status=? WHERE id=?').run(body.status, +m[1]); if (!r.changes) bad('not_found', 404);
+  return staffOrder(db.prepare('SELECT * FROM orders WHERE id=?').get(+m[1]));
+});
+
 // ---------- static + server ----------
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.json': 'application/json', '.webmanifest': 'application/manifest+json' };
 const PUB = path.join(ROOT, 'public');
 function serveStatic(req, res, pathname) {
-  let p = pathname === '/' ? '/index.html' : pathname === '/kiosk' ? '/kiosk.html' : pathname;
+  let p = pathname === '/' ? '/index.html' : pathname === '/kiosk' ? '/kiosk.html' : pathname === '/shop' || pathname === '/shop/' ? '/shop.html' : pathname;
   const file = path.normalize(path.join(PUB, p));
   if (!file.startsWith(PUB + path.sep) || !fs.existsSync(file) || !fs.statSync(file).isFile()) { res.writeHead(404); return res.end('Not found'); }
   res.writeHead(200, { 'Content-Type': MIME[path.extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-cache' });

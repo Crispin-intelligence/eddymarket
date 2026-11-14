@@ -33,3 +33,7 @@ Settings → Receipt printer. The till draws the receipt as a picture (so Arabic
 - **Browser mode:** the normal print dialog. For no dialog, start Chrome with `--kiosk-printing`.
 
 Use "Test print" and "Open drawer" to check. Not yet tested on the real ZY908.
+
+## Customer shop (/shop) and online orders
+
+Customers open `https://<your-domain>/shop` (same tunnel, nothing extra to set up). They browse, add to cart and send an order for pickup or delivery. Orders appear in the till under **Orders** with a beep and a badge; staff accept, mark ready, load the order into the till, or message the customer on WhatsApp. Settings → Online shop: switch ordering on/off and set the store WhatsApp number (customers can send each order there). Tobacco and alcohol are never shown online. Customers pay at pickup or delivery.

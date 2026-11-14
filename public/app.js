@@ -43,6 +43,7 @@
   const dateFmt = (iso) => new Date(iso).toLocaleString(I.lang === 'ar' ? 'ar-LB-u-nu-latn' : 'en-GB', { timeZone: S.set.tz, dateStyle: 'medium', timeStyle: 'short' });
   const tagHtml = (cents, cls = '') => `<span class="tag ${cls}"><span class="num">${I.usd(cents)}</span></span>`;
   const IC = {
+    orders: '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/>',
     sell: '<path d="M3 4h2.2l2.3 10.2h9.4l2.1-7.6H6.3"/><circle cx="9" cy="19" r="1.4"/><circle cx="17" cy="19" r="1.4"/>',
     items: '<path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5 12 12l8.5-4.5M12 12v9"/>',
     sales: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',
@@ -81,25 +82,25 @@
       S.set = await api('/api/settings'); render();
     } catch (e) { S.pin = ''; drawLogin(e.code === 429 ? t('locked') : t('wrong_pin')); }
   }
-  function signedOut() { S.token = ''; S.user = null; SS.del('tok'); S.cart = []; S.pin = ''; S.pinUser = null; renderLogin(); }
+  function signedOut() { S.orderSeen = false; S.newOrders = 0; S.token = ''; S.user = null; SS.del('tok'); S.cart = []; S.pin = ''; S.pinUser = null; renderLogin(); }
 
   // ---------- shell ----------
   function render() { if (!S.user) return renderLogin(); renderShell(); }
   function renderShell() {
-    const nav = [['sell', 'sell'], ['items', 'items'], ['sales', 'sales']];
+    const nav = [['sell', 'sell'], ['orders', 'orders'], ['items', 'items'], ['sales', 'sales']];
     if (isOwner()) nav.push(['dashboard', 'dashboard'], ['settings', 'settings']);
     $('#root').innerHTML = `<div id="app"><nav class="rail" aria-label="Main">
       <div class="brand"><span class="tag">E</span></div>
-      ${nav.map(([v, ic]) => `<button data-act="nav" data-v="${v}" class="${S.view === v ? 'on' : ''}">${icon(ic)}<span>${t(v)}</span></button>`).join('')}
+      ${nav.map(([v, ic]) => `<button data-act="nav" data-v="${v}" class="${S.view === v ? 'on' : ''}">${icon(ic)}<span>${t(v)}</span>${v === 'orders' ? `<i class="bdg" id="obdg" ${S.newOrders ? '' : 'hidden'}>${S.newOrders || ''}</i>` : ''}</button>`).join('')}
       <a href="/kiosk" target="_blank" rel="noopener">${icon('kiosk')}<span>${t('kiosk')}</span></a>
       <span class="grow"></span>
       <button data-act="lang">${icon('lang')}<span>${I.lang === 'ar' ? 'EN' : 'عربي'}</span></button>
       <button data-act="logout">${icon('out')}<span>${t('logout')}</span></button></nav>
       <main class="main" id="view"></main></div>`;
-    renderView();
+    renderView(); if (!S.orderSeen) pollOrders();
   }
   function renderView() {
-    ({ sell: viewSell, items: viewItems, sales: viewSales, dashboard: viewDash, settings: viewSettings }[S.view] || viewSell)();
+    ({ sell: viewSell, orders: viewOrders, items: viewItems, sales: viewSales, dashboard: viewDash, settings: viewSettings }[S.view] || viewSell)();
   }
 
   // ---------- sell ----------
@@ -320,6 +321,36 @@
     } catch (e) { fail(e); }
   }
 
+  // ---------- online orders ----------
+  const waNum = (p) => String(p || '').replace(/\D/g, '');
+  async function pollOrders() {
+    if (!S.user) return;
+    try {
+      const rows = await api('/api/orders'), n = rows.filter((o) => o.status === 'new').length;
+      if (n > (S.newOrders || 0) && S.orderSeen) { beep(); setTimeout(beep, 350); toast(t('o_new_toast')); }
+      S.newOrders = n; S.orderSeen = true; const b = $('#obdg'); if (b) { b.hidden = !n; b.textContent = n || ''; }
+      if (S.view === 'orders' && !$('#modal .modal') && !document.activeElement?.closest?.('#ords')) drawOrders(rows);
+    } catch { /* offline: the banner already says so */ }
+  }
+  function drawOrders(rows) {
+    const el = $('#ords'); if (!el) return;
+    const when = (o) => dateFmt(o.created_at), ar = I.lang === 'ar';
+    const msg = (o) => ar ? `مرحباً ${o.name}، طلبك ${o.code} من ${S.set.store_name} ${o.status === 'ready' ? 'جاهز' : o.status === 'accepted' ? 'تم قبوله' : o.status === 'rejected' ? 'للأسف غير متوفر حالياً' : 'وصلنا'}.` : `Hello ${o.name}, your order ${o.code} at ${S.set.store_name} is ${o.status === 'ready' ? 'ready' : o.status === 'accepted' ? 'accepted' : o.status === 'rejected' ? 'sadly not available right now' : 'received'}.`;
+    el.innerHTML = rows.length ? rows.map((o) => `<article class="ord ${o.status}"><header><b>${o.code}</b><span class="pill ${o.status === 'new' ? 'bad' : ''}">${t('o_' + o.status)}</span><span class="grow"></span><span class="muted">${when(o)}</span></header>
+      <div class="who"><b>${esc(o.name)}</b> · <a href="tel:+${o.phone}">+${o.phone}</a> · <span class="mode">${t('o_' + o.mode)}</span></div>${o.mode === 'delivery' && o.address ? `<div class="muted">📍 ${esc(o.address)}</div>` : ''}${o.note ? `<div class="muted">📝 ${esc(o.note)}</div>` : ''}
+      <ul>${o.items.map((l) => `<li><span>${l.qty} × ${esc(I.itemName(l))}</span><span class="num">${I.usd(Math.round(l.qty * l.price_cents))}</span></li>`).join('')}</ul>
+      <div class="tt"><b class="num">${I.usd(o.total_cents)}</b><span class="muted num">${I.ll(o.total_ll)}</span></div>
+      <div class="row">${o.status === 'new' ? `<button class="btn pri" data-act="ostatus" data-id="${o.id}" data-s="accepted">${t('o_accept')}</button><button class="btn" data-act="ostatus" data-id="${o.id}" data-s="rejected">${t('o_reject')}</button>` : ''}
+      ${o.status === 'accepted' ? `<button class="btn pri" data-act="ostatus" data-id="${o.id}" data-s="ready">${t('o_ready_btn')}</button>` : ''}${o.status === 'ready' ? `<button class="btn pri" data-act="ostatus" data-id="${o.id}" data-s="done">${t('o_done_btn')}</button>` : ''}
+      ${o.status === 'accepted' || o.status === 'ready' || o.status === 'new' ? `<button class="btn" data-act="oload" data-id="${o.id}">${t('o_load')}</button>` : ''}
+      <a class="btn" target="_blank" rel="noopener" href="https://wa.me/${o.phone}?text=${encodeURIComponent(msg(o))}">${t('o_msg')}</a></div></article>`).join('') : `<div class="empty">${t('o_none')}</div>`;
+    S.orders = rows;
+  }
+  async function viewOrders() {
+    $('#view').innerHTML = `<div class="topbar"><h1>${t('orders')}</h1></div><div id="ords"></div>`;
+    try { drawOrders(await api('/api/orders')); } catch (e) { fail(e); }
+  }
+
   // ---------- dashboard ----------
   async function viewDash() {
     $('#view').innerHTML = `<div class="topbar"><h1>${t('dashboard')}</h1></div><div id="dash"></div>`;
@@ -345,9 +376,17 @@
       <div class="card"><h2>${t('team')}</h2><div id="team"></div><form id="uform" style="margin-top:14px;display:grid;gap:10px"><h2 style="margin:0;font-size:16px">${t('add_member')}</h2>
       <input name="name" placeholder="${esc(t('name'))}" required><div class="grid2"><input name="pin" inputmode="numeric" pattern="\\d{4,8}" placeholder="${esc(t('pin'))}" required>
       <select name="role"><option value="cashier">${t('cashier_role')}</option><option value="owner">${t('owner')}</option></select></div><button class="btn pri" type="submit">${t('add_member')}</button></form></div>
+      <div class="card"><h2>${t('shop_card')}</h2><div id="shopcfg"></div></div>
       <div class="card"><h2>${t('printer')}</h2><div id="prn"></div></div>
       <div class="card"><h2>${t('backups')}</h2><p class="muted" style="margin-top:0">${t('backup_info')}</p><div id="bk"></div><div class="row"><button class="btn pri" data-act="backupnow">${t('backup_now')}</button></div></div></div>`;
-    drawTeam(); drawBackups(); drawPrinter();
+    drawTeam(); drawBackups(); drawPrinter(); drawShopCfg();
+  }
+  function drawShopCfg() {
+    const link = location.origin + '/shop';
+    $('#shopcfg').innerHTML = `<form id="shform" style="display:grid;gap:10px"><label style="display:flex;gap:10px;align-items:center"><input type="checkbox" name="on" style="width:auto;min-height:0" ${S.set.shop_on ? 'checked' : ''}> ${t('shop_on')}</label>
+      <label class="f">${t('shop_wa')}<input name="wa" inputmode="tel" placeholder="03 123 456" value="${esc(S.set.shop_wa)}"></label><p class="muted" style="margin:0;font-size:13px">${t('shop_wa_hint')}</p>
+      <label class="f">${t('shop_link')}<input readonly value="${esc(link)}" onfocus="this.select()"></label>
+      <div class="row"><button type="button" class="btn pri" data-act="saveshop">${t('save')}</button><a class="btn" href="/shop" target="_blank" rel="noopener">${t('shop_open')}</a></div></form>`;
   }
   async function drawPrinter() {
     try {
@@ -400,6 +439,9 @@
     clear() { S.cart = []; drawCart(); $('#q')?.focus(); },
     pay: openPay, closem: closeModal, done: finishSale, print() { printReceipt(S.lastSale); }, opendrawer() { api('/api/drawer', { method: 'POST' }).then(() => toast(t('drawer_opened'))).catch((e) => toast(e.message, true)); },
     async testprint() { const s = { id: 0, created_at: new Date().toISOString(), user_name: S.user.name, status: 'ok', items: [{ name: 'Test item', qty: 2, price_cents: 150 }, { name: 'صنف تجريبي', qty: 1, price_cents: 99 }], total_cents: 399, total_ll: 360000, method: 'cash', currency: 'USD', tendered: 5, change_cents: 101, rate: S.set.rate }; await printReceipt(s); toast(t('test_sent')); },
+    async saveshop() { const f = $('#shform'); try { S.set = await api('/api/settings', { method: 'PUT', body: { shop_on: f.on.checked, shop_wa: f.wa.value } }); toast(t('saved')); drawShopCfg(); } catch (e) { fail(e); } },
+    async ostatus(b) { try { await api(`/api/orders/${b.dataset.id}/status`, { method: 'PUT', body: { status: b.dataset.s } }); pollOrders(); const rows = await api('/api/orders'); drawOrders(rows); } catch (e) { fail(e); } },
+    oload(b) { const o = (S.orders || []).find((x) => x.id === +b.dataset.id); if (!o) return; S.cart = o.items.map((l) => ({ id: l.item_id, barcode: '', name: l.name, name_ar: l.name_ar, price_cents: l.price_cents, unit: l.unit, qty: l.qty })); S.view = 'sell'; render(); toast(t('o_loaded')); },
     async saveprinter() { const f = document.getElementById('pnform'); const d = Object.fromEntries(new FormData(f)); try { await api('/api/admin/printer', { method: 'PUT', body: { ...d, drawer: f.drawer.checked, auto: f.auto.checked } }); S.set = await api('/api/settings'); toast(t('saved')); drawPrinter(); } catch (e) { fail(e); } },
     pm(b) { S.pay.method = b.dataset.m; drawPay(); }, pc(b) { S.pay.cur = b.dataset.c; S.pay.tendered = ''; drawPay(); },
     qa(b) { S.pay.tendered = String(b.dataset.v); drawPay(); },
@@ -418,6 +460,7 @@
     },
     async toggleuser(b) { try { await api('/api/admin/users/' + b.dataset.id, { method: 'PUT', body: { active: b.dataset.on === '1' } }); drawTeam(); } catch (e) { fail(e); } },
   };
+  setInterval(pollOrders, 20000);
   document.addEventListener('click', (e) => { const b = e.target.closest('[data-act]'); if (b && b.tagName !== 'INPUT' && A[b.dataset.act]) A[b.dataset.act](b); });
   document.addEventListener('change', (e) => {
     const el = e.target;
