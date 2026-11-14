@@ -77,7 +77,7 @@ if (!db.prepare("SELECT 1 FROM users WHERE role='owner'").get()) {
   createUser('Owner', 'owner', pin);
   announceOwnerPin(pin, `First run for store "${STORE}".`);
 }
-if (!db.prepare('SELECT 1 FROM items LIMIT 1').get() && process.env.SEED_DEMO !== '0') {
+if ((!db.prepare('SELECT 1 FROM items LIMIT 1').get() && process.env.SEED_DEMO !== '0') || process.env.SEED_DEMO === '1') {
   seedDemo(db);
   console.log('  Demo items loaded (set SEED_DEMO=0 to start empty).');
 }
@@ -425,6 +425,10 @@ route('GET', '/api/kiosk/lookup', null, ({ url }) => {
   const i = findByBarcode(url.searchParams.get('barcode') || '');
   if (!i) bad('not_found', 404);
   return kioskView(i, +getSetting('rate'));
+});
+route('GET', '/api/kiosk/featured', null, () => {
+  const rate = +getSetting('rate');
+  return loadCache().filter((i) => i.has_image).slice(0, 8).map((i) => kioskView(i, rate)); // items with a photo, as tap-to-try examples
 });
 route('GET', '/api/kiosk/search', null, ({ url }) => {
   const rate = +getSetting('rate');

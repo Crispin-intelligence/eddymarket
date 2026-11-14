@@ -61,7 +61,7 @@
     t(k, v) { let s = (dict[I.lang] && dict[I.lang][k]) || en[k] || k; if (v) for (const x in v) s = s.replace(`{${x}}`, v[x]); return s; },
     setLang(l) { I.lang = l; ls('set', l); I.apply(); },
     apply() { document.documentElement.lang = I.lang; document.documentElement.dir = I.lang === 'ar' ? 'rtl' : 'ltr'; },
-    CATS: { dairy: '🥛', bakery: '🥖', produce: '🥬', meat: '🍗', frozen: '🧊', pantry: '🥫', snacks: '🍫', drinks: '🥤', cleaning: '🧴', personal: '🧼', tobacco: '🚬', other: '📦' },
+    CATS: { dairy: '🥛', bakery: '🥖', produce: '🥬', meat: '🍗', frozen: '🧊', pantry: '🥫', snacks: '🍫', drinks: '🥤', cleaning: '🧴', personal: '🧼', tobacco: '🚬', __cart: '🛒', other: '📦' },
     catName(c) { return c ? (en['cat_' + c] ? I.t('cat_' + c) : c) : I.t('cat_other'); },
     catIcon(c) { return I.CATS[c] || '🏷️'; },
     itemName(i) { return I.lang === 'ar' ? (i.name_ar || i.name) : i.name; },

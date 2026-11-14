@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 // Demo catalogue so a fresh install is not empty. Generic products, invented in-store barcodes.
 // Replace with real data via Items > Import CSV.
 export const DEMO = [
@@ -28,12 +31,21 @@ const ean13 = (body12) => {
   const s = [...body12].reduce((a, d, i) => a + Number(d) * (i % 2 ? 3 : 1), 0);
   return body12 + ((10 - (s % 10)) % 10);
 };
+// Pictures for the showcase items (generated, replace from Items > edit any time).
+const IMG = { 'Olive oil 1 L': 'olive', 'Labneh 500 g': 'labneh', 'Arabic bread': 'bread', Tomatoes: 'tomato', 'Chicken breast': 'chicken', 'Eggs, tray of 30': 'eggs',
+  'Soda can': 'soda', 'Chocolate bar': 'choco', 'Potato chips': 'chips', 'Ground coffee 250 g': 'coffee', 'Rice 5 kg': 'rice', 'Water 1.5 L': 'water' };
+const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'seed-img');
+const pic = (name) => { const f = IMG[name] && path.join(dir, IMG[name] + '.jpg'); return f && fs.existsSync(f) ? 'data:image/jpeg;base64,' + fs.readFileSync(f).toString('base64') : null; };
+// Safe to run on every start: adds missing demo items and pictures, never overwrites anything the shop has edited.
 export function seedDemo(db) {
-  const ins = db.prepare('INSERT INTO items(barcode,name,name_ar,category,price_cents,cost_cents,stock,min_stock,unit,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)');
+  const has = db.prepare('SELECT id,image FROM items WHERE barcode=?');
+  const ins = db.prepare('INSERT INTO items(barcode,name,name_ar,category,price_cents,cost_cents,stock,min_stock,unit,image,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)');
+  const setImg = db.prepare('UPDATE items SET image=?,updated_at=? WHERE id=?');
   const at = new Date().toISOString();
   DEMO.forEach(([name, ar, cat, usd, unit], n) => {
-    const price = Math.round(usd * 100);
-    const kg = unit === 'kg';
-    ins.run(ean13(`2000000${String(n + 1).padStart(5, '0')}`), name, ar, cat, price, Math.round(price * 0.72), kg ? 20 + (n % 15) : 12 + ((n * 7) % 48), kg ? 8 : 6, unit, at);
+    const price = Math.round(usd * 100), kg = unit === 'kg', code = ean13(`2000000${String(n + 1).padStart(5, '0')}`);
+    const ex = has.get(code);
+    if (ex) { if (!ex.image && pic(name)) setImg.run(pic(name), at, ex.id); return; }
+    ins.run(code, name, ar, cat, price, Math.round(price * 0.72), kg ? 20 + (n % 15) : 12 + ((n * 7) % 48), kg ? 8 : 6, unit, pic(name), at);
   });
 }

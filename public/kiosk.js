@@ -17,7 +17,8 @@
   }
   function idle() {
     clearTimeout(resetTimer);
-    $('#stage').innerHTML = `<div class="k-idle"><div class="k-hang"></div><span class="tag" style="font-size:clamp(34px,6vw,70px)">${esc(store)}</span><h1 style="margin-top:28px">${t('kiosk_title')}</h1><p>${t('kiosk_hint')}</p></div>`;
+    $('#stage').innerHTML = `<div class="k-idle"><div class="k-hang"></div><span class="tag" style="font-size:clamp(34px,6vw,70px)">${esc(store)}</span><h1 style="margin-top:28px">${t('kiosk_title')}</h1><p>${t('kiosk_hint')}</p><div class="k-try" id="ktry"></div></div>`;
+    fetch('/api/kiosk/featured').then((r) => r.json()).then((list) => { const box = $('#ktry'); if (!box || !Array.isArray(list)) return; box.innerHTML = list.map((i) => `<button type="button" data-id="${i.id}"><span class="th">${pic(i)}</span><span>${esc(I.itemName(i))}</span></button>`).join(''); box.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => showItem(list.find((x) => x.id === +b.dataset.id)))); }).catch(() => {});
   }
   const armReset = () => { clearTimeout(resetTimer); resetTimer = setTimeout(idle, 25000); };
   function showItem(i) {

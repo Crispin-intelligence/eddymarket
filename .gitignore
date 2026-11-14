@@ -15,3 +15,4 @@ SaveLayoutTree/
 *.bak
 data/
 node_modules/
+logs/

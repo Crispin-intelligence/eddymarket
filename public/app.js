@@ -108,7 +108,7 @@
       <div class="topbar"><h1>${t('sell')}</h1><span class="sp"></span><span class="who">${esc(S.user.name)}</span></div>
       <div class="search"><input id="q" type="search" autocomplete="off" placeholder="${esc(t('search_ph'))}" value="${esc(S.q)}" aria-label="${esc(t('search_ph'))}"></div>
       <div class="chips" id="chips"></div><div class="scroll"><div class="tiles" id="tiles"></div><div id="more"></div></div></section>
-      <aside class="receipt" aria-label="${esc(t('cart'))}"><header><h2>${t('cart')}</h2><button class="btn sm" data-act="clear">${t('clear')}</button></header>
+      <aside class="receipt" aria-label="${esc(t('cart'))}"><header><h2>${t('cart')}</h2><button class="btn sm" data-act="clear">${t('clear')}</button><button class="btn sm grab" data-act="cartsheet" aria-label="${esc(t('cart'))}">⌄</button></header>
       <div class="lines" id="lines"></div><footer id="cfoot"></footer></aside></div>`;
     drawCart();
     try { S.cats = await api('/api/categories'); } catch (e) { fail(e); }
@@ -151,7 +151,8 @@
       <div class="qty"><button data-act="dec" data-n="${n}" aria-label="-">−</button><input type="number" min="0" step="any" inputmode="decimal" value="${l.qty}" data-act="setqty" data-n="${n}" aria-label="${esc(t('qty'))}"><button data-act="inc" data-n="${n}" aria-label="+">+</button></div>
       <div class="amt num">${I.usd(lineCents(l))}</div></div>`).join('') : `<div class="empty">${t('cart_empty')}</div>`;
     const c = cartCents();
-    $('#cfoot').innerHTML = `<div class="totalrow"><span>${t('total')}</span>${tagHtml(c)}</div><div class="ll num" style="text-align:end">${I.ll(toLL(c))}</div>
+    const cnt = S.cart.length; $('.receipt')?.classList.toggle('has', cnt > 0); if (!cnt) $('.receipt')?.classList.remove('open');
+    $('#cfoot').innerHTML = `<div class="totalrow" data-act="cartsheet"><span class="cnt" aria-hidden="true">${I.catIcon('__cart')}<b>${cnt}</b></span><span class="tl">${t('total')}</span>${tagHtml(c)}</div><div class="ll num" style="text-align:end">${I.ll(toLL(c))}</div>
       <button class="btn pri big" data-act="pay" ${S.cart.length ? '' : 'disabled'}>${t('pay')}</button>`;
   }
   async function scanSubmit(v) {
@@ -232,9 +233,9 @@
     $('#icount').textContent = t('items_count', { n: S.total.toLocaleString('en-US') });
     if (!S.items.length) { $('#itbl').innerHTML = `<div class="empty">${t('no_items')}</div>`; return; }
     $('#itbl').innerHTML = `<table class="tbl"><thead><tr><th></th><th>${t('name')}</th><th>${t('barcode')}</th><th>${t('category')}</th><th>${t('price')}</th>${isOwner() ? `<th>${t('cost_usd')}</th>` : ''}<th>${t('stock')}</th></tr></thead><tbody>
-      ${S.items.map((i) => `<tr class="${isOwner() ? 'click' : ''}" data-act="${isOwner() ? 'edit' : ''}" data-id="${i.id}"><td><span class="thumb">${pic(i)}</span></td><td><b>${esc(i.name)}</b><div class="muted">${esc(i.name_ar)}</div></td><td class="num">${esc(i.barcode)}</td>
-      <td>${esc(I.catName(i.category))}</td><td><span class="num">${I.usd(i.price_cents)}</span><div class="muted num">${I.ll(i.price_ll)}</div></td>${isOwner() ? `<td class="num">${I.usd(i.cost_cents)}</td>` : ''}
-      <td>${i.stock < 0 ? `<span class="pill bad num">${i.stock}</span>` : i.min_stock > 0 && i.stock <= i.min_stock ? `<span class="pill warn num">${i.stock}</span>` : `<span class="num">${i.stock}</span>`} ${i.unit === 'kg' ? t('kg') : ''}</td></tr>`).join('')}</tbody></table>
+      ${S.items.map((i) => `<tr class="${isOwner() ? 'click' : ''}" data-act="${isOwner() ? 'edit' : ''}" data-id="${i.id}"><td><span class="thumb">${pic(i)}</span></td><td><b>${esc(i.name)}</b><div class="muted">${esc(i.name_ar)}</div></td><td class="num bc">${esc(i.barcode)}</td>
+      <td class="cat">${esc(I.catName(i.category))}</td><td class="pc"><span class="num">${I.usd(i.price_cents)}</span><div class="muted num">${I.ll(i.price_ll)}</div></td>${isOwner() ? `<td class="num cost">${I.usd(i.cost_cents)}</td>` : ''}
+      <td class="stk">${i.stock < 0 ? `<span class="pill bad num">${i.stock}</span>` : i.min_stock > 0 && i.stock <= i.min_stock ? `<span class="pill warn num">${i.stock}</span>` : `<span class="num">${i.stock}</span>`} ${i.unit === 'kg' ? t('kg') : ''}</td></tr>`).join('')}</tbody></table>
       ${S.total > S.items.length ? `<button class="btn" data-act="moreitems" style="margin-top:12px">${t('load_more')}</button>` : ''}`;
   }
   let imgState = { changed: false, data: null };
@@ -358,6 +359,7 @@
     inc(b) { S.cart[+b.dataset.n].qty = Math.round((S.cart[+b.dataset.n].qty + 1) * 1000) / 1000; drawCart(); },
     dec(b) { const l = S.cart[+b.dataset.n]; l.qty = Math.round((l.qty - 1) * 1000) / 1000; if (l.qty <= 0) S.cart.splice(+b.dataset.n, 1); drawCart(); },
     del(b) { S.cart.splice(+b.dataset.n, 1); drawCart(); },
+    cartsheet() { $('.receipt')?.classList.toggle('open'); },
     clear() { S.cart = []; drawCart(); $('#q')?.focus(); },
     pay: openPay, closem: closeModal, done: finishSale, print() { window.print(); },
     pm(b) { S.pay.method = b.dataset.m; drawPay(); }, pc(b) { S.pay.cur = b.dataset.c; S.pay.tendered = ''; drawPay(); },
