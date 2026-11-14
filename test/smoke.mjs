@@ -50,9 +50,9 @@ try {
   ok((await call('/api/items?q=lebneh', {}, tok)).j.items.some((i) => /labneh/i.test(i.name)), 'search: a misspelling still finds the item');
   const rl = (await call('/api/items?q=' + encodeURIComponent('labneh chocolat'), {}, tok)).j; ok(rl.total >= 1 && /labneh/i.test(rl.items[0].name), 'search: when no item has every word, the best partial match is shown');
   // --- online shop ---
-  const home = await call('/api/shop/home'); ok(home.s === 200 && home.j.open && home.j.featured.length >= 1 && !home.j.cats.some((c) => c.category === 'tobacco'), 'shop home is public and hides tobacco');
+  const home = await call('/api/shop/home'); ok(home.s === 200 && home.j.open && home.j.featured.length >= 1 && home.j.cats.some((c) => c.category === 'tobacco') && home.j.pay.card === true, 'shop home is public, shows every category and the payment options');
   const sl = (await call('/api/shop/items?q=labneh')).j; ok(sl.items.length >= 1 && !('cost_cents' in sl.items[0]) && !('stock' in sl.items[0]), 'shop items hide cost and stock');
-  ok((await call('/api/shop/items?q=cigarettes')).j.total === 0, 'tobacco is not sold online');
+  ok((await call('/api/shop/items?q=cigarettes')).j.total >= 1, 'everything is sold online, tobacco included');
   const so = { name: 'Maya', phone: '03 123 456', mode: 'pickup', lines: [{ item_id: sl.items[0].id, qty: 2 }, { item_id: kg.id, qty: 1.5 }] };
   ok((await call('/api/shop/order', { method: 'POST', body: { ...so, name: '' } })).s === 400 && (await call('/api/shop/order', { method: 'POST', body: { ...so, phone: '12' } })).s === 400 && (await call('/api/shop/order', { method: 'POST', body: { ...so, mode: 'delivery' } })).s === 400, 'order needs name, phone and (for delivery) an address');
   ok((await call('/api/shop/order', { method: 'POST', body: { ...so, lines: [{ item_id: 999999, qty: 1 }] } })).s === 400 && (await call('/api/shop/order', { method: 'POST', body: { ...so, lines: [{ item_id: sl.items[0].id, qty: -1 }] } })).s === 400, 'order rejects unknown items and bad quantities');
@@ -62,6 +62,11 @@ try {
   const ol = (await call('/api/orders', {}, ct)).j; ok(ol.length === 1 && ol[0].phone === '9613123456' && ol[0].name === 'Maya', 'till staff see the new order with a normalized phone');
   ok((await call('/api/orders')).s === 401, 'orders list needs login');
   ok((await call(`/api/orders/${ol[0].id}/status`, { method: 'PUT', body: { status: 'accepted' } }, ct)).j.status === 'accepted' && (await call('/api/shop/orders?codes=' + od.j.code)).j[0].status === 'accepted', 'staff can accept an order and the customer sees it');
+  const pw = async (pay) => (await call('/api/shop/order', { method: 'POST', body: { ...so, lines: [{ item_id: sl.items[0].id, qty: 1 }], pay } })).j.pay_method;
+  ok(await pw('whish') === 'cash' && await pw('card') === 'card', 'Whish is refused until a number is set; card works by default');
+  await call('/api/settings', { method: 'PUT', body: { shop_whish: '71 000 111', shop_card: false } }, tok);
+  ok(await pw('whish') === 'whish' && await pw('card') === 'cash', 'Whish and card options follow the settings');
+  const ol2 = (await call('/api/orders', {}, ct)).j; ok(ol2[0].pay_status === 'unpaid' && (await call(`/api/orders/${ol2[0].id}/paid`, { method: 'PUT' }, ct)).j.pay_status === 'paid', 'staff can mark an order paid');
   ok((await call('/api/settings', { method: 'PUT', body: { shop_on: false, shop_wa: '03 987 654' } }, tok)).j.shop_wa === '9613987654', 'owner closes the shop and sets the WhatsApp number');
   ok((await call('/api/shop/order', { method: 'POST', body: so })).s === 403, 'orders are refused while the shop is closed');
   await call('/api/settings', { method: 'PUT', body: { shop_on: true } }, tok);

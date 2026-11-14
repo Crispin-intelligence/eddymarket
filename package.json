@@ -5,5 +5,5 @@
   "type": "module",
   "private": true,
   "engines": { "node": ">=22.5" },
-  "scripts": { "start": "node --disable-warning=ExperimentalWarning server.js", "test": "node --disable-warning=ExperimentalWarning test/smoke.mjs" }
+  "scripts": { "start": "node --disable-warning=ExperimentalWarning server.js", "test": "node --disable-warning=ExperimentalWarning test/smoke.mjs && node --disable-warning=ExperimentalWarning test/photos.mjs" }
 }

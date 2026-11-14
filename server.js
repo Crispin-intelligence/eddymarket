@@ -47,10 +47,10 @@ CREATE INDEX IF NOT EXISTS ix_saleitems_item ON sale_items(item_id);
 `);
 
 // ---------- settings ----------
-const DEFAULTS = { store_name: 'Eddy Market', rate: '90000', footer: 'Thank you for shopping with us', tz: 'Asia/Beirut', shop_on: '1', shop_wa: '' };
+const DEFAULTS = { store_name: 'Eddy Market', rate: '90000', footer: 'Thank you for shopping with us', tz: 'Asia/Beirut', shop_on: '1', shop_wa: '', shop_card: '1', shop_whish: '', photo_auto: '1' };
 const getSetting = (k) => db.prepare('SELECT value FROM settings WHERE key=?').get(k)?.value ?? DEFAULTS[k];
 const setSetting = (k, v) => db.prepare('INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value').run(k, String(v));
-const publicSettings = () => ({ shop_on: getSetting('shop_on') === '1', shop_wa: getSetting('shop_wa'), store_name: getSetting('store_name'), rate: +getSetting('rate'), footer: getSetting('footer'), tz: getSetting('tz'), store_id: STORE, print_mode: getSetting('print_mode') || 'browser', print_auto: getSetting('print_auto') === '1', print_drawer: getSetting('print_drawer') === '1' });
+const publicSettings = () => ({ shop_card: getSetting('shop_card') === '1', shop_whish: getSetting('shop_whish'), photo_auto: getSetting('photo_auto') === '1', shop_on: getSetting('shop_on') === '1', shop_wa: getSetting('shop_wa'), store_name: getSetting('store_name'), rate: +getSetting('rate'), footer: getSetting('footer'), tz: getSetting('tz'), store_id: STORE, print_mode: getSetting('print_mode') || 'browser', print_auto: getSetting('print_auto') === '1', print_drawer: getSetting('print_drawer') === '1' });
 
 // ---------- users / auth ----------
 const hashPin = (pin, salt) => crypto.scryptSync(String(pin), salt, 32).toString('hex');
@@ -345,6 +345,9 @@ route('PUT', '/api/settings', 'owner', ({ body }) => {
   if (body.footer !== undefined) setSetting('footer', String(body.footer).slice(0, 200));
   if (body.shop_on !== undefined) setSetting('shop_on', body.shop_on ? '1' : '0');
   if (body.shop_wa !== undefined) setSetting('shop_wa', normPhone(body.shop_wa));
+  if (body.shop_card !== undefined) setSetting('shop_card', body.shop_card ? '1' : '0');
+  if (body.shop_whish !== undefined) setSetting('shop_whish', normPhone(body.shop_whish));
+  if (body.photo_auto !== undefined) setSetting('photo_auto', body.photo_auto ? '1' : '0');
   if (body.rate !== undefined) { const r = Math.round(num(body.rate)); if (r < 1) bad('Rate must be above zero'); setSetting('rate', r); }
   return publicSettings();
 });
@@ -596,13 +599,20 @@ route('GET', '/api/kiosk/search', null, ({ url }) => {
 db.exec(`CREATE TABLE IF NOT EXISTS orders(id INTEGER PRIMARY KEY AUTOINCREMENT, code TEXT UNIQUE NOT NULL, created_at TEXT NOT NULL,
   name TEXT NOT NULL, phone TEXT NOT NULL, mode TEXT NOT NULL, address TEXT, note TEXT, total_cents INTEGER NOT NULL, rate INTEGER NOT NULL,
   status TEXT NOT NULL DEFAULT 'new', items TEXT NOT NULL);`);
+for (const c of ["pay_method TEXT NOT NULL DEFAULT 'cash'", "pay_status TEXT NOT NULL DEFAULT 'unpaid'"]) { try { db.exec('ALTER TABLE orders ADD COLUMN ' + c); } catch { /* already there */ } }
+// Payment methods. All are settled in person today; an online gateway plugs in here (see deploy/README.md, "Adding an online gateway").
+const PAYMENTS = { cash: { online: false }, card: { online: false }, whish: { online: false, manual: true } };
+const payOptions = () => ({ card: getSetting('shop_card') === '1', whish: getSetting('shop_whish') });
+function markPaid(code, ref = '') { // call this from a gateway webhook once a payment is confirmed
+  const r = db.prepare("UPDATE orders SET pay_status='paid' WHERE code=?").run(code); if (!r.changes) bad('not_found', 404); return { ok: true, ref };
+}
 // Lebanese numbers in any common form (03 123 456, +961 3 123456, 71123456) -> 9613123456
 function normPhone(s) {
   let d = String(s || '').replace(/\D/g, ''); if (d.startsWith('00')) d = d.slice(2);
   if (d.startsWith('961')) { /* already international */ } else if (d.startsWith('0')) d = '961' + d.slice(1); else if (d.length >= 7 && d.length <= 8) d = '961' + d;
   return d.length >= 10 && d.length <= 15 ? d : '';
 }
-const SHOP_HIDE = new Set(['tobacco', 'alcohol']); // age-restricted goods are not sold online
+const SHOP_HIDE = new Set(); // categories to keep off the online shop (empty = everything is sold)
 const shopOk = (i) => !SHOP_HIDE.has(i.category) && i.price_cents > 0;
 const orderHits = new Map();
 function orderLimited(ip) {
@@ -612,14 +622,15 @@ function orderLimited(ip) {
 }
 const orderCode = () => Array.from(crypto.randomBytes(6), (b) => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[b % 32]).join('');
 const orderLines = (o) => JSON.parse(o.items);
-const pubOrder = (o) => ({ code: o.code, status: o.status, mode: o.mode, created_at: o.created_at, total_cents: o.total_cents, total_ll: toLL(o.total_cents, o.rate), items: orderLines(o) });
+const pubOrder = (o) => ({ code: o.code, status: o.status, mode: o.mode, created_at: o.created_at, total_cents: o.total_cents, total_ll: toLL(o.total_cents, o.rate), pay_method: o.pay_method, pay_status: o.pay_status, items: orderLines(o) });
 const staffOrder = (o) => ({ id: o.id, ...pubOrder(o), name: o.name, phone: o.phone, address: o.address, note: o.note });
 
+if (process.env.SHOP_WA && !db.prepare("SELECT 1 FROM settings WHERE key='shop_wa'").get()) setSetting('shop_wa', normPhone(process.env.SHOP_WA));
 route('GET', '/api/shop/home', null, () => {
   const rate = +getSetting('rate'), all = loadCache().filter(shopOk), counts = new Map();
   for (const i of all) counts.set(i.category, (counts.get(i.category) || 0) + 1);
   const withPic = all.filter((i) => i.has_image);
-  return { store_name: getSetting('store_name'), rate, open: getSetting('shop_on') === '1', wa: getSetting('shop_wa'),
+  return { store_name: getSetting('store_name'), rate, open: getSetting('shop_on') === '1', wa: getSetting('shop_wa'), pay: payOptions(),
     featured: withPic.slice(0, 12).map((i) => kioskView(i, rate)),
     recent: [...withPic].sort((a, b) => String(b.updated_at).localeCompare(String(a.updated_at))).slice(0, 12).map((i) => kioskView(i, rate)),
     cats: [...counts].map(([category, n]) => ({ category, n })).filter((c) => c.category !== 'other').sort((a, b) => b.n - a.n)
@@ -641,6 +652,7 @@ route('POST', '/api/shop/order', null, ({ body, ip }) => {
   const mode = body.mode === 'delivery' ? 'delivery' : 'pickup';
   const address = String(body.address || '').trim().slice(0, 200); if (mode === 'delivery' && address.length < 5) bad('Enter your delivery address');
   const note = String(body.note || '').trim().slice(0, 200);
+  const po = payOptions(), pay = body.pay === 'card' && po.card ? 'card' : body.pay === 'whish' && po.whish ? 'whish' : 'cash';
   const lines = Array.isArray(body.lines) ? body.lines : []; if (!lines.length || lines.length > 60) bad('Your cart is empty');
   const byId = new Map(loadCache().map((i) => [i.id, i])); let total = 0; const out = [];
   for (const l of lines) {
@@ -651,9 +663,9 @@ route('POST', '/api/shop/order', null, ({ body, ip }) => {
   if (orderLimited(ip)) bad('Too many orders from this connection. Try again later.', 429);
   let code; do code = orderCode(); while (db.prepare('SELECT 1 FROM orders WHERE code=?').get(code));
   const rate = +getSetting('rate');
-  db.prepare('INSERT INTO orders(code,created_at,name,phone,mode,address,note,total_cents,rate,items) VALUES(?,?,?,?,?,?,?,?,?,?)')
-    .run(code, new Date().toISOString(), name, phone, mode, address, note, total, rate, JSON.stringify(out));
-  return { code, status: 'new', total_cents: total, total_ll: toLL(total, rate) };
+  db.prepare('INSERT INTO orders(code,created_at,name,phone,mode,address,note,total_cents,rate,items,pay_method) VALUES(?,?,?,?,?,?,?,?,?,?,?)')
+    .run(code, new Date().toISOString(), name, phone, mode, address, note, total, rate, JSON.stringify(out), pay);
+  return { code, status: 'new', pay_method: pay, total_cents: total, total_ll: toLL(total, rate) };
 });
 route('GET', '/api/shop/orders', null, ({ url }) => {
   const codes = (url.searchParams.get('codes') || '').split(',').filter((c) => /^[A-Z0-9]{6}$/.test(c)).slice(0, 20);
@@ -661,10 +673,70 @@ route('GET', '/api/shop/orders', null, ({ url }) => {
 });
 route('GET', '/api/orders', 'any', () => db.prepare(`SELECT * FROM orders WHERE status IN ('new','accepted','ready') OR created_at>? ORDER BY CASE status WHEN 'new' THEN 0 WHEN 'accepted' THEN 1 WHEN 'ready' THEN 2 ELSE 3 END, id DESC LIMIT 100`)
   .all(new Date(Date.now() - 2 * 864e5).toISOString()).map(staffOrder));
+route('PUT', '/api/orders/(\\d+)/paid', 'any', ({ m }) => { const o = db.prepare('SELECT code FROM orders WHERE id=?').get(+m[1]); if (!o) bad('not_found', 404); markPaid(o.code); return staffOrder(db.prepare('SELECT * FROM orders WHERE id=?').get(+m[1])); });
 route('PUT', '/api/orders/(\\d+)/status', 'any', ({ m, body }) => {
   if (!['accepted', 'ready', 'done', 'rejected'].includes(body.status)) bad('Unknown status');
   const r = db.prepare('UPDATE orders SET status=? WHERE id=?').run(body.status, +m[1]); if (!r.changes) bad('not_found', 404);
   return staffOrder(db.prepare('SELECT * FROM orders WHERE id=?').get(+m[1]));
+});
+
+
+// ---------- product photo finder: barcode -> free open product databases ----------
+db.exec(`CREATE TABLE IF NOT EXISTS photo_tried(item_id INTEGER PRIMARY KEY, at TEXT NOT NULL, found INTEGER NOT NULL DEFAULT 0);`);
+const PHOTO_SRC = process.env.PHOTO_BASE ? [process.env.PHOTO_BASE] : ['https://world.openfoodfacts.org', 'https://world.openbeautyfacts.org', 'https://world.openproductsfacts.org'];
+const PHOTO_DELAY = process.env.PHOTO_DELAY !== undefined ? +process.env.PHOTO_DELAY : 700; // be polite: under 100 requests a minute
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+function validGtin(c) { // real manufacturer barcodes only: EAN-8 / UPC-A / EAN-13 / GTIN-14 with a correct check digit, not in-store (20-29) codes
+  if (!/^\d+$/.test(c) || ![8, 12, 13, 14].includes(c.length) || (c.length === 13 && c[0] === '2')) return false;
+  let sum = 0; for (let k = 0; k < c.length - 1; k++) sum += +c[c.length - 2 - k] * (k % 2 === 0 ? 3 : 1);
+  return (10 - (sum % 10)) % 10 === +c[c.length - 1];
+}
+async function fetchPhoto(code) {
+  for (const base of PHOTO_SRC) {
+    let j;
+    try {
+      const r = await fetch(`${base}/api/v2/product/${code}.json?fields=image_front_url,image_front_small_url`, { headers: { 'User-Agent': 'EddyOS/1.0 (+https://eddy.ci-ccg.com)' }, signal: AbortSignal.timeout(12000) });
+      if (r.status === 429) throw new Error('rate');
+      if (!r.ok) continue;
+      j = await r.json();
+    } catch (e) { throw new Error(e.message === 'rate' ? 'rate' : 'net'); }
+    if (j.status !== 1) continue;
+    for (const u of [j.product?.image_front_url, j.product?.image_front_small_url]) {
+      if (!u) continue;
+      try {
+        const ir = await fetch(u, { signal: AbortSignal.timeout(15000) }); if (!ir.ok) continue;
+        const ct = (ir.headers.get('content-type') || '').split(';')[0], buf = Buffer.from(await ir.arrayBuffer());
+        if (/^image\/(jpeg|png|webp)$/.test(ct) && buf.length > 1500 && buf.length <= 60e3) return `data:${ct};base64,${buf.toString('base64')}`;
+      } catch { throw new Error('net'); }
+    }
+  }
+  return null;
+}
+const photo = { running: false, stop: false, done: 0, found: 0, total: 0, error: '' };
+async function photoJob() {
+  if (photo.running) return; Object.assign(photo, { running: true, stop: false, done: 0, found: 0, error: '' });
+  try {
+    const todo = db.prepare(`SELECT id,barcode FROM items WHERE active=1 AND (image IS NULL OR image='') AND id NOT IN (SELECT item_id FROM photo_tried) ORDER BY id`).all();
+    photo.total = todo.length;
+    const extras = db.prepare('SELECT barcode FROM item_barcodes WHERE item_id=?'), mark = db.prepare('INSERT OR REPLACE INTO photo_tried(item_id,at,found) VALUES(?,?,?)');
+    for (const it of todo) {
+      if (photo.stop) break;
+      const codes = [it.barcode, ...extras.all(it.id).map((x) => x.barcode)].filter(validGtin).slice(0, 3); let img = null;
+      for (const c of codes) { img = await fetchPhoto(c); await sleep(PHOTO_DELAY); if (img) break; }
+      if (img) { db.prepare('UPDATE items SET image=?, updated_at=? WHERE id=?').run(img, now(), it.id); photo.found++; }
+      mark.run(it.id, now(), img ? 1 : 0); photo.done++; if (photo.done % 20 === 0) invalidate();
+    }
+  } catch (e) { photo.error = e.message === 'rate' ? 'The photo database asked us to slow down. It will continue automatically later.' : 'No connection to the photo database. It will try again automatically.'; }
+  finally { photo.running = false; invalidate(); }
+}
+setTimeout(() => { if (getSetting('photo_auto') === '1') photoJob(); }, 20e3);
+setInterval(() => { if (getSetting('photo_auto') === '1') photoJob(); }, 3600e3).unref();
+route('GET', '/api/admin/photos', 'owner', () => ({ ...photo, missing: db.prepare("SELECT COUNT(*) n FROM items WHERE active=1 AND (image IS NULL OR image='')").get().n,
+  with_photo: db.prepare("SELECT COUNT(*) n FROM items WHERE active=1 AND image IS NOT NULL AND image<>''").get().n, no_match: db.prepare('SELECT COUNT(*) n FROM photo_tried WHERE found=0').get().n }));
+route('POST', '/api/admin/photos', 'owner', ({ body }) => {
+  if (body.action === 'stop') photo.stop = true;
+  else { if (body.action === 'retry') db.prepare('DELETE FROM photo_tried WHERE found=0').run(); photoJob(); }
+  return { ok: true };
 });
 
 // ---------- static + server ----------

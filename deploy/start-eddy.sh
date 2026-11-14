@@ -5,6 +5,7 @@ cd "$(dirname "$0")/.." || exit 1
 export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 export STORE_ID="${STORE_ID:-eddy}" PORT="${PORT:-3000}" DATA_DIR="${DATA_DIR:-$PWD/data}"
 export SEED_DEMO="${SEED_DEMO:-1}"        # 1 = keep the example items; set to 0 once the real catalogue is imported
+export SHOP_WA="${SHOP_WA:-96181852775}"   # store WhatsApp number for online orders (only used until set in Settings)
 TUNNEL_CFG="${TUNNEL_CFG:-$HOME/.cloudflared/eddy.yml}"
 mkdir -p "$DATA_DIR" logs
 pids=()

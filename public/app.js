@@ -336,12 +336,13 @@
     const el = $('#ords'); if (!el) return;
     const when = (o) => dateFmt(o.created_at), ar = I.lang === 'ar';
     const msg = (o) => ar ? `مرحباً ${o.name}، طلبك ${o.code} من ${S.set.store_name} ${o.status === 'ready' ? 'جاهز' : o.status === 'accepted' ? 'تم قبوله' : o.status === 'rejected' ? 'للأسف غير متوفر حالياً' : 'وصلنا'}.` : `Hello ${o.name}, your order ${o.code} at ${S.set.store_name} is ${o.status === 'ready' ? 'ready' : o.status === 'accepted' ? 'accepted' : o.status === 'rejected' ? 'sadly not available right now' : 'received'}.`;
-    el.innerHTML = rows.length ? rows.map((o) => `<article class="ord ${o.status}"><header><b>${o.code}</b><span class="pill ${o.status === 'new' ? 'bad' : ''}">${t('o_' + o.status)}</span><span class="grow"></span><span class="muted">${when(o)}</span></header>
+    el.innerHTML = rows.length ? rows.map((o) => `<article class="ord ${o.status}"><header><b>${o.code}</b><span class="pill ${o.status === 'new' ? 'bad' : ''}">${t('o_' + o.status)}</span><span class="pill ${o.pay_status === 'paid' ? '' : 'bad'}">${t('pay_' + o.pay_method)} · ${t(o.pay_status === 'paid' ? 'paid' : 'unpaid')}</span><span class="grow"></span><span class="muted">${when(o)}</span></header>
       <div class="who"><b>${esc(o.name)}</b> · <a href="tel:+${o.phone}">+${o.phone}</a> · <span class="mode">${t('o_' + o.mode)}</span></div>${o.mode === 'delivery' && o.address ? `<div class="muted">📍 ${esc(o.address)}</div>` : ''}${o.note ? `<div class="muted">📝 ${esc(o.note)}</div>` : ''}
       <ul>${o.items.map((l) => `<li><span>${l.qty} × ${esc(I.itemName(l))}</span><span class="num">${I.usd(Math.round(l.qty * l.price_cents))}</span></li>`).join('')}</ul>
       <div class="tt"><b class="num">${I.usd(o.total_cents)}</b><span class="muted num">${I.ll(o.total_ll)}</span></div>
       <div class="row">${o.status === 'new' ? `<button class="btn pri" data-act="ostatus" data-id="${o.id}" data-s="accepted">${t('o_accept')}</button><button class="btn" data-act="ostatus" data-id="${o.id}" data-s="rejected">${t('o_reject')}</button>` : ''}
       ${o.status === 'accepted' ? `<button class="btn pri" data-act="ostatus" data-id="${o.id}" data-s="ready">${t('o_ready_btn')}</button>` : ''}${o.status === 'ready' ? `<button class="btn pri" data-act="ostatus" data-id="${o.id}" data-s="done">${t('o_done_btn')}</button>` : ''}
+      ${o.pay_status !== 'paid' && o.status !== 'rejected' ? `<button class="btn" data-act="opaid" data-id="${o.id}">${t('o_markpaid')}</button>` : ''}
       ${o.status === 'accepted' || o.status === 'ready' || o.status === 'new' ? `<button class="btn" data-act="oload" data-id="${o.id}">${t('o_load')}</button>` : ''}
       <a class="btn" target="_blank" rel="noopener" href="https://wa.me/${o.phone}?text=${encodeURIComponent(msg(o))}">${t('o_msg')}</a></div></article>`).join('') : `<div class="empty">${t('o_none')}</div>`;
     S.orders = rows;
@@ -376,14 +377,30 @@
       <div class="card"><h2>${t('team')}</h2><div id="team"></div><form id="uform" style="margin-top:14px;display:grid;gap:10px"><h2 style="margin:0;font-size:16px">${t('add_member')}</h2>
       <input name="name" placeholder="${esc(t('name'))}" required><div class="grid2"><input name="pin" inputmode="numeric" pattern="\\d{4,8}" placeholder="${esc(t('pin'))}" required>
       <select name="role"><option value="cashier">${t('cashier_role')}</option><option value="owner">${t('owner')}</option></select></div><button class="btn pri" type="submit">${t('add_member')}</button></form></div>
+      <div class="card"><h2>${t('photos')}</h2><div id="phcfg"></div></div>
       <div class="card"><h2>${t('shop_card')}</h2><div id="shopcfg"></div></div>
       <div class="card"><h2>${t('printer')}</h2><div id="prn"></div></div>
       <div class="card"><h2>${t('backups')}</h2><p class="muted" style="margin-top:0">${t('backup_info')}</p><div id="bk"></div><div class="row"><button class="btn pri" data-act="backupnow">${t('backup_now')}</button></div></div></div>`;
-    drawTeam(); drawBackups(); drawPrinter(); drawShopCfg();
+    drawTeam(); drawBackups(); drawPrinter(); drawShopCfg(); drawPhotos();
+  }
+  async function drawPhotos() {
+    const el = $('#phcfg'); if (!el || S.view !== 'settings') return;
+    try {
+      const p = await api('/api/admin/photos'), tot = p.with_photo + p.missing, pct = tot ? Math.round(p.with_photo / tot * 100) : 0;
+      el.innerHTML = `<div class="muted" style="margin-bottom:8px">${t('photos_info')}</div><div style="height:10px;border-radius:6px;background:#e3e6f2;overflow:hidden"><div style="height:100%;width:${pct}%;background:var(--cedar-2,#3a4aa8)"></div></div>
+        <p style="margin:8px 0"><b class="num">${p.with_photo}</b> / <span class="num">${tot}</span> ${t('photos_have')}${p.running ? ` · <span class="pill">${t('photos_running')} ${p.done}/${p.total}</span>` : ''}</p>${p.error ? `<p class="muted">${esc(p.error)}</p>` : ''}
+        <label style="display:flex;gap:10px;align-items:center;margin:8px 0"><input type="checkbox" id="phauto" style="width:auto;min-height:0" ${S.set.photo_auto ? 'checked' : ''}> ${t('photos_auto')}</label>
+        <div class="row"><button class="btn pri" data-act="${p.running ? 'photostop' : 'photostart'}">${p.running ? t('photos_stop') : t('photos_find')}</button><button class="btn" data-act="photoretry">${t('photos_retry')}</button></div>
+        <p class="muted" style="font-size:13px;margin-top:10px">${t('photos_nomatch')} <b class="num">${p.no_match}</b></p>`;
+      $('#phauto').onchange = (e) => api('/api/settings', { method: 'PUT', body: { photo_auto: e.target.checked } }).then((s) => { S.set = s; }).catch(fail);
+      if (p.running) setTimeout(drawPhotos, 3000);
+    } catch (e) { fail(e); }
   }
   function drawShopCfg() {
     const link = location.origin + '/shop';
     $('#shopcfg').innerHTML = `<form id="shform" style="display:grid;gap:10px"><label style="display:flex;gap:10px;align-items:center"><input type="checkbox" name="on" style="width:auto;min-height:0" ${S.set.shop_on ? 'checked' : ''}> ${t('shop_on')}</label>
+      <label style="display:flex;gap:10px;align-items:center"><input type="checkbox" name="card" style="width:auto;min-height:0" ${S.set.shop_card ? 'checked' : ''}> ${t('shop_card_pos')}</label>
+      <label class="f">${t('shop_whish')}<input name="whish" inputmode="tel" placeholder="03 123 456" value="${esc(S.set.shop_whish)}"></label>
       <label class="f">${t('shop_wa')}<input name="wa" inputmode="tel" placeholder="03 123 456" value="${esc(S.set.shop_wa)}"></label><p class="muted" style="margin:0;font-size:13px">${t('shop_wa_hint')}</p>
       <label class="f">${t('shop_link')}<input readonly value="${esc(link)}" onfocus="this.select()"></label>
       <div class="row"><button type="button" class="btn pri" data-act="saveshop">${t('save')}</button><a class="btn" href="/shop" target="_blank" rel="noopener">${t('shop_open')}</a></div></form>`;
@@ -439,8 +456,12 @@
     clear() { S.cart = []; drawCart(); $('#q')?.focus(); },
     pay: openPay, closem: closeModal, done: finishSale, print() { printReceipt(S.lastSale); }, opendrawer() { api('/api/drawer', { method: 'POST' }).then(() => toast(t('drawer_opened'))).catch((e) => toast(e.message, true)); },
     async testprint() { const s = { id: 0, created_at: new Date().toISOString(), user_name: S.user.name, status: 'ok', items: [{ name: 'Test item', qty: 2, price_cents: 150 }, { name: 'صنف تجريبي', qty: 1, price_cents: 99 }], total_cents: 399, total_ll: 360000, method: 'cash', currency: 'USD', tendered: 5, change_cents: 101, rate: S.set.rate }; await printReceipt(s); toast(t('test_sent')); },
-    async saveshop() { const f = $('#shform'); try { S.set = await api('/api/settings', { method: 'PUT', body: { shop_on: f.on.checked, shop_wa: f.wa.value } }); toast(t('saved')); drawShopCfg(); } catch (e) { fail(e); } },
+    async saveshop() { const f = $('#shform'); try { S.set = await api('/api/settings', { method: 'PUT', body: { shop_on: f.on.checked, shop_wa: f.wa.value, shop_card: f.card.checked, shop_whish: f.whish.value } }); toast(t('saved')); drawShopCfg(); } catch (e) { fail(e); } },
     async ostatus(b) { try { await api(`/api/orders/${b.dataset.id}/status`, { method: 'PUT', body: { status: b.dataset.s } }); pollOrders(); const rows = await api('/api/orders'); drawOrders(rows); } catch (e) { fail(e); } },
+    photostart() { api('/api/admin/photos', { method: 'POST', body: { action: 'start' } }).then(() => setTimeout(drawPhotos, 600)).catch(fail); },
+    photostop() { api('/api/admin/photos', { method: 'POST', body: { action: 'stop' } }).then(() => setTimeout(drawPhotos, 600)).catch(fail); },
+    photoretry() { api('/api/admin/photos', { method: 'POST', body: { action: 'retry' } }).then(() => setTimeout(drawPhotos, 600)).catch(fail); },
+    async opaid(b) { try { await api(`/api/orders/${b.dataset.id}/paid`, { method: 'PUT' }); drawOrders(await api('/api/orders')); } catch (e) { fail(e); } },
     oload(b) { const o = (S.orders || []).find((x) => x.id === +b.dataset.id); if (!o) return; S.cart = o.items.map((l) => ({ id: l.item_id, barcode: '', name: l.name, name_ar: l.name_ar, price_cents: l.price_cents, unit: l.unit, qty: l.qty })); S.view = 'sell'; render(); toast(t('o_loaded')); },
     async saveprinter() { const f = document.getElementById('pnform'); const d = Object.fromEntries(new FormData(f)); try { await api('/api/admin/printer', { method: 'PUT', body: { ...d, drawer: f.drawer.checked, auto: f.auto.checked } }); S.set = await api('/api/settings'); toast(t('saved')); drawPrinter(); } catch (e) { fail(e); } },
     pm(b) { S.pay.method = b.dataset.m; drawPay(); }, pc(b) { S.pay.cur = b.dataset.c; S.pay.tendered = ''; drawPay(); },

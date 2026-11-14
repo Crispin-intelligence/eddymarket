@@ -10,7 +10,7 @@
       place: 'Place order', placing: 'Sending…', pay_note: 'You pay when you pick up or when it arrives.', no_results: 'Nothing found', no_results_sub: 'Try another word or check the spelling.', saved_empty: 'Nothing saved yet', saved_empty_sub: 'Tap the heart on a product to keep it here.',
       buy_again: 'Buy it again', wishlist: 'Wish list', no_orders: 'No orders yet', no_orders_sub: 'Your orders will show here.', order: 'Order', thanks: 'Order sent!', thanks_sub: 'The store will confirm it shortly. Keep this code:', send_wa: 'Send on WhatsApp', track: 'Track my order', again: 'Order again', items: 'items',
       s_new: 'Received', s_accepted: 'Accepted', s_ready: 'Ready', s_done: 'Completed', s_rejected: 'Not available', lang: 'عربي', pc: 'piece', added: 'Added to cart', unavail: 'This item is no longer available',
-      wa_hi: 'Hello Eddy Market, my order', cat_dairy: 'Dairy', cat_bakery: 'Bakery', cat_produce: 'Fruits & vegetables', cat_meat: 'Meat & poultry', cat_frozen: 'Frozen', cat_pantry: 'Pantry', cat_snacks: 'Snacks & sweets', cat_drinks: 'Drinks', cat_cleaning: 'Cleaning', cat_personal: 'Personal care', cat_other: 'More products' },
+      wa_hi: 'Hello Eddy Market, my order', cat_dairy: 'Dairy', cat_bakery: 'Bakery', cat_produce: 'Fruits & vegetables', cat_meat: 'Meat & poultry', cat_frozen: 'Frozen', cat_pantry: 'Pantry', cat_snacks: 'Snacks & sweets', cat_drinks: 'Drinks', cat_cleaning: 'Cleaning', cat_personal: 'Personal care', cat_other: 'More products', cat_tobacco: 'Tobacco', cat_alcohol: 'Alcohol', pay_title: 'Payment', pay_cash: 'Cash on delivery / pickup', pay_card: 'Card machine on delivery / pickup', pay_whish: 'Whish Money', whish_note: 'Send the total on Whish to', whish_ref: 'and write your order code in the note.', paid: 'Paid', unpaid: 'Not paid yet' },
     ar: { store: 'المتجر', cats: 'الأقسام', saved: 'المفضلة', orders: 'طلباتي', search: 'ابحث عن منتج', open: 'مفتوح', closed: 'مغلق', closed_msg: 'الطلبات متوقفة حالياً. عد قريباً.',
       hero: 'طازج من إيدي ماركت', hero_sub: 'اطلب من هنا. استلام أو توصيل.', rate: 'يمكنك الدفع بالليرة اللبنانية', pickup: 'استلام', delivery: 'توصيل', pickup_sub: 'جاهز عند وصولك', delivery_sub: 'يصلك إلى الباب', 
       featured: 'مميزة', recent: 'أضيفت حديثاً', shop_cat: 'تسوّق حسب القسم', see_all: 'عرض الكل', add: 'أضف', add_cart: 'أضف إلى السلة', in_cart: 'في سلتك', similar: 'منتجات مشابهة', load_more: 'عرض المزيد',
@@ -18,10 +18,10 @@
       place: 'أرسل الطلب', placing: 'جارٍ الإرسال…', pay_note: 'الدفع عند الاستلام أو عند وصول الطلب.', no_results: 'لا نتائج', no_results_sub: 'جرّب كلمة أخرى أو تأكد من الإملاء.', saved_empty: 'لا شيء محفوظ', saved_empty_sub: 'اضغط على القلب في أي منتج ليظهر هنا.',
       buy_again: 'اشترِ مجدداً', wishlist: 'المفضلة', no_orders: 'لا طلبات بعد', no_orders_sub: 'ستظهر طلباتك هنا.', order: 'طلب', thanks: 'تم إرسال الطلب!', thanks_sub: 'سيؤكد المتجر طلبك قريباً. احتفظ بهذا الرمز:', send_wa: 'أرسل عبر واتساب', track: 'تتبّع طلبي', again: 'اطلب مجدداً', items: 'أصناف',
       s_new: 'تم الاستلام', s_accepted: 'تم القبول', s_ready: 'جاهز', s_done: 'مكتمل', s_rejected: 'غير متوفر', lang: 'EN', pc: 'قطعة', added: 'أضيف إلى السلة', unavail: 'هذا المنتج لم يعد متوفراً',
-      wa_hi: 'مرحباً إيدي ماركت، طلبي', cat_dairy: 'الألبان', cat_bakery: 'المخبوزات', cat_produce: 'فواكه وخضار', cat_meat: 'لحوم ودواجن', cat_frozen: 'مجمّدات', cat_pantry: 'المؤن', cat_snacks: 'تسالي وحلويات', cat_drinks: 'مشروبات', cat_cleaning: 'تنظيف', cat_personal: 'العناية الشخصية', cat_other: 'منتجات أخرى' } };
+      wa_hi: 'مرحباً إيدي ماركت، طلبي', cat_dairy: 'الألبان', cat_bakery: 'المخبوزات', cat_produce: 'فواكه وخضار', cat_meat: 'لحوم ودواجن', cat_frozen: 'مجمّدات', cat_pantry: 'المؤن', cat_snacks: 'تسالي وحلويات', cat_drinks: 'مشروبات', cat_cleaning: 'تنظيف', cat_personal: 'العناية الشخصية', cat_other: 'منتجات أخرى', cat_tobacco: 'دخان', cat_alcohol: 'مشروبات روحية', pay_title: 'الدفع', pay_cash: 'نقداً عند التوصيل / الاستلام', pay_card: 'ماكينة البطاقات عند التوصيل / الاستلام', pay_whish: 'ويش موني', whish_note: 'أرسل المبلغ عبر ويش إلى الرقم', whish_ref: 'واكتب رمز طلبك في الملاحظة.', paid: 'مدفوع', unpaid: 'غير مدفوع بعد' } };
   let lang = LS.get('lang', (navigator.language || '').startsWith('ar') ? 'ar' : 'en');
   const t = (k) => T[lang][k] ?? T.en[k] ?? k;
-  const CI = { dairy: '🥛', bakery: '🥖', produce: '🥬', meat: '🍗', frozen: '🧊', pantry: '🥫', snacks: '🍫', drinks: '🥤', cleaning: '🧴', personal: '🧼', other: '🛍️' };
+  const CI = { dairy: '🥛', bakery: '🥖', produce: '🥬', meat: '🍗', tobacco: '🚬', alcohol: '🍷', frozen: '🧊', pantry: '🥫', snacks: '🍫', drinks: '🥤', cleaning: '🧴', personal: '🧼', other: '🛍️' };
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const catName = (c) => T[lang]['cat_' + c] || c.replace(/[_-]/g, ' ');
   const nm = (i) => (lang === 'ar' && i.name_ar) || i.name;
@@ -29,8 +29,8 @@
   let HOME = { rate: 90000, open: true, wa: '', store_name: 'Eddy Market' };
   const llOf = (c) => (Math.round((c / 100) * HOME.rate / 1000) * 1000).toLocaleString('en-US') + ' LL';
   const ITEMS = new Map(); const keep = (list) => { list.forEach((i) => ITEMS.set(i.id, i)); return list; };
-  let cart = LS.get('cart', []), wish = LS.get('wish', []), myOrders = LS.get('orders', []), me = LS.get('me', { name: '', phone: '', address: '' }), mode = LS.get('mode', 'pickup');
-  const save = () => { LS.set('cart', cart); LS.set('wish', wish); LS.set('orders', myOrders); LS.set('me', me); LS.set('mode', mode); };
+  let cart = LS.get('cart', []), wish = LS.get('wish', []), myOrders = LS.get('orders', []), me = LS.get('me', { name: '', phone: '', address: '' }), mode = LS.get('mode', 'pickup'), pay = LS.get('pay', 'cash');
+  const save = () => { LS.set('cart', cart); LS.set('wish', wish); LS.set('orders', myOrders); LS.set('me', me); LS.set('mode', mode); LS.set('pay', pay); };
   const step = (i) => (i.unit && i.unit !== 'pc' ? 0.5 : 1);
   const unitTxt = (i) => (i.unit && i.unit !== 'pc' ? '/ ' + i.unit : '');
   async function api(p, o = {}) {
@@ -128,7 +128,13 @@
     const lines = o.items.map((l) => `• ${l.qty} × ${l.name} — ${usd(Math.round(l.qty * l.price_cents))}`).join('\n');
     const msg = `${t('wa_hi')} ${code}\n${t(o.mode)}${mine.name ? ' · ' + mine.name : ''}\n${lines}\n${t('total')}: ${usd(o.total_cents)} (${llOf(o.total_cents)})`;
     return `<div class="done"><div class="ok">✓</div><h2>${t('thanks')}</h2><p>${t('thanks_sub')}</p><div class="code">${code}</div><div>${statusBox(o)}</div>
+      ${o.pay_method === 'whish' && HOME.pay?.whish ? `<div class="box" style="max-width:420px;margin:12px auto 0">${t('whish_note')} <b dir="ltr">+${HOME.pay.whish}</b> ${t('whish_ref')}<br><b>${usd(o.total_cents)}</b></div>` : `<p style="color:var(--mut)">${t('pay_' + (o.pay_method || 'cash'))}</p>`}
       <div style="display:grid;gap:10px;max-width:420px;margin:18px auto 0">${HOME.wa ? `<a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/${HOME.wa}?text=${encodeURIComponent(msg)}">${t('send_wa')}</a>` : ''}<a class="btn ghost" href="#/orders">${t('track')}</a><a class="btn ghost" href="#/">${t('keep')}</a></div></div>`;
+  }
+  function payChooser() {
+    const o = [['cash', '💵']]; if (HOME.pay?.card) o.push(['card', '💳']); if (HOME.pay?.whish) o.push(['whish', '📲']);
+    if (o.length < 2) { pay = 'cash'; return ''; } if (!o.some(([k]) => k === pay)) pay = 'cash';
+    return `<div style="margin:0 0 12px"><div style="font-size:13px;color:var(--mut);margin-bottom:6px">${t('pay_title')}</div><div style="display:grid;gap:8px">${o.map(([k, e]) => `<button class="payopt ${pay === k ? 'on' : ''}" data-pay="${k}"><span>${e}</span>${t('pay_' + k)}</button>`).join('')}</div></div>`;
   }
   function vCart(err = '') {
     if (!cart.length) return `<h2 class="sec">${t('cart')}</h2>` + empty('🛒', t('cart_empty'), t('cart_empty_sub')) + `<p style="text-align:center"><a class="btn" href="#/">${t('keep')}</a></p>`;
@@ -137,6 +143,7 @@
       <div class="tot" style="margin-top:12px"><span>${t('total')}</span><span>${usd(total())}</span></div><div style="text-align:end;color:var(--mut)">${llOf(total())}</div></div>
       <div class="box"><h3 style="margin:0 0 10px">${t('your_details')}</h3>
       <div class="seg"><button data-mode="pickup" class="${mode === 'pickup' ? 'on' : ''}">🛍️ ${t('pickup')}</button><button data-mode="delivery" class="${mode === 'delivery' ? 'on' : ''}">🚚 ${t('delivery')}</button></div>
+      ${payChooser()}
       <label class="f">${t('name')}<input id="f-name" autocomplete="name" value="${esc(me.name)}"></label>
       <label class="f">${t('phone')}<input id="f-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="03 123 456" value="${esc(me.phone)}"></label>
       ${mode === 'delivery' ? `<label class="f">${t('address')}<textarea id="f-addr" rows="2" autocomplete="street-address">${esc(me.address)}</textarea></label>` : ''}
@@ -148,7 +155,7 @@
     me = { name: $('#f-name').value.trim(), phone: $('#f-phone').value.trim(), address: ($('#f-addr')?.value || me.address).trim() }; save();
     const btn = $('[data-act=place]'); btn.disabled = true; btn.textContent = t('placing');
     try {
-      const r = await api('/api/shop/order', { method: 'POST', body: { ...me, mode, address: mode === 'delivery' ? me.address : '', note: $('#f-note').value, lines: cart.map((l) => ({ item_id: l.id, qty: l.qty })) } });
+      const r = await api('/api/shop/order', { method: 'POST', body: { ...me, mode, address: mode === 'delivery' ? me.address : '', note: $('#f-note').value, pay, lines: cart.map((l) => ({ item_id: l.id, qty: l.qty })) } });
       myOrders.unshift({ code: r.code, at: Date.now(), name: me.name, items: cart.map((l) => ({ item_id: l.id })) }); myOrders = myOrders.slice(0, 20); cart = []; save(); location.hash = '#/done/' + r.code;
     } catch (e) { const keepNote = $('#f-note').value; $('#main').innerHTML = vCart(e.message); $('#f-note').value = keepNote; }
   }
@@ -185,6 +192,7 @@
     if ((b = g('[data-pq]'))) { const i = ITEMS.get(+b.dataset.id); pq = Math.max(step(i), Math.round((pq + (+b.dataset.pq) * step(i)) * 100) / 100); $('#pq').textContent = pq; return; }
     if ((b = g('[data-cq]'))) { const l = cart.find((x) => x.id === +b.dataset.id), s = step(l); l.qty = Math.round((l.qty + (+b.dataset.cq) * s) * 100) / 100; if (l.qty <= 0) cart = cart.filter((x) => x !== l); save(); chrome(path()); $('#main').innerHTML = vCart(); return; }
     if ((b = g('[data-wish]'))) { const id = +b.dataset.wish; wish = wish.includes(id) ? wish.filter((x) => x !== id) : [id, ...wish]; save(); b.classList.toggle('on', wish.includes(id)); return; }
+    if ((b = g('[data-pay]'))) { pay = b.dataset.pay; me.name = $('#f-name').value; me.phone = $('#f-phone').value; save(); $('#main').innerHTML = vCart(); return; }
     if ((b = g('[data-mode]'))) { mode = b.dataset.mode; me.name = $('#f-name').value; me.phone = $('#f-phone').value; save(); $('#main').innerHTML = vCart(); return; }
     if ((b = g('[data-reorder]'))) { const o = myOrders.find((x) => x.code === b.dataset.reorder); const ids = (o?.items || []).map((x) => x.item_id); if (ids.length) { keep((await api('/api/shop/items?limit=60&ids=' + ids.join(','))).items); const lines = (await api('/api/shop/orders?codes=' + o.code))[0].items; lines.forEach((l) => ITEMS.has(l.item_id) && addItem(l.item_id, l.qty)); location.hash = '#/cart'; } return; }
     if ((b = g('[data-act]'))) { const a = b.dataset.act; if (a === 'lang') { lang = lang === 'ar' ? 'en' : 'ar'; LS.set('lang', lang); shell(); route(); } else if (a === 'more') more(); else if (a === 'place') place(); return; }

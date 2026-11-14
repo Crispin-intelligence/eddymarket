@@ -94,3 +94,4 @@ label.f input:focus,label.f textarea:focus{outline:2px solid var(--sig);border-c
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 @media (min-width:760px){.scroll .card{flex-basis:176px}.pd{display:grid;grid-template-columns:1fr 1fr;gap:22px}.pbig{margin:0}}
 .ib b[hidden]{display:none}
+.payopt{display:flex;align-items:center;gap:10px;min-height:48px;padding:0 14px;border-radius:13px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--line);text-align:start;font-weight:500}.payopt.on{box-shadow:inset 0 0 0 2px var(--ink);background:#eef0fb;font-weight:600}.payopt span{font-size:20px}

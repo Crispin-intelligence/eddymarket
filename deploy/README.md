@@ -37,3 +37,11 @@ Use "Test print" and "Open drawer" to check. Not yet tested on the real ZY908.
 ## Customer shop (/shop) and online orders
 
 Customers open `https://<your-domain>/shop` (same tunnel, nothing extra to set up). They browse, add to cart and send an order for pickup or delivery. Orders appear in the till under **Orders** with a beep and a badge; staff accept, mark ready, load the order into the till, or message the customer on WhatsApp. Settings → Online shop: switch ordering on/off and set the store WhatsApp number (customers can send each order there). Tobacco and alcohol are never shown online. Customers pay at pickup or delivery.
+
+## Photos
+
+Settings → Product photos. Eddy looks up each item's manufacturer barcode in the free Open Food Facts / Open Beauty Facts / Open Products Facts databases and stores the front photo (max 60 KB each). It runs by itself in the background (about 85 items a minute, resumes after restarts) and needs internet on the machine that runs Eddy. Items with in-store codes or no match keep a category icon; add their photo by hand in Items → edit. "Search again" retries the misses.
+
+## Payments
+
+Online orders support cash, card machine (POS) at pickup/delivery, and Whish Money (customer sends the total to the store's Whish number; staff taps "Mark paid"). To add an online gateway: create the payment link in `POST /api/shop/order` (see `PAYMENTS`), then call `markPaid(code)` from the gateway's webhook route. Nothing else changes.
