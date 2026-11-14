@@ -44,7 +44,7 @@
     list: '<svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/></svg>' };
   const total = () => cart.reduce((a, l) => a + Math.round(l.qty * l.price_cents), 0);
   const count = () => cart.length;
-  const pic = (i) => (i.has_image ? `<img loading="lazy" src="/img/${i.id}?v=${i.v}" alt="">` : `<span class="ph">${CI[i.category] || '🛍️'}</span>`);
+  const pic = (i) => (i.has_image ? `<img loading="lazy" src="/img/${i.id}?v=${i.v}" alt="">` : `<span class="ph" style="--h:${[...nm(i)].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7)}"><b>${esc([...nm(i).replace(/[^\p{L}\p{N} ]/gu, '').trim().split(/\s+/).slice(0, 2).map((w) => [...w][0] || '').join('').toUpperCase()].join('') || '•')}</b><i>${CI[i.category] || '🛍️'}</i></span>`);
   const card = (i) => `<article class="card" data-go="#/i/${i.id}"><button class="add" data-add="${i.id}" aria-label="${t('add')}">+</button><div class="pic">${pic(i)}</div><div class="pt"><b>${usd(i.price_cents)}</b><small>${llOf(i.price_cents)}</small></div><h3>${esc(nm(i))}</h3></article>`;
   const rowOf = (list) => `<div class="scroll">${list.map(card).join('')}</div>`;
   const toast = (m) => { $('.toast')?.remove(); const d = document.createElement('div'); d.className = 'toast'; d.textContent = m; document.body.appendChild(d); setTimeout(() => d.remove(), 1600); };

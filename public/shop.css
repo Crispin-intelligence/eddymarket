@@ -95,3 +95,5 @@ label.f input:focus,label.f textarea:focus{outline:2px solid var(--sig);border-c
 @media (min-width:760px){.scroll .card{flex-basis:176px}.pd{display:grid;grid-template-columns:1fr 1fr;gap:22px}.pbig{margin:0}}
 .ib b[hidden]{display:none}
 .payopt{display:flex;align-items:center;gap:10px;min-height:48px;padding:0 14px;border-radius:13px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--line);text-align:start;font-weight:500}.payopt.on{box-shadow:inset 0 0 0 2px var(--ink);background:#eef0fb;font-weight:600}.payopt span{font-size:20px}
+
+.ph{width:100%;height:100%;display:grid;place-items:center;position:relative;background:hsl(var(--h,220) 55% 94%);color:hsl(var(--h,220) 45% 32%)}.ph b{font-size:34px;font-weight:700;letter-spacing:1px}.ph i{position:absolute;inset-inline-end:8px;bottom:6px;font-size:18px;font-style:normal;opacity:.8}.pbig .ph b{font-size:80px}.ln .th .ph b{font-size:20px}.ln .th .ph i{display:none}

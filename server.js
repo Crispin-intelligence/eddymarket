@@ -712,18 +712,46 @@ async function fetchPhoto(code) {
   }
   return null;
 }
+try { db.exec('ALTER TABLE items ADD COLUMN photo_src TEXT'); } catch { /* already there */ }
+const STOP = new Set(['the','and','with','for','pack','box','bag','pcs','piece','pieces','gr','gm','kg','ml','ltr','new','big','small']);
+const plain = (x) => String(x || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+async function fetchByName(name) { // strict fallback for items without a usable barcode: only accept a product whose name and brand clearly contain the item's words
+  const toks = plain(name).split(' ').filter((w) => w.length >= 3 && !/^\d/.test(w) && !STOP.has(w));
+  if (toks.length < 2) return null;
+  for (const base of PHOTO_SRC) {
+    let j;
+    try {
+      const r = await fetch(`${base}/cgi/search.pl?search_terms=${encodeURIComponent(toks.join(' '))}&search_simple=1&action=process&json=1&page_size=8&fields=code,product_name,brands,image_front_url`, { headers: { 'User-Agent': 'EddyOS/1.0 (+https://eddy.ci-ccg.com)' }, signal: AbortSignal.timeout(15000) });
+      if (r.status === 429) throw new Error('rate');
+      if (!r.ok) continue; j = await r.json();
+    } catch (e) { throw new Error(e.message === 'rate' ? 'rate' : 'net'); }
+    for (const p of j.products || []) {
+      const text = ' ' + plain((p.brands || '') + ' ' + (p.product_name || '')) + ' ';
+      const hit = toks.filter((w) => text.includes(' ' + w) ).length;
+      if (!p.image_front_url || hit < 2 || hit / toks.length < 0.75) continue;
+      try {
+        const ir = await fetch(p.image_front_url, { signal: AbortSignal.timeout(15000) }); if (!ir.ok) continue;
+        const ct = (ir.headers.get('content-type') || '').split(';')[0], buf = Buffer.from(await ir.arrayBuffer());
+        if (/^image\/(jpeg|png|webp)$/.test(ct) && buf.length > 1500 && buf.length <= 60e3) return `data:${ct};base64,${buf.toString('base64')}`;
+      } catch { throw new Error('net'); }
+    }
+  }
+  return null;
+}
 const photo = { running: false, stop: false, done: 0, found: 0, total: 0, error: '' };
 async function photoJob() {
   if (photo.running) return; Object.assign(photo, { running: true, stop: false, done: 0, found: 0, error: '' });
   try {
-    const todo = db.prepare(`SELECT id,barcode FROM items WHERE active=1 AND (image IS NULL OR image='') AND id NOT IN (SELECT item_id FROM photo_tried) ORDER BY id`).all();
+    const todo = db.prepare(`SELECT id,barcode,name FROM items WHERE active=1 AND (image IS NULL OR image='') AND id NOT IN (SELECT item_id FROM photo_tried) ORDER BY id`).all();
     photo.total = todo.length;
     const extras = db.prepare('SELECT barcode FROM item_barcodes WHERE item_id=?'), mark = db.prepare('INSERT OR REPLACE INTO photo_tried(item_id,at,found) VALUES(?,?,?)');
     for (const it of todo) {
       if (photo.stop) break;
       const codes = [it.barcode, ...extras.all(it.id).map((x) => x.barcode)].filter(validGtin).slice(0, 3); let img = null;
       for (const c of codes) { img = await fetchPhoto(c); await sleep(PHOTO_DELAY); if (img) break; }
-      if (img) { db.prepare('UPDATE items SET image=?, updated_at=? WHERE id=?').run(img, now(), it.id); photo.found++; }
+      let src = 'barcode';
+      if (!img) { img = await fetchByName(it.name); await sleep(PHOTO_DELAY); src = 'name'; }
+      if (img) { db.prepare('UPDATE items SET image=?, photo_src=?, updated_at=? WHERE id=?').run(img, src, now(), it.id); photo.found++; }
       mark.run(it.id, now(), img ? 1 : 0); photo.done++; if (photo.done % 20 === 0) invalidate();
     }
   } catch (e) { photo.error = e.message === 'rate' ? 'The photo database asked us to slow down. It will continue automatically later.' : 'No connection to the photo database. It will try again automatically.'; }
@@ -733,6 +761,12 @@ setTimeout(() => { if (getSetting('photo_auto') === '1') photoJob(); }, 20e3);
 setInterval(() => { if (getSetting('photo_auto') === '1') photoJob(); }, 3600e3).unref();
 route('GET', '/api/admin/photos', 'owner', () => ({ ...photo, missing: db.prepare("SELECT COUNT(*) n FROM items WHERE active=1 AND (image IS NULL OR image='')").get().n,
   with_photo: db.prepare("SELECT COUNT(*) n FROM items WHERE active=1 AND image IS NOT NULL AND image<>''").get().n, no_match: db.prepare('SELECT COUNT(*) n FROM photo_tried WHERE found=0').get().n }));
+route('GET', '/api/admin/photos/needed', 'owner', () => ({ items: db.prepare(`SELECT i.id,i.name,i.category,COALESCE((SELECT SUM(qty) FROM sale_items si WHERE si.item_id=i.id),0) sold FROM items i WHERE i.active=1 AND (i.image IS NULL OR i.image='') ORDER BY sold DESC, i.name LIMIT 40`).all() }));
+route('POST', '/api/items/(\\d+)/photo', 'any', ({ m, body }) => {
+  const img = String(body.image || ''); if (!/^data:image\/(jpeg|png|webp);base64,/.test(img) || img.length > 300000) bad('bad_image');
+  const r = db.prepare('UPDATE items SET image=?, photo_src=?, updated_at=? WHERE id=? AND active=1').run(img, 'manual', now(), +m[1]); if (!r.changes) bad('not_found', 404);
+  invalidate(); return { ok: true };
+});
 route('POST', '/api/admin/photos', 'owner', ({ body }) => {
   if (body.action === 'stop') photo.stop = true;
   else { if (body.action === 'retry') db.prepare('DELETE FROM photo_tried WHERE found=0').run(); photoJob(); }

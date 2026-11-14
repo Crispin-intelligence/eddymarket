@@ -390,7 +390,8 @@
       el.innerHTML = `<div class="muted" style="margin-bottom:8px">${t('photos_info')}</div><div style="height:10px;border-radius:6px;background:#e3e6f2;overflow:hidden"><div style="height:100%;width:${pct}%;background:var(--cedar-2,#3a4aa8)"></div></div>
         <p style="margin:8px 0"><b class="num">${p.with_photo}</b> / <span class="num">${tot}</span> ${t('photos_have')}${p.running ? ` · <span class="pill">${t('photos_running')} ${p.done}/${p.total}</span>` : ''}</p>${p.error ? `<p class="muted">${esc(p.error)}</p>` : ''}
         <label style="display:flex;gap:10px;align-items:center;margin:8px 0"><input type="checkbox" id="phauto" style="width:auto;min-height:0" ${S.set.photo_auto ? 'checked' : ''}> ${t('photos_auto')}</label>
-        <div class="row"><button class="btn pri" data-act="${p.running ? 'photostop' : 'photostart'}">${p.running ? t('photos_stop') : t('photos_find')}</button><button class="btn" data-act="photoretry">${t('photos_retry')}</button></div>
+        <div class="row"><button class="btn pri" data-act="photostart" ${p.running ? 'disabled' : ''}>${t('photos_find')}</button>${p.running ? `<button class="btn" data-act="photostop">${t('photos_stop')}</button>` : ''}</div>
+        <div class="row" style="margin-top:8px"><button class="btn" data-act="photoretry">${t('photos_retry')}</button><button class="btn" data-act="photoneeded">📷 ${t('photos_snap')}</button></div>
         <p class="muted" style="font-size:13px;margin-top:10px">${t('photos_nomatch')} <b class="num">${p.no_match}</b></p>`;
       $('#phauto').onchange = (e) => api('/api/settings', { method: 'PUT', body: { photo_auto: e.target.checked } }).then((s) => { S.set = s; }).catch(fail);
       if (p.running) setTimeout(drawPhotos, 3000);
@@ -458,6 +459,12 @@
     async testprint() { const s = { id: 0, created_at: new Date().toISOString(), user_name: S.user.name, status: 'ok', items: [{ name: 'Test item', qty: 2, price_cents: 150 }, { name: 'صنف تجريبي', qty: 1, price_cents: 99 }], total_cents: 399, total_ll: 360000, method: 'cash', currency: 'USD', tendered: 5, change_cents: 101, rate: S.set.rate }; await printReceipt(s); toast(t('test_sent')); },
     async saveshop() { const f = $('#shform'); try { S.set = await api('/api/settings', { method: 'PUT', body: { shop_on: f.on.checked, shop_wa: f.wa.value, shop_card: f.card.checked, shop_whish: f.whish.value } }); toast(t('saved')); drawShopCfg(); } catch (e) { fail(e); } },
     async ostatus(b) { try { await api(`/api/orders/${b.dataset.id}/status`, { method: 'PUT', body: { status: b.dataset.s } }); pollOrders(); const rows = await api('/api/orders'); drawOrders(rows); } catch (e) { fail(e); } },
+    async photoneeded() {
+      try {
+        const r = await api('/api/admin/photos/needed');
+        modal(`<h2>📷 ${t('photos_snap')}</h2><p class="muted">${t('photos_snap_info')}</p><div id="pneed">${r.items.map((i) => `<div class="row" data-pid="${i.id}" style="align-items:center;margin:6px 0"><span style="flex:1;min-width:0">${esc(i.name)}</span><label class="btn pri" style="cursor:pointer;white-space:nowrap">📷<input type="file" class="pcap" accept="image/*" capture="environment" data-id="${i.id}" hidden></label></div>`).join('') || `<p>${t('photos_all')}</p>`}</div><div class="row"><button class="btn" data-act="closem">${t('cancel')}</button></div>`, true);
+      } catch (e) { fail(e); }
+    },
     photostart() { api('/api/admin/photos', { method: 'POST', body: { action: 'start' } }).then(() => setTimeout(drawPhotos, 600)).catch(fail); },
     photostop() { api('/api/admin/photos', { method: 'POST', body: { action: 'stop' } }).then(() => setTimeout(drawPhotos, 600)).catch(fail); },
     photoretry() { api('/api/admin/photos', { method: 'POST', body: { action: 'retry' } }).then(() => setTimeout(drawPhotos, 600)).catch(fail); },
@@ -487,6 +494,7 @@
     const el = e.target;
     if (el.dataset.act === 'setqty') { const l = S.cart[+el.dataset.n]; const q = num(el.value); if (q > 0) l.qty = q; else S.cart.splice(+el.dataset.n, 1); drawCart(); }
     if (el.id === 'csv' && el.files[0]) { importCSV(el.files[0]); el.value = ''; }
+    if (el.classList.contains('pcap') && el.files[0]) resizeImage(el.files[0]).then((d) => api('/api/items/' + el.dataset.id + '/photo', { method: 'POST', body: { image: d } })).then(() => { el.closest('[data-pid]')?.remove(); toast(t('saved')); drawPhotos(); }).catch(fail);
     if (el.id === 'photo' && el.files[0]) resizeImage(el.files[0]).then((d) => { imgState = { changed: true, data: d }; $('#pv').innerHTML = `<img src="${d}" alt="">`; }).catch(fail);
   });
   let deb;

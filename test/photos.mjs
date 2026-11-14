@@ -4,6 +4,7 @@ const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'eddyp-')); const wait = (ms) 
 const jpg = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff]), Buffer.alloc(3000, 7)]);
 const fake = http.createServer((q, r) => {
   if (q.url.startsWith('/api/v2/product/')) { const c = q.url.split('/').pop().split('.')[0]; hits.push(c); r.setHeader('content-type', 'application/json'); return r.end(JSON.stringify(c === '5287000107013' ? { status: 1, product: { image_front_url: `http://127.0.0.1:${fake.address().port}/p.jpg` } } : { status: 0 })); }
+  if (q.url.startsWith('/cgi/search.pl')) { const s = decodeURIComponent(q.url.split('search_terms=')[1].split('&')[0]); r.setHeader('content-type', 'application/json'); return r.end(JSON.stringify({ products: s.startsWith('almaza') ? [{ brands: 'Almaza', product_name: 'Almaza Beer Classic', image_front_url: `http://127.0.0.1:${fake.address().port}/p.jpg` }, { brands: 'Other', product_name: 'Unrelated juice', image_front_url: `http://127.0.0.1:${fake.address().port}/p.jpg` }] : [{ brands: 'Other', product_name: 'Unrelated juice', image_front_url: `http://127.0.0.1:${fake.address().port}/p.jpg` }] })); }
   if (q.url === '/p.jpg') { r.setHeader('content-type', 'image/jpeg'); return r.end(jpg); }
   r.statusCode = 404; r.end();
 }); await new Promise((r) => fake.listen(0, '127.0.0.1', r));
@@ -26,5 +27,13 @@ try {
   const it = (await call('/api/items?q=cedars', {}, tok)).j.items[0]; const img = await fetch(`${base}/img/${it.id}`); ok(img.status === 200 && img.headers.get('content-type') === 'image/jpeg', 'the photo is served for the item');
   const n1 = hits.length; await call('/api/admin/photos', { method: 'POST', body: { action: 'start' } }, tok); await wait(500); ok(hits.length === n1, 'items already searched are not searched again');
   await call('/api/admin/photos', { method: 'POST', body: { action: 'retry' } }, tok); await wait(600); ok(hits.length > n1, '"search again" retries the ones with no match');
+  await call('/api/items/import', { method: 'POST', body: { rows: [mk('7771', 'almaza beer classic'), mk('7772', 'zorba falafel mix')] } }, tok);
+  await call('/api/admin/photos', { method: 'POST', body: { action: 'start' } }, tok); await wait(1000);
+  const al = (await call('/api/items?q=almaza', {}, tok)).j.items[0], zo = (await call('/api/items?q=zorba', {}, tok)).j.items[0];
+  ok(al.has_image && !zo.has_image, 'name fallback adds a photo only when name and brand clearly match');
+  const need = (await call('/api/admin/photos/needed', {}, tok)).j.items; ok(need.some((x) => x.id === zo.id) && !need.some((x) => x.id === al.id), 'items without photo are listed for quick snapping');
+  const up = await call(`/api/items/${zo.id}/photo`, { method: 'POST', body: { image: 'data:image/jpeg;base64,' + jpg.toString('base64') } }, tok);
+  ok(up.s === 200 && (await call('/api/items?q=zorba', {}, tok)).j.items[0].has_image, 'a snapped photo is saved for the item');
+  ok((await call(`/api/items/${zo.id}/photo`, { method: 'POST', body: { image: 'nope' } }, tok)).s === 400, 'bad photo data is rejected');
   console.log(`\n${pass} photo checks passed`);
 } catch (e) { console.error('\nFAILED:', e.message, '\n', out.slice(-500)); process.exitCode = 1; } finally { srv.kill(); fake.close(); fs.rmSync(dir, { recursive: true, force: true }); }
