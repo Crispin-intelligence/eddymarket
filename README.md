@@ -44,3 +44,6 @@ Items > Import CSV, with these columns: `barcode, name, name_ar, category, price
 
 ## Where things are
 `server.js` API and database, `seed.js` demo items, `public/` till and kiosk, `test/` end-to-end test, `sql/` and `database/` reference material from the old system, `docs/` notes. Next steps are in [ROADMAP.md](ROADMAP.md).
+
+---
+Eddy OS is designed and built by Crispin Intelligence (Ci). © 2026 Crispin Geagea. All rights reserved. See LICENSE.

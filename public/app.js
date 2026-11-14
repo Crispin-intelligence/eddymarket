@@ -380,6 +380,7 @@
       <div class="card"><h2>${t('photos')}</h2><div id="phcfg"></div></div>
       <div class="card"><h2>${t('shop_card')}</h2><div id="shopcfg"></div></div>
       <div class="card"><h2>${t('printer')}</h2><div id="prn"></div></div>
+      <div class="card"><h2>Eddy OS</h2><p class="muted" style="margin:0">Designed and built by <b>Crispin Intelligence (Ci)</b>, Lebanon.<br>© 2026 Crispin Geagea. All rights reserved.<br><a href="https://ci-ccg.com" target="_blank" rel="noopener">ci-ccg.com</a></p></div>
       <div class="card"><h2>${t('backups')}</h2><p class="muted" style="margin-top:0">${t('backup_info')}</p><div id="bk"></div><div class="row"><button class="btn pri" data-act="backupnow">${t('backup_now')}</button></div></div></div>`;
     drawTeam(); drawBackups(); drawPrinter(); drawShopCfg(); drawPhotos();
   }
