@@ -46,5 +46,17 @@ try {
   const bd = await fetch(base + '/api/admin/backups/' + bk.j.name, { headers: { Authorization: 'Bearer ' + tok } }); ok(bd.status === 200 && (await bd.arrayBuffer()).byteLength > 4096, 'backup downloads as a database file');
   ok((await call('/api/admin/backups', {}, ct)).s === 403 && (await fetch(base + '/api/admin/backups/..%2Fserver.js', { headers: { Authorization: 'Bearer ' + tok } })).status === 404, 'cashier cannot reach backups; path traversal blocked');
   ok((await fetch(base + '/sw.js')).status === 200 && (await fetch(base + '/manifest.webmanifest')).status === 200, 'offline shell files are served');
+  // --- printer: fake ESC/POS device on a local TCP port ---
+  const net = await import('node:net'); const got = []; const fake = net.createServer((sk) => { const b = []; sk.on('data', (d) => b.push(d)); sk.on('end', () => got.push(Buffer.concat(b))); }); await new Promise((r) => fake.listen(0, '127.0.0.1', r)); const pp = fake.address().port;
+  ok((await call('/api/admin/printer', {}, ct)).s === 403 && (await call('/api/admin/printer', { method: 'PUT', body: { mode: 'lan' } }, ct)).s === 403, 'cashier cannot change printer settings');
+  ok((await call('/api/admin/printer', { method: 'PUT', body: { mode: 'lan', host: 'bad host!', port: pp } }, tok)).s === 400, 'bad printer address rejected');
+  ok((await call('/api/admin/printer', { method: 'PUT', body: { mode: 'lan', host: '127.0.0.1', port: String(pp), drawer: true, auto: true } }, tok)).s === 200, 'owner saves LAN printer');
+  const h = 40, raster = { w: 576, h, data: Buffer.alloc(72 * h, 0xaa).toString('base64') };
+  const pr = await call('/api/print', { method: 'POST', body: { raster, drawer: true } }, ct); ok(pr.s === 200, 'cashier can print a receipt'); await wait(300);
+  const b0 = got[0]; ok(b0 && b0[0] === 0x1b && b0[1] === 0x40 && b0.includes(Buffer.from([0x1d, 0x76, 0x30])), 'printer receives ESC/POS init + raster');
+  ok(b0.includes(Buffer.from([0x1b, 0x70, 0x00, 0x19, 0xfa])) && b0.includes(Buffer.from([0x1d, 0x56, 0x42])), 'drawer kick and cut are sent');
+  ok((await call('/api/print', { method: 'POST', body: { raster: { w: 100, h: 1, data: 'AA==' } } }, ct)).s === 400, 'wrong-size raster rejected');
+  const dr = await call('/api/drawer', { method: 'POST' }, ct); await wait(300); ok(dr.s === 200 && got[1] && got[1].includes(Buffer.from([0x1b, 0x70, 0x00])), 'drawer opens on its own');
+  fake.close();
   console.log(`\n${pass} checks passed`);
 } catch (e) { console.error('\nFAILED:', e.message, '\n', out.slice(-600)); process.exitCode = 1; } finally { srv.kill(); fs.rmSync(dir, { recursive: true, force: true }); }

@@ -4,6 +4,9 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import net from 'node:net';
+import os from 'node:os';
+import { execFile } from 'node:child_process';
 import { DatabaseSync } from 'node:sqlite';
 import { fileURLToPath } from 'node:url';
 import { seedDemo } from './seed.js';
@@ -47,7 +50,7 @@ CREATE INDEX IF NOT EXISTS ix_saleitems_item ON sale_items(item_id);
 const DEFAULTS = { store_name: 'Eddy Market', rate: '90000', footer: 'Thank you for shopping with us', tz: 'Asia/Beirut' };
 const getSetting = (k) => db.prepare('SELECT value FROM settings WHERE key=?').get(k)?.value ?? DEFAULTS[k];
 const setSetting = (k, v) => db.prepare('INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value').run(k, String(v));
-const publicSettings = () => ({ store_name: getSetting('store_name'), rate: +getSetting('rate'), footer: getSetting('footer'), tz: getSetting('tz'), store_id: STORE });
+const publicSettings = () => ({ store_name: getSetting('store_name'), rate: +getSetting('rate'), footer: getSetting('footer'), tz: getSetting('tz'), store_id: STORE, print_mode: getSetting('print_mode') || 'browser', print_auto: getSetting('print_auto') === '1', print_drawer: getSetting('print_drawer') === '1' });
 
 // ---------- users / auth ----------
 const hashPin = (pin, salt) => crypto.scryptSync(String(pin), salt, 32).toString('hex');
@@ -210,6 +213,58 @@ function backupIfDue() {
 }
 backupIfDue(); setInterval(backupIfDue, 3600e3).unref();
 
+// ---------- receipt printer (ESC/POS) ----------
+// The browser draws the receipt as a bitmap (so Arabic shapes correctly) and we send it to the thermal printer over the
+// network (port 9100), a shared Windows printer, or a Mac/Linux CUPS queue. The cash drawer opens through the printer.
+const PRINT_DEFAULT = { mode: 'browser', host: '', port: '9100', share: '', drawer: '1', auto: '1' };
+const printCfg = () => Object.fromEntries(Object.keys(PRINT_DEFAULT).map((k) => [k, getSetting('print_' + k) ?? PRINT_DEFAULT[k]]));
+const DRAWER = Buffer.from([0x1b, 0x70, 0x00, 0x19, 0xfa]);
+function escpos(raster, drawer) {
+  const parts = [Buffer.from([0x1b, 0x40])];
+  if (raster) {
+    const wb = raster.w / 8;
+    for (let y = 0; y < raster.h; y += 128) {
+      const hh = Math.min(128, raster.h - y);
+      parts.push(Buffer.from([0x1d, 0x76, 0x30, 0x00, wb & 255, wb >> 8, hh & 255, hh >> 8]), raster.buf.subarray(y * wb, (y + hh) * wb));
+    }
+    parts.push(Buffer.from([0x1b, 0x64, 0x04, 0x1d, 0x56, 0x42, 0x03]));
+  }
+  if (drawer) parts.push(DRAWER);
+  return Buffer.concat(parts);
+}
+function sendToPrinter(buf) {
+  const c = printCfg();
+  return new Promise((resolve, reject) => {
+    const fail = (m) => reject(new HttpError(502, m));
+    if (c.mode === 'lan') {
+      if (!c.host) return fail('Printer address is not set');
+      const sock = net.connect({ host: c.host, port: +c.port || 9100 });
+      let bad = false;
+      sock.setTimeout(5000);
+      sock.on('timeout', () => { bad = true; sock.destroy(); fail('Printer did not answer'); });
+      sock.on('error', () => { bad = true; fail('Printer is not reachable'); });
+      sock.on('connect', () => sock.end(buf));
+      sock.on('close', () => { if (!bad) resolve(); });
+    } else if (c.mode === 'share' || c.mode === 'cups') {
+      if (!c.share) return fail('Printer name is not set');
+      const file = path.join(os.tmpdir(), `eddy-print-${crypto.randomBytes(6).toString('hex')}.bin`);
+      const done = (err) => { fs.rmSync(file, { force: true }); if (err) fail('Could not send to the printer'); else resolve(); };
+      if (c.mode === 'share' && process.platform !== 'win32') return fail('Shared-printer mode is for Windows');
+      fs.writeFileSync(file, buf);
+      if (c.mode === 'share') execFile('cmd.exe', ['/c', 'copy', '/b', file, `\\\\localhost\\${c.share}`], { windowsHide: true, timeout: 8000 }, done);
+      else execFile('lp', ['-d', c.share, '-o', 'raw', file], { timeout: 8000 }, done);
+    } else fail('Printer is set to browser printing');
+  });
+}
+function parseRaster(r) {
+  if (!r) return null;
+  const w = Number(r.w), h = Number(r.h);
+  if (w !== 576 || !Number.isInteger(h) || h < 1 || h > 6000) bad('Invalid receipt image');
+  const buf = Buffer.from(String(r.data || ''), 'base64');
+  if (buf.length !== (w / 8) * h) bad('Invalid receipt image');
+  return { w, h, buf };
+}
+
 // ---------- routes ----------
 const routes = [];
 const route = (method, pattern, auth, fn) => routes.push({ method, re: new RegExp(`^${pattern}$`), auth, fn });
@@ -328,6 +383,22 @@ route('GET', '/api/items/export', 'owner', ({ res }) => {
   res.end('﻿' + lines.join('\n'));
   return undefined;
 });
+route('GET', '/api/admin/printer', 'owner', () => printCfg());
+route('PUT', '/api/admin/printer', 'owner', ({ body }) => {
+  const mode = String(body.mode || 'browser');
+  if (!['browser', 'lan', 'share', 'cups'].includes(mode)) bad('Invalid printer mode');
+  const host = String(body.host || '').trim(), share = String(body.share || '').trim(), port = String(Math.round(num(body.port, 9100)) || 9100);
+  if (host && !/^[A-Za-z0-9.-]{1,100}$/.test(host)) bad('Invalid printer address');
+  if (share && !/^[\w .-]{1,60}$/.test(share)) bad('Invalid printer name');
+  if (+port < 1 || +port > 65535) bad('Invalid port');
+  for (const [k, v] of Object.entries({ mode, host, port, share, drawer: body.drawer ? '1' : '0', auto: body.auto ? '1' : '0' })) setSetting('print_' + k, v);
+  return printCfg();
+});
+route('POST', '/api/print', 'any', async ({ body }) => {
+  await sendToPrinter(escpos(parseRaster(body.raster), body.drawer && printCfg().drawer === '1'));
+  return { ok: true };
+});
+route('POST', '/api/drawer', 'any', async () => { await sendToPrinter(escpos(null, true)); return { ok: true }; });
 route('GET', '/api/admin/backups', 'owner', () => listBackups().slice(0, 10));
 route('POST', '/api/admin/backups', 'owner', () => ({ name: makeBackup() }));
 route('GET', '/api/admin/backups/([^/]+)', 'owner', ({ m, res }) => {
@@ -497,7 +568,7 @@ const server = http.createServer(async (req, res) => {
       if (r.auth === 'owner' && user.role !== 'owner') bad('forbidden', 403);
       const body = req.method === 'GET' || req.method === 'DELETE' ? {} : await readBody(req);
       const ip = req.headers['cf-connecting-ip'] || req.socket.remoteAddress;
-      const out = r.fn({ req, res, url, m, body, user, ip });
+      const out = await r.fn({ req, res, url, m, body, user, ip });
       if (out !== undefined) json(res, 200, out);
       return;
     }

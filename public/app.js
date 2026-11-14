@@ -201,10 +201,22 @@
     const p = S.pay; const btn = $('#done'); btn.disabled = true;
     try {
       const sale = await api('/api/sales', { method: 'POST', body: { lines: S.cart.map((l) => ({ item_id: l.id, qty: l.qty })), method: p.method, currency: p.cur, tendered: p.method === 'cash' ? num(p.tendered) : undefined } });
-      S.cart = []; drawCart(); showReceipt(sale, true); loadCatalog();
+      S.cart = []; drawCart(); showReceipt(sale, true); loadCatalog(); afterSale(sale);
     } catch (e) { btn.disabled = false; fail(e); }
   }
+  // Printing: the bitmap goes to the thermal printer through the server; browser mode uses the normal print dialog.
+  const hardware = () => S.set.print_mode && S.set.print_mode !== 'browser';
+  async function printReceipt(s) {
+    if (!hardware()) return window.print();
+    try { const cv = await window.EddyPrint.render(s, S.set, I); await api('/api/print', { method: 'POST', body: { raster: window.EddyPrint.toRaster(cv), drawer: s.method === 'cash' } }); }
+    catch (e) { toast(e.message || t('error'), true); }
+  }
+  function afterSale(s) {
+    if (S.set.print_auto) { if (hardware()) printReceipt(s); else if (window.matchMedia) window.print(); }
+    else if (hardware() && S.set.print_drawer && s.method === 'cash') api('/api/drawer', { method: 'POST' }).catch((e) => toast(e.message, true));
+  }
   function showReceipt(s, fresh) {
+    S.lastSale = s;
     const ln = s.items.map((l) => `<div class="r"><span>${l.qty !== 1 ? `${l.qty} × ` : ''}${esc(l.name)}</span><span class="num">${I.usd(Math.round(l.qty * l.price_cents))}</span></div>`).join('');
     const paid = s.method === 'card' ? t('card') : `${t('cash')} ${s.currency === 'LL' ? I.ll(s.tendered) : I.usd(s.tendered * 100)}`;
     modal(`<div id="rcpt" class="paper"><div class="c"><b class="big">${esc(S.set.store_name)}</b><br>${t('receipt')} #${s.id}${s.status === 'void' ? ` <span class="stamp">${t('voided')}</span>` : ''}<br><span class="muted">${dateFmt(s.created_at)}</span><br><span class="muted">${t('cashier')}: ${esc(s.user_name)}</span></div><hr>${ln}<hr>
@@ -333,8 +345,22 @@
       <div class="card"><h2>${t('team')}</h2><div id="team"></div><form id="uform" style="margin-top:14px;display:grid;gap:10px"><h2 style="margin:0;font-size:16px">${t('add_member')}</h2>
       <input name="name" placeholder="${esc(t('name'))}" required><div class="grid2"><input name="pin" inputmode="numeric" pattern="\\d{4,8}" placeholder="${esc(t('pin'))}" required>
       <select name="role"><option value="cashier">${t('cashier_role')}</option><option value="owner">${t('owner')}</option></select></div><button class="btn pri" type="submit">${t('add_member')}</button></form></div>
+      <div class="card"><h2>${t('printer')}</h2><div id="prn"></div></div>
       <div class="card"><h2>${t('backups')}</h2><p class="muted" style="margin-top:0">${t('backup_info')}</p><div id="bk"></div><div class="row"><button class="btn pri" data-act="backupnow">${t('backup_now')}</button></div></div></div>`;
-    drawTeam(); drawBackups();
+    drawTeam(); drawBackups(); drawPrinter();
+  }
+  async function drawPrinter() {
+    try {
+      const c = await api('/api/admin/printer'); const opt = (v, l) => `<option value="${v}" ${c.mode === v ? 'selected' : ''}>${l}</option>`;
+      $('#prn').innerHTML = `<form id="pnform" data-mode="${esc(c.mode)}" style="display:grid;gap:10px"><label class="f">${t('print_how')}<select name="mode" id="pmode">${opt('browser', t('pm_browser'))}${opt('lan', t('pm_lan'))}${opt('share', t('pm_share'))}${opt('cups', t('pm_cups'))}</select></label>
+        <div class="grid2" id="plan"><label class="f">${t('printer_ip')}<input name="host" value="${esc(c.host)}" placeholder="192.168.1.50" inputmode="decimal"></label><label class="f">${t('printer_port')}<input name="port" value="${esc(c.port)}" inputmode="numeric"></label></div>
+        <label class="f" id="pshare">${t('printer_name')}<input name="share" value="${esc(c.share)}" placeholder="ZY908"></label>
+        <label style="display:flex;gap:10px;align-items:center"><input type="checkbox" name="auto" style="width:auto;min-height:0" ${c.auto === '1' ? 'checked' : ''}> ${t('print_auto')}</label>
+        <label style="display:flex;gap:10px;align-items:center"><input type="checkbox" name="drawer" style="width:auto;min-height:0" ${c.drawer === '1' ? 'checked' : ''}> ${t('open_drawer_cash')}</label>
+        <div class="row"><button type="button" class="btn pri" data-act="saveprinter">${t('save')}</button><button type="button" class="btn" data-act="testprint">${t('test_print')}</button><button type="button" class="btn" data-act="opendrawer">${t('open_drawer')}</button></div></form>`;
+      const sync = () => { const m = $('#pmode').value; $('#plan').classList.toggle('hide', m !== 'lan'); $('#pshare').classList.toggle('hide', m !== 'share' && m !== 'cups'); };
+      $('#pmode').addEventListener('change', sync); sync();
+    } catch (e) { fail(e); }
   }
   async function drawBackups() {
     try {
@@ -372,7 +398,9 @@
     },
     cartsheet() { $('.receipt')?.classList.toggle('open'); },
     clear() { S.cart = []; drawCart(); $('#q')?.focus(); },
-    pay: openPay, closem: closeModal, done: finishSale, print() { window.print(); },
+    pay: openPay, closem: closeModal, done: finishSale, print() { printReceipt(S.lastSale); }, opendrawer() { api('/api/drawer', { method: 'POST' }).then(() => toast(t('drawer_opened'))).catch((e) => toast(e.message, true)); },
+    async testprint() { const s = { id: 0, created_at: new Date().toISOString(), user_name: S.user.name, status: 'ok', items: [{ name: 'Test item', qty: 2, price_cents: 150 }, { name: 'صنف تجريبي', qty: 1, price_cents: 99 }], total_cents: 399, total_ll: 360000, method: 'cash', currency: 'USD', tendered: 5, change_cents: 101, rate: S.set.rate }; await printReceipt(s); toast(t('test_sent')); },
+    async saveprinter() { const f = document.getElementById('pnform'); const d = Object.fromEntries(new FormData(f)); try { await api('/api/admin/printer', { method: 'PUT', body: { ...d, drawer: f.drawer.checked, auto: f.auto.checked } }); S.set = await api('/api/settings'); toast(t('saved')); drawPrinter(); } catch (e) { fail(e); } },
     pm(b) { S.pay.method = b.dataset.m; drawPay(); }, pc(b) { S.pay.cur = b.dataset.c; S.pay.tendered = ''; drawPay(); },
     qa(b) { S.pay.tendered = String(b.dataset.v); drawPay(); },
     sale(b) { api('/api/sales/' + b.dataset.id).then((s) => showReceipt(s, false)).catch(fail); },

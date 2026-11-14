@@ -22,3 +22,14 @@ Run Eddy OS on the counter laptop (or any always-on PC in the shop) and open `ht
 
 ## Offline
 The app installs on phones (Add to Home screen) and its screens load from the last copy when the connection drops. A red bar shows while the connection is lost and clears by itself. Sales are always saved by the server, so keep the server on the shop's own computer for true offline selling.
+
+## Receipt printer + cash drawer (ZyWell ZY908)
+
+Settings → Receipt printer. The till draws the receipt as a picture (so Arabic prints correctly) and the server sends it to the printer as ESC/POS. The drawer plugs into the printer's RJ11/RJ12 port and opens by itself on cash sales.
+
+- **Network (best):** hold FEED while powering on to print the self-test page; it shows the printer's IP. Choose "Network printer", enter the IP, port 9100. Give the printer a fixed IP in the router.
+- **USB on Windows:** Devices & Printers → share the ZY908 (e.g. name `ZY908`), choose "Windows shared printer", enter that name. The server must run on that PC.
+- **USB on Mac/Linux:** add the printer, choose "Mac / Linux printer", enter its CUPS name.
+- **Browser mode:** the normal print dialog. For no dialog, start Chrome with `--kiosk-printing`.
+
+Use "Test print" and "Open drawer" to check. Not yet tested on the real ZY908.
