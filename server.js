@@ -190,6 +190,26 @@ function saleView(id) {
   return s;
 }
 
+// ---------- backups ----------
+// Daily snapshot of the whole database (VACUUM INTO is safe while the till is running). BACKUP_DIR can point at a USB drive or cloud-synced folder.
+const BK = process.env.BACKUP_DIR || path.join(DATA, 'backups');
+fs.mkdirSync(BK, { recursive: true });
+const BK_RE = new RegExp(`^${STORE}-\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}\\.db$`);
+function listBackups() {
+  return fs.readdirSync(BK).filter((n) => BK_RE.test(n)).map((n) => { const st = fs.statSync(path.join(BK, n)); return { name: n, size: st.size, at: st.mtime.toISOString() }; }).sort((a, b) => (a.name < b.name ? 1 : -1));
+}
+function makeBackup() {
+  const name = `${STORE}-${new Date().toISOString().replace(/[:T]/g, '-').slice(0, 16)}.db`;
+  const file = path.join(BK, name);
+  if (!fs.existsSync(file)) db.exec(`VACUUM INTO '${file.replace(/'/g, "''")}'`);
+  for (const old of listBackups().slice(30)) fs.rmSync(path.join(BK, old.name), { force: true }); // keep the newest 30
+  return name;
+}
+function backupIfDue() {
+  try { const last = listBackups()[0]; if (!last || Date.now() - new Date(last.at).getTime() > 20 * 3600e3) console.log('  Backup saved:', makeBackup()); } catch (e) { console.error('  Backup failed:', e.message); }
+}
+backupIfDue(); setInterval(backupIfDue, 3600e3).unref();
+
 // ---------- routes ----------
 const routes = [];
 const route = (method, pattern, auth, fn) => routes.push({ method, re: new RegExp(`^${pattern}$`), auth, fn });
@@ -306,6 +326,15 @@ route('GET', '/api/items/export', 'owner', ({ res }) => {
   for (const i of loadCache()) lines.push([q(i.barcode), q(i.name), q(i.name_ar), q(i.category), (i.price_cents / 100).toFixed(2), (i.cost_cents / 100).toFixed(2), i.stock, i.min_stock, q(i.unit), q(i.extra.join(';'))].join(','));
   res.writeHead(200, { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': `attachment; filename="${STORE}-items.csv"` });
   res.end('﻿' + lines.join('\n'));
+  return undefined;
+});
+route('GET', '/api/admin/backups', 'owner', () => listBackups().slice(0, 10));
+route('POST', '/api/admin/backups', 'owner', () => ({ name: makeBackup() }));
+route('GET', '/api/admin/backups/([^/]+)', 'owner', ({ m, res }) => {
+  const n = decodeURIComponent(m[1]);
+  if (!BK_RE.test(n) || !fs.existsSync(path.join(BK, n))) bad('not_found', 404);
+  res.writeHead(200, { 'Content-Type': 'application/octet-stream', 'Content-Disposition': `attachment; filename="${n}"` });
+  fs.createReadStream(path.join(BK, n)).pipe(res);
   return undefined;
 });
 route('GET', '/img/(\\d+)', null, ({ m, res }) => {

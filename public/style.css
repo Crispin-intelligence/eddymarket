@@ -310,3 +310,6 @@ div.num { display: block; }
   .k-try { display: grid; grid-template-columns: 1fr 1fr; width: 100%; } .k-try button { min-width: 0; } .k-try button span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .k-try button:nth-child(n+7) { display: none; }
 }
+
+#conn { position: fixed; top: 0; inset-inline: 0; z-index: 200; background: #c8102e; color: #fff; text-align: center; font-weight: 700; padding: 8px 12px; font-size: 14px; }
+.card .row { display: flex; gap: 10px; margin-top: 14px; }

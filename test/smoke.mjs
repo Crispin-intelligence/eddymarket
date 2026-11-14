@@ -41,5 +41,10 @@ try {
   ok((await call('/api/items/barcode/9999', {}, tok)).s === 200, 'extra barcode resolves to the item');
   ok((await fetch(base + '/../../etc/passwd')).status !== 200 && (await fetch(base + '/%2e%2e/server.js')).status === 404, 'static path traversal blocked');
   ok((await fetch(base + '/')).status === 200 && (await fetch(base + '/kiosk')).status === 200, 'till and kiosk pages are served');
+  const bk = await call('/api/admin/backups', { method: 'POST' }, tok); ok(bk.s === 200 && /\.db$/.test(bk.j.name), 'owner can back up now');
+  const bl = await call('/api/admin/backups', {}, tok); ok(bl.s === 200 && bl.j.length >= 1, 'backups are listed');
+  const bd = await fetch(base + '/api/admin/backups/' + bk.j.name, { headers: { Authorization: 'Bearer ' + tok } }); ok(bd.status === 200 && (await bd.arrayBuffer()).byteLength > 4096, 'backup downloads as a database file');
+  ok((await call('/api/admin/backups', {}, ct)).s === 403 && (await fetch(base + '/api/admin/backups/..%2Fserver.js', { headers: { Authorization: 'Bearer ' + tok } })).status === 404, 'cashier cannot reach backups; path traversal blocked');
+  ok((await fetch(base + '/sw.js')).status === 200 && (await fetch(base + '/manifest.webmanifest')).status === 200, 'offline shell files are served');
   console.log(`\n${pass} checks passed`);
 } catch (e) { console.error('\nFAILED:', e.message, '\n', out.slice(-600)); process.exitCode = 1; } finally { srv.kill(); fs.rmSync(dir, { recursive: true, force: true }); }

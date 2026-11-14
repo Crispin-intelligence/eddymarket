@@ -91,4 +91,5 @@
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeCam(); idle(); return; } if (e.target.id !== 'kq' && e.key.length === 1 && !e.ctrlKey && !e.metaKey) $('#kq').focus(); });
   fetch('/api/settings').then((r) => r.json()).then((s) => { store = s.store_name; paint(); idle(); }).catch(() => { paint(); idle(); });
   paint(); idle(); $('#kq').focus();
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
 })();

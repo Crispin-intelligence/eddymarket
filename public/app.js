@@ -332,8 +332,15 @@
       <label class="f" style="margin-top:10px">${t('footer')}<input name="footer" value="${esc(S.set.footer)}"></label><div class="row"><button class="btn pri" type="submit">${t('save')}</button></div></form></div>
       <div class="card"><h2>${t('team')}</h2><div id="team"></div><form id="uform" style="margin-top:14px;display:grid;gap:10px"><h2 style="margin:0;font-size:16px">${t('add_member')}</h2>
       <input name="name" placeholder="${esc(t('name'))}" required><div class="grid2"><input name="pin" inputmode="numeric" pattern="\\d{4,8}" placeholder="${esc(t('pin'))}" required>
-      <select name="role"><option value="cashier">${t('cashier_role')}</option><option value="owner">${t('owner')}</option></select></div><button class="btn pri" type="submit">${t('add_member')}</button></form></div></div>`;
-    drawTeam();
+      <select name="role"><option value="cashier">${t('cashier_role')}</option><option value="owner">${t('owner')}</option></select></div><button class="btn pri" type="submit">${t('add_member')}</button></form></div>
+      <div class="card"><h2>${t('backups')}</h2><p class="muted" style="margin-top:0">${t('backup_info')}</p><div id="bk"></div><div class="row"><button class="btn pri" data-act="backupnow">${t('backup_now')}</button></div></div></div>`;
+    drawTeam(); drawBackups();
+  }
+  async function drawBackups() {
+    try {
+      const l = await api('/api/admin/backups'); const kb = (n) => (n / 1048576 >= 1 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB');
+      $('#bk').innerHTML = l.length ? `<table class="tbl"><tbody>${l.slice(0, 5).map((b) => `<tr><td>${dateFmt(b.at)}<div class="muted num">${kb(b.size)}</div></td><td style="text-align:end"><button class="btn sm" data-act="bkdl" data-n="${esc(b.name)}">${t('download')}</button></td></tr>`).join('')}</tbody></table>` : `<div class="muted">${t('no_backups')}</div>`;
+    } catch (e) { fail(e); }
   }
   async function drawTeam() {
     try {
@@ -359,6 +366,10 @@
     inc(b) { S.cart[+b.dataset.n].qty = Math.round((S.cart[+b.dataset.n].qty + 1) * 1000) / 1000; drawCart(); },
     dec(b) { const l = S.cart[+b.dataset.n]; l.qty = Math.round((l.qty - 1) * 1000) / 1000; if (l.qty <= 0) S.cart.splice(+b.dataset.n, 1); drawCart(); },
     del(b) { S.cart.splice(+b.dataset.n, 1); drawCart(); },
+    async backupnow() { try { await api('/api/admin/backups', { method: 'POST' }); toast(t('backup_done')); drawBackups(); } catch (e) { fail(e); } },
+    async bkdl(b) {
+      try { const r = await fetch('/api/admin/backups/' + encodeURIComponent(b.dataset.n), { headers: { Authorization: 'Bearer ' + S.token } }); if (!r.ok) throw new Error(t('error')); const u = URL.createObjectURL(await r.blob()); const x = document.createElement('a'); x.href = u; x.download = b.dataset.n; x.click(); setTimeout(() => URL.revokeObjectURL(u), 4000); } catch (e) { fail(e); }
+    },
     cartsheet() { $('.receipt')?.classList.toggle('open'); },
     clear() { S.cart = []; drawCart(); $('#q')?.focus(); },
     pay: openPay, closem: closeModal, done: finishSale, print() { window.print(); },
@@ -416,4 +427,9 @@
     if (S.token) { try { S.user = await api('/api/me'); S.set = await api('/api/settings'); } catch { S.token = ''; } }
     render();
   })();
+  // connection banner + offline-ready shell
+  const banner = (on) => { let b = document.getElementById('conn'); if (!on && b) return b.remove(); if (on && !b) { b = document.createElement('div'); b.id = 'conn'; b.setAttribute('role', 'status'); b.textContent = t('conn_lost'); document.body.appendChild(b); } };
+  addEventListener('offline', () => banner(true)); addEventListener('online', () => { banner(false); toast(t('conn_back')); });
+  if (navigator.onLine === false) banner(true);
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
 })();
