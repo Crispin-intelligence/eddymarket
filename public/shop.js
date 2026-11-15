@@ -45,7 +45,7 @@
   const total = () => cart.reduce((a, l) => a + Math.round(l.qty * l.price_cents), 0);
   const count = () => cart.length;
   const pic = (i) => (i.has_image ? `<img loading="lazy" src="/img/${i.id}?v=${i.v}" alt="">` : `<span class="ph" style="--h:${[...nm(i)].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7)}"><b>${esc([...nm(i).replace(/[^\p{L}\p{N} ]/gu, '').trim().split(/\s+/).slice(0, 2).map((w) => [...w][0] || '').join('').toUpperCase()].join('') || '•')}</b><i>${CI[i.category] || '🛍️'}</i></span>`);
-  const card = (i) => `<article class="card" data-go="#/i/${i.id}"><button class="add" data-add="${i.id}" aria-label="${t('add')}">+</button><div class="pic">${pic(i)}</div><div class="pt"><b>${usd(i.price_cents)}</b><small>${llOf(i.price_cents)}</small></div><h3>${esc(nm(i))}</h3></article>`;
+  const card = (i) => `<article class="card"><button class="add" data-add="${i.id}" aria-label="${t('add')}: ${esc(nm(i))}">+</button><div class="pic">${pic(i)}</div><div class="pt"><b>${usd(i.price_cents)}</b><small>${llOf(i.price_cents)}</small></div><h3><a href="#/i/${i.id}">${esc(nm(i))}</a></h3></article>`;
   const rowOf = (list) => `<div class="scroll">${list.map(card).join('')}</div>`;
   const toast = (m) => { $('.toast')?.remove(); const d = document.createElement('div'); d.className = 'toast'; d.textContent = m; document.body.appendChild(d); setTimeout(() => d.remove(), 1600); };
   const phoneFmt = (s) => s;
@@ -136,6 +136,17 @@
     if (o.length < 2) { pay = 'cash'; return ''; } if (!o.some(([k]) => k === pay)) pay = 'cash';
     return `<div style="margin:0 0 12px"><div style="font-size:13px;color:var(--mut);margin-bottom:6px">${t('pay_title')}</div><div style="display:grid;gap:8px">${o.map(([k, e]) => `<button class="payopt ${pay === k ? 'on' : ''}" data-pay="${k}"><span>${e}</span>${t('pay_' + k)}</button>`).join('')}</div></div>`;
   }
+  let orderNote = '';
+  function captureCartDetails() {
+    const name = $('#f-name');
+    if (!name) return;
+    me = {
+      name: name.value.trim(),
+      phone: $('#f-phone').value.trim(),
+      address: ($('#f-addr')?.value ?? me.address).trim(),
+    };
+    orderNote = $('#f-note').value;
+  }
   function vCart(err = '') {
     if (!cart.length) return `<h2 class="sec">${t('cart')}</h2>` + empty('🛒', t('cart_empty'), t('cart_empty_sub')) + `<p style="text-align:center"><a class="btn" href="#/">${t('keep')}</a></p>`;
     return `<h2 class="sec">${t('cart')}</h2><div class="box">${cart.map((l) => `<div class="ln"><div class="th">${pic(l)}</div><div class="nm">${esc(nm(l))}<small>${usd(l.price_cents)} ${unitTxt(l)}</small></div>
@@ -147,17 +158,17 @@
       <label class="f">${t('name')}<input id="f-name" autocomplete="name" value="${esc(me.name)}"></label>
       <label class="f">${t('phone')}<input id="f-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="03 123 456" value="${esc(me.phone)}"></label>
       ${mode === 'delivery' ? `<label class="f">${t('address')}<textarea id="f-addr" rows="2" autocomplete="street-address">${esc(me.address)}</textarea></label>` : ''}
-      <label class="f">${t('note')}<input id="f-note"></label>
+      <label class="f">${t('note')}<input id="f-note" value="${esc(orderNote)}"></label>
       ${err ? `<div class="err">${esc(err)}</div>` : ''}${HOME.open ? '' : `<div class="err">${t('closed_msg')}</div>`}
       <button class="btn full" data-act="place" ${HOME.open ? '' : 'disabled'}>${t('place')} · ${usd(total())}</button><p style="text-align:center;color:var(--mut);font-size:13px;margin:10px 0 0">${t('pay_note')}</p></div>`;
   }
   async function place() {
-    me = { name: $('#f-name').value.trim(), phone: $('#f-phone').value.trim(), address: ($('#f-addr')?.value || me.address).trim() }; save();
+    captureCartDetails(); save();
     const btn = $('[data-act=place]'); btn.disabled = true; btn.textContent = t('placing');
     try {
-      const r = await api('/api/shop/order', { method: 'POST', body: { ...me, mode, address: mode === 'delivery' ? me.address : '', note: $('#f-note').value, pay, lines: cart.map((l) => ({ item_id: l.id, qty: l.qty })) } });
-      myOrders.unshift({ code: r.code, at: Date.now(), name: me.name, items: cart.map((l) => ({ item_id: l.id })) }); myOrders = myOrders.slice(0, 20); cart = []; save(); location.hash = '#/done/' + r.code;
-    } catch (e) { const keepNote = $('#f-note').value; $('#main').innerHTML = vCart(e.message); $('#f-note').value = keepNote; }
+      const r = await api('/api/shop/order', { method: 'POST', body: { ...me, mode, address: mode === 'delivery' ? me.address : '', note: orderNote, pay, lines: cart.map((l) => ({ item_id: l.id, qty: l.qty })) } });
+      myOrders.unshift({ code: r.code, at: Date.now(), name: me.name, items: cart.map((l) => ({ item_id: l.id })) }); myOrders = myOrders.slice(0, 20); cart = []; orderNote = ''; save(); location.hash = '#/done/' + r.code;
+    } catch (e) { captureCartDetails(); $('#main').innerHTML = vCart(e.message); }
   }
 
   // ---- cart ops ----
@@ -190,13 +201,12 @@
     if ((b = g('[data-add]'))) { e.stopPropagation(); const i = ITEMS.get(+b.dataset.add); addItem(+b.dataset.add, step(i || {})); toast(t('added')); return; }
     if ((b = g('[data-addq]'))) { const id = +b.dataset.addq, l = cart.find((x) => x.id === id), i = ITEMS.get(id); if (l) l.qty = pq; else cart.push(snap(i, pq)); save(); toast(t('added')); if (history.length > 1) history.back(); else location.hash = '#/'; return; }
     if ((b = g('[data-pq]'))) { const i = ITEMS.get(+b.dataset.id); pq = Math.max(step(i), Math.round((pq + (+b.dataset.pq) * step(i)) * 100) / 100); $('#pq').textContent = pq; return; }
-    if ((b = g('[data-cq]'))) { const l = cart.find((x) => x.id === +b.dataset.id), s = step(l); l.qty = Math.round((l.qty + (+b.dataset.cq) * s) * 100) / 100; if (l.qty <= 0) cart = cart.filter((x) => x !== l); save(); chrome(path()); $('#main').innerHTML = vCart(); return; }
+    if ((b = g('[data-cq]'))) { captureCartDetails(); const l = cart.find((x) => x.id === +b.dataset.id), s = step(l); l.qty = Math.round((l.qty + (+b.dataset.cq) * s) * 100) / 100; if (l.qty <= 0) cart = cart.filter((x) => x !== l); save(); chrome(path()); $('#main').innerHTML = vCart(); return; }
     if ((b = g('[data-wish]'))) { const id = +b.dataset.wish; wish = wish.includes(id) ? wish.filter((x) => x !== id) : [id, ...wish]; save(); b.classList.toggle('on', wish.includes(id)); return; }
-    if ((b = g('[data-pay]'))) { pay = b.dataset.pay; me.name = $('#f-name').value; me.phone = $('#f-phone').value; save(); $('#main').innerHTML = vCart(); return; }
-    if ((b = g('[data-mode]'))) { mode = b.dataset.mode; me.name = $('#f-name').value; me.phone = $('#f-phone').value; save(); $('#main').innerHTML = vCart(); return; }
+    if ((b = g('[data-pay]'))) { captureCartDetails(); pay = b.dataset.pay; save(); $('#main').innerHTML = vCart(); return; }
+    if ((b = g('[data-mode]'))) { captureCartDetails(); mode = b.dataset.mode; save(); $('#main').innerHTML = vCart(); return; }
     if ((b = g('[data-reorder]'))) { const o = myOrders.find((x) => x.code === b.dataset.reorder); const ids = (o?.items || []).map((x) => x.item_id); if (ids.length) { keep((await api('/api/shop/items?limit=60&ids=' + ids.join(','))).items); const lines = (await api('/api/shop/orders?codes=' + o.code))[0].items; lines.forEach((l) => ITEMS.has(l.item_id) && addItem(l.item_id, l.qty)); location.hash = '#/cart'; } return; }
-    if ((b = g('[data-act]'))) { const a = b.dataset.act; if (a === 'lang') { lang = lang === 'ar' ? 'en' : 'ar'; LS.set('lang', lang); shell(); route(); } else if (a === 'more') more(); else if (a === 'place') place(); return; }
-    if ((b = g('[data-go]'))) { location.hash = b.dataset.go; }
+    if ((b = g('[data-act]'))) { const a = b.dataset.act; if (a === 'lang') { captureCartDetails(); lang = lang === 'ar' ? 'en' : 'ar'; LS.set('lang', lang); shell(); route(); } else if (a === 'more') more(); else if (a === 'place') place(); return; }
   });
   window.addEventListener('hashchange', route);
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});

@@ -1,8 +1,9 @@
 // End-to-end smoke test: starts a throwaway store on a random port and exercises the main flows.
 import { spawn } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import assert from 'node:assert/strict';
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'eddy-')); const port = 3100 + Math.floor(Math.random() * 500);
-const srv = spawn('node', ['--disable-warning=ExperimentalWarning', new URL('../server.js', import.meta.url).pathname], { env: { ...process.env, PORT: port, DATA_DIR: dir, STORE_ID: 'test' } });
+const srv = spawn(process.execPath, ['--disable-warning=ExperimentalWarning', fileURLToPath(new URL('../server.js', import.meta.url))], { env: { ...process.env, PORT: port, DATA_DIR: dir, STORE_ID: 'test', SEED_DEMO: '1', BACKUP_DIR: path.join(dir, 'bk') } });
 let out = ''; srv.stdout.on('data', (d) => (out += d)); srv.stderr.on('data', (d) => (out += d));
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const base = `http://localhost:${port}`;
