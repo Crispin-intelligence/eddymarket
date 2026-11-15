@@ -1,5 +1,6 @@
 // Photo finder test: a fake "open product database" on localhost; checks barcode filtering, matching and storage.
-import { spawn } from 'node:child_process'; import http from 'node:http'; import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
+import { fileURLToPath } from 'node:url'; import http from 'node:http'; import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import assert from 'node:assert/strict';
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'eddyp-')); const wait = (ms) => new Promise((r) => setTimeout(r, ms)); let hits = [];
 const jpg = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff]), Buffer.alloc(3000, 7)]);
 const fake = http.createServer((q, r) => {
@@ -9,7 +10,7 @@ const fake = http.createServer((q, r) => {
   r.statusCode = 404; r.end();
 }); await new Promise((r) => fake.listen(0, '127.0.0.1', r));
 const port = 3600 + Math.floor(Math.random() * 300);
-const srv = spawn('node', ['--disable-warning=ExperimentalWarning', new URL('../server.js', import.meta.url).pathname], { env: { ...process.env, PORT: port, DATA_DIR: dir, STORE_ID: 'ph', SEED_DEMO: '0', BACKUP_DIR: dir + '/bk', PHOTO_BASE: `http://127.0.0.1:${fake.address().port}`, PHOTO_DELAY: '0', SHOP_WA: '81 852 775' } });
+const srv = spawn(process.execPath, ['--disable-warning=ExperimentalWarning', fileURLToPath(new URL('../server.js', import.meta.url))], { env: { ...process.env, PORT: port, DATA_DIR: dir, STORE_ID: 'ph', SEED_DEMO: '0', BACKUP_DIR: dir + '/bk', PHOTO_BASE: `http://127.0.0.1:${fake.address().port}`, PHOTO_DELAY: '0', SHOP_WA: '81 852 775' } });
 let out = ''; srv.stdout.on('data', (d) => (out += d)); srv.stderr.on('data', (d) => (out += d));
 const base = `http://localhost:${port}`; const call = async (p, o = {}, t) => { const r = await fetch(base + p, { method: o.method || 'GET', headers: { 'Content-Type': 'application/json', ...(t ? { Authorization: 'Bearer ' + t } : {}) }, body: o.body ? JSON.stringify(o.body) : undefined }); return { s: r.status, j: await r.json().catch(() => ({})) }; };
 let pass = 0; const ok = (c, m) => { assert.ok(c, m); pass++; console.log('  ok  ' + m); };
