@@ -58,10 +58,10 @@ CREATE INDEX IF NOT EXISTS ix_saleitems_item ON sale_items(item_id);
 `);
 
 // ---------- settings ----------
-const DEFAULTS = { store_name: 'Eddy’s Market', rate: '90000', footer: 'Thank you for shopping with us', tz: 'Asia/Beirut', shop_on: '1', shop_wa: '', shop_card: '1', shop_whish: '', photo_auto: '1', lock_min: '15' };
+const DEFAULTS = { store_name: 'Eddy’s Market', rate: '90000', footer: 'Thank you for shopping with us', tz: 'Asia/Beirut', shop_on: '1', shop_wa: '', shop_card: '1', shop_whish: '', shop_spin: '1', photo_auto: '1', lock_min: '15' };
 const getSetting = (k) => db.prepare('SELECT value FROM settings WHERE key=?').get(k)?.value ?? DEFAULTS[k];
 const setSetting = (k, v) => db.prepare('INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value').run(k, String(v));
-const publicSettings = () => ({ shop_card: getSetting('shop_card') === '1', shop_whish: getSetting('shop_whish'), photo_auto: getSetting('photo_auto') === '1', lock_min: +getSetting('lock_min'), shop_on: getSetting('shop_on') === '1', shop_wa: getSetting('shop_wa'), store_name: getSetting('store_name'), rate: +getSetting('rate'), footer: getSetting('footer'), tz: getSetting('tz'), store_id: STORE, print_mode: getSetting('print_mode') || 'browser', print_auto: getSetting('print_auto') === '1', print_drawer: getSetting('print_drawer') === '1' });
+const publicSettings = () => ({ shop_card: getSetting('shop_card') === '1', shop_whish: getSetting('shop_whish'), photo_auto: getSetting('photo_auto') === '1', lock_min: +getSetting('lock_min'), shop_on: getSetting('shop_on') === '1', shop_spin: getSetting('shop_spin') === '1', shop_wa: getSetting('shop_wa'), store_name: getSetting('store_name'), rate: +getSetting('rate'), footer: getSetting('footer'), tz: getSetting('tz'), store_id: STORE, print_mode: getSetting('print_mode') || 'browser', print_auto: getSetting('print_auto') === '1', print_drawer: getSetting('print_drawer') === '1' });
 if (getSetting('store_name') === 'Eddy Market') setSetting('store_name', DEFAULTS.store_name); // renamed brand
 
 // ---------- users / auth ----------
@@ -362,6 +362,7 @@ route('PUT', '/api/settings', 'owner', ({ body }) => {
   if (body.store_name !== undefined) setSetting('store_name', String(body.store_name).trim().slice(0, 80) || DEFAULTS.store_name);
   if (body.footer !== undefined) setSetting('footer', String(body.footer).slice(0, 200));
   if (body.shop_on !== undefined) setSetting('shop_on', body.shop_on ? '1' : '0');
+  if (body.shop_spin !== undefined) setSetting('shop_spin', body.shop_spin ? '1' : '0');
   if (body.shop_wa !== undefined) setSetting('shop_wa', normPhone(body.shop_wa));
   if (body.shop_card !== undefined) setSetting('shop_card', body.shop_card ? '1' : '0');
   if (body.shop_whish !== undefined) setSetting('shop_whish', normPhone(body.shop_whish));
@@ -617,7 +618,7 @@ route('GET', '/api/kiosk/search', null, ({ url }) => {
 db.exec(`CREATE TABLE IF NOT EXISTS orders(id INTEGER PRIMARY KEY AUTOINCREMENT, code TEXT UNIQUE NOT NULL, created_at TEXT NOT NULL,
   name TEXT NOT NULL, phone TEXT NOT NULL, mode TEXT NOT NULL, address TEXT, note TEXT, total_cents INTEGER NOT NULL, rate INTEGER NOT NULL,
   status TEXT NOT NULL DEFAULT 'new', items TEXT NOT NULL);`);
-for (const c of ["pay_method TEXT NOT NULL DEFAULT 'cash'", "pay_status TEXT NOT NULL DEFAULT 'unpaid'"]) { try { db.exec('ALTER TABLE orders ADD COLUMN ' + c); } catch { /* already there */ } }
+for (const c of ["pay_method TEXT NOT NULL DEFAULT 'cash'", "pay_status TEXT NOT NULL DEFAULT 'unpaid'", 'discount_cents INTEGER NOT NULL DEFAULT 0', "reward TEXT NOT NULL DEFAULT ''"]) { try { db.exec('ALTER TABLE orders ADD COLUMN ' + c); } catch { /* already there */ } }
 // Payment methods. All are settled in person today; an online gateway plugs in here (see deploy/README.md, "Adding an online gateway").
 const PAYMENTS = { cash: { online: false }, card: { online: false }, whish: { online: false, manual: true } };
 const payOptions = () => ({ card: getSetting('shop_card') === '1', whish: getSetting('shop_whish') });
@@ -640,7 +641,7 @@ function orderLimited(ip) {
 }
 const orderCode = () => Array.from(crypto.randomBytes(6), (b) => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[b % 32]).join('');
 const orderLines = (o) => JSON.parse(o.items);
-const pubOrder = (o) => ({ code: o.code, status: o.status, mode: o.mode, created_at: o.created_at, total_cents: o.total_cents, total_ll: toLL(o.total_cents, o.rate), pay_method: o.pay_method, pay_status: o.pay_status, items: orderLines(o) });
+const pubOrder = (o) => ({ code: o.code, status: o.status, mode: o.mode, created_at: o.created_at, total_cents: o.total_cents, total_ll: toLL(o.total_cents, o.rate), pay_method: o.pay_method, pay_status: o.pay_status, discount_cents: o.discount_cents || 0, reward: o.reward || '', items: orderLines(o) });
 const staffOrder = (o) => ({ id: o.id, ...pubOrder(o), name: o.name, phone: o.phone, address: o.address, note: o.note });
 
 if (process.env.SHOP_WA && !db.prepare("SELECT 1 FROM settings WHERE key='shop_wa'").get()) setSetting('shop_wa', normPhone(process.env.SHOP_WA));
@@ -655,7 +656,7 @@ route('GET', '/api/shop/home', null, () => {
   const rate = +getSetting('rate'), all = loadCache().filter(shopOk), counts = new Map();
   for (const i of all) counts.set(i.category, (counts.get(i.category) || 0) + 1);
   const withPic = all.filter((i) => i.has_image);
-  return { store_name: getSetting('store_name'), rate, open: getSetting('shop_on') === '1', wa: getSetting('shop_wa'), pay: payOptions(),
+  return { store_name: getSetting('store_name'), rate, open: getSetting('shop_on') === '1', spin: getSetting('shop_spin') === '1', wa: getSetting('shop_wa'), pay: payOptions(),
     featured: withPic.slice(0, 12).map((i) => kioskView(i, rate)),
     recent: [...withPic].sort((a, b) => String(b.updated_at).localeCompare(String(a.updated_at))).slice(0, 12).map((i) => kioskView(i, rate)),
     cats: [...counts].map(([category, n]) => ({ category, n })).filter((c) => c.category !== 'other').sort((a, b) => b.n - a.n)
@@ -686,11 +687,61 @@ route('POST', '/api/shop/order', null, ({ body, ip }) => {
     total += Math.round(qty * it.price_cents); out.push({ item_id: it.id, name: it.name, name_ar: it.name_ar, qty, price_cents: it.price_cents, unit: it.unit });
   }
   if (orderLimited(ip)) bad('Too many orders from this connection. Try again later.', 429);
+  let discount = 0, rewardKind = '';
+  if (body.reward) {
+    const r = readReward(body.reward); if (!r) bad('This reward has expired or was already used');
+    if (r.kind === 'treat') rewardKind = 'treat'; else if (total >= SPIN_MIN) { discount = Math.min(SPIN_CAP, Math.round(total * r.pct / 100)); rewardKind = r.kind; }
+    if (rewardKind) db.prepare('INSERT INTO spin_used(id,at) VALUES(?,?)').run(r.id, now());
+  }
+  total -= discount;
   let code; do code = orderCode(); while (db.prepare('SELECT 1 FROM orders WHERE code=?').get(code));
   const rate = +getSetting('rate');
-  db.prepare('INSERT INTO orders(code,created_at,name,phone,mode,address,note,total_cents,rate,items,pay_method) VALUES(?,?,?,?,?,?,?,?,?,?,?)')
-    .run(code, new Date().toISOString(), name, phone, mode, address, note, total, rate, JSON.stringify(out), pay);
-  return { code, status: 'new', pay_method: pay, total_cents: total, total_ll: toLL(total, rate) };
+  db.prepare('INSERT INTO orders(code,created_at,name,phone,mode,address,note,total_cents,rate,items,pay_method,discount_cents,reward) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)')
+    .run(code, new Date().toISOString(), name, phone, mode, address, note, total, rate, JSON.stringify(out), pay, discount, rewardKind);
+  return { code, status: 'new', pay_method: pay, total_cents: total, total_ll: toLL(total, rate), discount_cents: discount, reward: rewardKind };
+});
+
+// ---------- shop fun: daily spin, ready baskets, product share ----------
+db.exec(`CREATE TABLE IF NOT EXISTS spin_used(id TEXT PRIMARY KEY, at TEXT NOT NULL);`);
+const SPIN_MIN = 500, SPIN_CAP = 500; // a percent reward needs a $5+ cart and never takes off more than $5
+const SPIN_PRIZES = [{ kind: 'pct3', pct: 3, w: 45 }, { kind: 'pct5', pct: 5, w: 30 }, { kind: 'pct10', pct: 10, w: 8 }, { kind: 'treat', pct: 0, w: 17 }];
+const spinSecret = () => { let k = getSetting('spin_secret'); if (!k) { k = crypto.randomBytes(24).toString('hex'); setSetting('spin_secret', k); } return k; };
+const signReward = (o) => { const b = Buffer.from(JSON.stringify(o)).toString('base64url'); return b + '.' + crypto.createHmac('sha256', spinSecret()).update(b).digest('base64url'); };
+function readReward(tok) { // valid signature, not expired, not used yet
+  try {
+    const [b, sig] = String(tok).split('.'); const good = crypto.createHmac('sha256', spinSecret()).update(b).digest('base64url');
+    if (!sig || sig.length !== good.length || !crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(good))) return null;
+    const o = JSON.parse(Buffer.from(b, 'base64url').toString()); if (!o.id || o.exp < Date.now() || db.prepare('SELECT 1 FROM spin_used WHERE id=?').get(o.id)) return null; return o;
+  } catch { return null; }
+}
+const spinDay = new Map();
+route('POST', '/api/shop/spin', null, ({ ip }) => {
+  if (getSetting('shop_on') !== '1' || getSetting('shop_spin') !== '1') bad('Spin is not available right now', 403);
+  const day = new Date().toISOString().slice(0, 10), k = day + '|' + ip; if ((spinDay.get(k) || 0) >= 20) bad('Come back tomorrow for another spin', 429);
+  spinDay.set(k, (spinDay.get(k) || 0) + 1); if (spinDay.size > 5000) for (const x of spinDay.keys()) if (!x.startsWith(day)) spinDay.delete(x);
+  let r = Math.random() * SPIN_PRIZES.reduce((a, p) => a + p.w, 0), pr = SPIN_PRIZES[0]; for (const p of SPIN_PRIZES) { if ((r -= p.w) < 0) { pr = p; break; } }
+  const exp = Date.now() + 36e5 * 30; return { kind: pr.kind, pct: pr.pct, exp, min_cents: SPIN_MIN, cap_cents: SPIN_CAP, token: signReward({ id: crypto.randomBytes(8).toString('hex'), kind: pr.kind, pct: pr.pct, exp }) };
+});
+const BASKETS = [
+  { id: 'breakfast', e: '🍳', slots: [['bread', 'khobz', 'pita'], ['labneh', 'labne'], ['cheese', 'akkawi', 'halloumi'], ['eggs', 'egg'], ['milk', 'laban'], ['zaatar', 'thyme', 'jam']] },
+  { id: 'bbq', e: '🔥', slots: [['chicken', 'djej'], ['kebab', 'kafta', 'kofta'], ['charcoal', 'coal', 'fahem'], ['bread', 'pita'], ['hummus', 'humus'], ['pepsi', 'cola', 'soda']] },
+  { id: 'kids', e: '🧒', slots: [['juice', 'capri', 'tampico'], ['chips', 'crisps'], ['biscuit', 'cookies', 'oreo'], ['chocolate', 'kinder', 'milka'], ['wafer', 'cake', 'croissant']] },
+  { id: 'clean', e: '🧼', slots: [['detergent', 'ariel', 'persil', 'omo'], ['dishwashing', 'dish soap', 'fairy', 'sunlight'], ['bleach', 'clorox', 'flash'], ['tissue', 'toilet paper', 'fine'], ['garbage bags', 'trash bags', 'sponge']] },
+  { id: 'movie', e: '🎬', slots: [['popcorn'], ['chips', 'crisps', 'doritos', 'pringles'], ['chocolate', 'snickers', 'kitkat'], ['cola', 'pepsi', 'soda', 'fanta'], ['nuts', 'peanuts', 'seeds']] },
+];
+let _bk = { at: 0, v: [] };
+route('GET', '/api/shop/baskets', null, () => {
+  if (Date.now() - _bk.at < 300e3) return _bk.v;
+  const rate = +getSetting('rate'), seen = new Set(), out = [];
+  for (const b of BASKETS) {
+    const items = [];
+    for (const alts of b.slots) for (const w of alts) {
+      const hit = search(w, { limit: 12 }).rows.filter((i) => shopOk(i) && !seen.has(i.id)); const pick = hit.find((i) => i.has_image) || hit[0];
+      if (pick) { items.push(pick); seen.add(pick.id); break; }
+    }
+    if (items.length >= 3) out.push({ id: b.id, e: b.e, items: items.map((i) => kioskView(i, rate)) });
+  }
+  _bk = { at: Date.now(), v: out }; return out;
 });
 route('GET', '/api/shop/orders', null, ({ url }) => {
   const codes = (url.searchParams.get('codes') || '').split(',').filter((c) => /^[A-Z0-9]{6}$/.test(c)).slice(0, 20);
@@ -716,50 +767,93 @@ function validGtin(c) { // real manufacturer barcodes only: EAN-8 / UPC-A / EAN-
   let sum = 0; for (let k = 0; k < c.length - 1; k++) sum += +c[c.length - 2 - k] * (k % 2 === 0 ? 3 : 1);
   return (10 - (sum % 10)) % 10 === +c[c.length - 1];
 }
-async function fetchPhoto(code) {
-  for (const base of PHOTO_SRC) {
-    let j;
+try { db.exec('ALTER TABLE items ADD COLUMN photo_src TEXT'); } catch { /* already there */ }
+async function jget(url) { // JSON from an open product database; rate/net errors bubble up so the job can pause
+  try {
+    const r = await fetch(url, { headers: { 'User-Agent': 'EddyMarket/1.0 (+https://eddy.ci-ccg.com)' }, signal: AbortSignal.timeout(15000) });
+    if (r.status === 429) throw new Error('rate');
+    if (!r.ok) return null; return await r.json();
+  } catch (e) { throw new Error(e.message === 'rate' ? 'rate' : 'net'); }
+}
+// ---- picture quality: resize to a crisp 720px JPEG and reject photos with hands in them ----
+const IMTOOL = (() => { for (const [bin, kind] of [['/usr/bin/convert', 'im'], ['/usr/local/bin/convert', 'im'], ['/opt/homebrew/bin/convert', 'im'], ['/usr/bin/sips', 'sips']]) if (fs.existsSync(bin)) return { bin, kind }; return null; })();
+const run = (bin, args, input) => new Promise((res) => { const p = execFile(bin, args, { encoding: 'buffer', maxBuffer: 20e6, timeout: 20000 }, (e, out) => res(e ? null : out)); if (input) p.stdin.end(input); });
+async function skinRatio(buf) { // share of skin-coloured pixels on a tiny 24x24 version; null if it cannot be measured
+  if (!IMTOOL) return null; let px;
+  if (IMTOOL.kind === 'im') { const o = await run(IMTOOL.bin, ['-', '-background', 'white', '-alpha', 'remove', '-resize', '24x24!', '-depth', '8', 'rgb:-'], buf); if (!o || o.length < 24 * 24 * 3) return null; px = (i) => [o[i * 3], o[i * 3 + 1], o[i * 3 + 2]]; }
+  else { const tmp = path.join(os.tmpdir(), 'eddy-' + crypto.randomBytes(5).toString('hex')); try { fs.writeFileSync(tmp + '.in', buf); if (!await run(IMTOOL.bin, ['-z', '24', '24', '-s', 'format', 'bmp', tmp + '.in', '--out', tmp + '.bmp'])) return null; const o = fs.readFileSync(tmp + '.bmp'), off = o.readUInt32LE(10), w = o.readInt32LE(18), h = Math.abs(o.readInt32LE(22)), bpp = o.readUInt16LE(28); if (bpp !== 24 && bpp !== 32) return null; const bp = bpp / 8, row = Math.ceil(w * bp / 4) * 4; px = (i) => { const y = Math.floor(i / w), x = i % w, p = off + y * row + x * bp; return [o[p + 2], o[p + 1], o[p]]; }; if (w * h < 400) return null; } catch { return null; } finally { for (const e of ['.in', '.bmp']) try { fs.unlinkSync(tmp + e); } catch { /* gone */ } } }
+  let skin = 0, n = 576; for (let i = 0; i < n; i++) { const [r, g, b] = px(i), mx = Math.max(r, g, b), mn = Math.min(r, g, b); if (r > 95 && g > 40 && b > 20 && r > g && r > b && mx - mn > 15 && Math.abs(r - g) > 15 && r - b > 20 && g > b) skin++; }
+  return skin / n;
+}
+async function polish(buf) { // -> data URL (<=720px, JPEG ~q82) or null when the picture is unusable
+  if (buf.length < 1500) return null;
+  if (!IMTOOL) return buf.length <= 140e3 && buf[0] === 0xff ? 'data:image/jpeg;base64,' + buf.toString('base64') : null;
+  const sk = await skinRatio(buf); if (sk !== null && sk > 0.2) return null; // hands / people holding the product
+  let out;
+  if (IMTOOL.kind === 'im') out = await run(IMTOOL.bin, ['-', '-background', 'white', '-alpha', 'remove', '-resize', '720x720>', '-strip', '-quality', '82', 'jpeg:-'], buf);
+  else { const tmp = path.join(os.tmpdir(), 'eddy-' + crypto.randomBytes(5).toString('hex')); try { fs.writeFileSync(tmp + '.in', buf); if (await run(IMTOOL.bin, ['-Z', '720', '-s', 'format', 'jpeg', '-s', 'formatOptions', '82', tmp + '.in', '--out', tmp + '.jpg'])) out = fs.readFileSync(tmp + '.jpg'); } catch { /* skip */ } finally { for (const e of ['.in', '.jpg']) try { fs.unlinkSync(tmp + e); } catch { /* gone */ } } }
+  if (!out || out.length < 1500 || out.length > 240e3) return null;
+  return 'data:image/jpeg;base64,' + out.toString('base64');
+}
+async function grab(urls) { // try the biggest version first, fall back to smaller ones
+  const seen = new Set();
+  for (const u0 of urls) for (const u of [u0 && u0.replace(/\.(\d+)\.jpg$/, '.full.jpg'), u0]) {
+    if (!u || seen.has(u)) continue; seen.add(u);
     try {
-      const r = await fetch(`${base}/api/v2/product/${code}.json?fields=image_front_url,image_front_small_url`, { headers: { 'User-Agent': 'EddyOS/1.0 (+https://eddy.ci-ccg.com)' }, signal: AbortSignal.timeout(12000) });
-      if (r.status === 429) throw new Error('rate');
-      if (!r.ok) continue;
-      j = await r.json();
-    } catch (e) { throw new Error(e.message === 'rate' ? 'rate' : 'net'); }
-    if (j.status !== 1) continue;
-    for (const u of [j.product?.image_front_url, j.product?.image_front_small_url]) {
-      if (!u) continue;
-      try {
-        const ir = await fetch(u, { signal: AbortSignal.timeout(15000) }); if (!ir.ok) continue;
-        const ct = (ir.headers.get('content-type') || '').split(';')[0], buf = Buffer.from(await ir.arrayBuffer());
-        if (/^image\/(jpeg|png|webp)$/.test(ct) && buf.length > 1500 && buf.length <= 140e3) return `data:${ct};base64,${buf.toString('base64')}`;
-      } catch { throw new Error('net'); }
-    }
+      const ir = await fetch(u, { signal: AbortSignal.timeout(20000) }); if (!ir.ok) continue;
+      const ct = (ir.headers.get('content-type') || '').split(';')[0]; if (!/^image\/(jpeg|png|webp)$/.test(ct)) continue;
+      const buf = Buffer.from(await ir.arrayBuffer()); if (buf.length > 4e6) continue;
+      const d = IMTOOL ? await polish(buf) : (buf.length <= 140e3 ? `data:${ct};base64,${buf.toString('base64')}` : null); if (d) return d;
+    } catch { throw new Error('net'); }
   }
   return null;
 }
-try { db.exec('ALTER TABLE items ADD COLUMN photo_src TEXT'); } catch { /* already there */ }
-const STOP = new Set(['the','and','with','for','pack','box','bag','pcs','piece','pieces','gr','gm','kg','ml','ltr','new','big','small']);
+// ---- name / size sanity so a wrong product can never get a photo ----
+const STOP = new Set(['the','and','with','for','pack','box','bag','pcs','piece','pieces','gr','gm','kg','ml','ltr','new','big','small','extra','original','classic']);
 const plain = (x) => String(x || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
-async function fetchByName(name) { // strict fallback for items without a usable barcode: only accept a product whose name and brand clearly contain the item's words
-  const toks = plain(name).split(' ').filter((w) => w.length >= 3 && !/^\d/.test(w) && !STOP.has(w));
-  if (toks.length < 2) return null;
+const tokensOf = (name) => plain(name).split(' ').filter((w) => w.length >= 3 && !/^\d/.test(w) && !STOP.has(w));
+function parseQty(s) { // "75cl", "6 x 33cl", "1.5 l", "400 g", "16 oz" -> { kind:'v'|'w', n: ml|g }
+  const m = String(s || '').toLowerCase().replace(',', '.').match(/(?:(\d+)\s*[x×]\s*)?(\d+(?:\.\d+)?)\s*(cl|ml|ltr|litre|liter|l|kg|gr|gm|g|oz|lb)\b/); if (!m) return null;
+  const k = +(m[1] || 1), v = +m[2], u = m[3], vol = { cl: 10, ml: 1, ltr: 1000, litre: 1000, liter: 1000, l: 1000 }[u], wt = { kg: 1000, gr: 1, gm: 1, g: 1, oz: 28.35, lb: 453.6 }[u];
+  return vol ? { kind: 'v', n: v * vol * k } : { kind: 'w', n: v * wt * k };
+}
+function sameProduct(item, p, strict) { // item: {name}, p: {brands, product_name, quantity}; strict = name search (no barcode proof)
+  const toks = tokensOf(item.name), text = ' ' + plain((p.brands || '') + ' ' + (p.product_name || '')) + ' ';
+  const hit = toks.filter((w) => text.includes(' ' + w)).length;
+  if (toks.length && (strict ? (hit < (strict === 2 ? 1 : 2) || hit / toks.length < 0.75) : hit === 0)) return false;
+  const a = parseQty(item.name), b = parseQty(p.quantity);
+  if (a && b) { if (a.kind !== b.kind) return false; if (Math.abs(a.n - b.n) / Math.max(a.n, b.n) > 0.08) return false; }
+  else if (a && strict) return false; // item has a size but the database product does not: too risky
+  return true;
+}
+async function fetchPhoto(item, code) {
   for (const base of PHOTO_SRC) {
-    let j;
-    try {
-      const r = await fetch(`${base}/cgi/search.pl?search_terms=${encodeURIComponent(toks.join(' '))}&search_simple=1&action=process&json=1&page_size=8&fields=code,product_name,brands,image_front_url`, { headers: { 'User-Agent': 'EddyOS/1.0 (+https://eddy.ci-ccg.com)' }, signal: AbortSignal.timeout(15000) });
-      if (r.status === 429) throw new Error('rate');
-      if (!r.ok) continue; j = await r.json();
-    } catch (e) { throw new Error(e.message === 'rate' ? 'rate' : 'net'); }
-    for (const p of j.products || []) {
-      const text = ' ' + plain((p.brands || '') + ' ' + (p.product_name || '')) + ' ';
-      const hit = toks.filter((w) => text.includes(' ' + w) ).length;
-      if (!p.image_front_url || hit < 2 || hit / toks.length < 0.75) continue;
-      try {
-        const ir = await fetch(p.image_front_url, { signal: AbortSignal.timeout(15000) }); if (!ir.ok) continue;
-        const ct = (ir.headers.get('content-type') || '').split(';')[0], buf = Buffer.from(await ir.arrayBuffer());
-        if (/^image\/(jpeg|png|webp)$/.test(ct) && buf.length > 1500 && buf.length <= 140e3) return `data:${ct};base64,${buf.toString('base64')}`;
-      } catch { throw new Error('net'); }
-    }
+    const j = await jget(`${base}/api/v2/product/${code}.json?fields=product_name,brands,quantity,image_front_url,image_front_small_url`);
+    if (!j || j.status !== 1) continue;
+    const p = j.product || {}; if (!sameProduct(item, p, false)) continue;
+    const d = await grab([p.image_front_url, p.image_front_small_url]); if (d) return d;
+  }
+  return null;
+}
+async function fetchByName(item) { // strict fallback for items without a usable barcode
+  const toks = tokensOf(item.name); if (toks.length < 2) return null;
+  for (const base of PHOTO_SRC) {
+    const j = await jget(`${base}/cgi/search.pl?search_terms=${encodeURIComponent(toks.join(' '))}&search_simple=1&action=process&json=1&page_size=10&fields=code,product_name,brands,quantity,image_front_url`);
+    for (const p of (j && j.products) || []) { if (!p.image_front_url || !sameProduct(item, p, true)) continue; const d = await grab([p.image_front_url]); if (d) return d; }
+  }
+  return null;
+}
+const SKEY = process.env.SERPER_KEY || '', SBASE = process.env.PHOTO_SERPER_BASE || 'https://google.serper.dev'; // optional: Google Images results via serper.dev for HD pack shots
+async function fetchGoogle(item) {
+  if (!SKEY || !tokensOf(item.name).length) return null;
+  let j; try {
+    const r = await fetch(`${SBASE}/images`, { method: 'POST', headers: { 'X-API-KEY': SKEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ q: item.name + ' product', num: 8, gl: 'lb' }), signal: AbortSignal.timeout(15000) });
+    if (r.status === 429 || r.status === 402) throw new Error('rate'); if (!r.ok) return null; j = await r.json();
+  } catch (e) { throw new Error(e.message === 'rate' ? 'rate' : 'net'); }
+  for (const r of (j && j.images) || []) {
+    const w = r.imageWidth || 0, h = r.imageHeight || 0; if (w < 500 || h < 500 || w / h > 2 || h / w > 2) continue;
+    if (!sameProduct(item, { product_name: (r.title || '') + ' ' + (r.source || '') + ' ' + (r.link || ''), quantity: r.title || '' }, 2)) continue;
+    const d = await grab([r.imageUrl]); if (d) return d;
   }
   return null;
 }
@@ -773,14 +867,21 @@ async function photoJob() {
     for (const it of todo) {
       if (photo.stop) break;
       const codes = [it.barcode, ...extras.all(it.id).map((x) => x.barcode)].filter(validGtin).slice(0, 3); let img = null;
-      for (const c of codes) { img = await fetchPhoto(c); await sleep(PHOTO_DELAY); if (img) break; }
+      for (const c of codes) { img = await fetchPhoto(it, c); await sleep(PHOTO_DELAY); if (img) break; }
       let src = 'barcode';
-      if (!img) { img = await fetchByName(it.name); await sleep(PHOTO_DELAY); src = 'name'; }
+      if (!img) { img = await fetchByName(it); await sleep(PHOTO_DELAY); src = 'name'; }
+      if (!img && SKEY) { img = await fetchGoogle(it); await sleep(PHOTO_DELAY); src = 'name'; }
       if (img) { db.prepare('UPDATE items SET image=?, photo_src=?, updated_at=? WHERE id=?').run(img, src, now(), it.id); photo.found++; }
       mark.run(it.id, now(), img ? 1 : 0); photo.done++; if (photo.done % 20 === 0) invalidate();
     }
   } catch (e) { photo.error = e.message === 'rate' ? 'The photo database asked us to slow down. It will continue automatically later.' : 'No connection to the photo database. It will try again automatically.'; }
   finally { photo.running = false; invalidate(); }
+}
+if (getSetting('photo_v2') !== '1') { // one-time: earlier auto-found photos were unchecked (hands, wrong products) -> clear them so the stricter finder redoes them
+  const ids = db.prepare("SELECT id FROM items WHERE photo_src IN ('barcode','name')").all().map((x) => x.id);
+  db.prepare("UPDATE items SET image=NULL, photo_src=NULL WHERE photo_src IN ('barcode','name')").run();
+  db.prepare('DELETE FROM photo_tried WHERE found=0').run(); for (const id of ids) db.prepare('DELETE FROM photo_tried WHERE item_id=?').run(id);
+  setSetting('photo_v2', '1'); if (ids.length) invalidate();
 }
 setTimeout(() => { if (getSetting('photo_auto') === '1') photoJob(); }, 20e3);
 setInterval(() => { if (getSetting('photo_auto') === '1') photoJob(); }, 3600e3).unref();
@@ -810,14 +911,20 @@ route('POST', '/api/admin/photos', 'owner', ({ body }) => {
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2', '.jpg': 'image/jpeg' };
 const PUB = path.join(ROOT, 'public');
 function serveStatic(req, res, pathname) {
-  let p = pathname === '/' ? '/index.html' : pathname === '/kiosk' ? '/kiosk.html' : pathname === '/shop' || pathname === '/shop/' ? '/shop.html' : pathname;
+  let p = pathname === '/' ? '/index.html' : pathname === '/kiosk' ? '/kiosk.html' : pathname === '/shop' || pathname === '/shop/' || /^\/shop\/p\/\d+$/.test(pathname) ? '/shop.html' : pathname;
   const file = path.normalize(path.join(PUB, p));
   if (!file.startsWith(PUB + path.sep) || !fs.existsSync(file) || !fs.statSync(file).isFile()) { res.writeHead(404); return res.end('Not found'); }
   const ext = path.extname(file);
   if (ext === '.html') { // version every script/stylesheet by its modified time, so a new deploy is never hidden behind a cached copy (Cloudflare adds its own browser cache TTL)
     const html = fs.readFileSync(file, 'utf8').replace(/((?:src|href)=")(\/[^"?#]+\.(?:js|css))(")/g, (m, a, u, z) => { try { return `${a}${u}?v=${Math.floor(fs.statSync(path.join(PUB, u)).mtimeMs / 1000)}${z}`; } catch { return m; } });
     const origin = `${String(req.headers['x-forwarded-proto'] || 'https').split(',')[0]}://${String(req.headers['x-forwarded-host'] || req.headers.host || 'localhost').split(',')[0]}`.replace(/^https:\/\/(localhost|127\.)/, 'http://$1'); // absolute URLs for link previews
-    res.writeHead(200, { 'Content-Type': MIME['.html'], 'Cache-Control': 'no-cache, no-store' }); return res.end(html.replaceAll('__ORIGIN__', origin));
+    let out = html.replaceAll('__ORIGIN__', origin), mm;
+    if ((mm = pathname.match(/^\/shop\/p\/(\d+)$/))) { // shared product link: rich preview with the product photo
+      const it = loadCache().find((x) => x.id === +mm[1] && shopOk(x));
+      if (it) { const title = `${it.name} · $${(it.price_cents / 100).toFixed(2)} · ${getSetting('store_name')}`, img = it.has_image ? `${origin}/img/${it.id}` : `${origin}/og-shop.jpg`, e = (x) => x.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+        out = out.replace(/(<title>)[^<]*/, '$1' + e(title)).replace(/(og:title" content=")[^"]*/, '$1' + e(title)).replace(/(twitter:title" content=")[^"]*/, '$1' + e(title)).replace(/(og:description" content=")[^"]*/, '$1' + e('Order it from ' + getSetting('store_name') + ' for pickup or delivery.')).replace(/(og:url" content=")[^"]*/, `$1${origin}/shop/p/${it.id}`).replace(/(og:image" content=")[^"]*/, '$1' + img).replace(/(twitter:image" content=")[^"]*/, '$1' + img).replace(/(og:image:(?:width|height)" content=")[^"]*/g, '$1' + (it.has_image ? '720' : '1200')); }
+    }
+    res.writeHead(200, { 'Content-Type': MIME['.html'], 'Cache-Control': 'no-cache, no-store' }); return res.end(out);
   }
   res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream', 'Cache-Control': ext === '.woff2' || /[?&]v=/.test(req.url) ? 'public, max-age=31536000, immutable' : 'no-cache' });
   fs.createReadStream(file).pipe(res);

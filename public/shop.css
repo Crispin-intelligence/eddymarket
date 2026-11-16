@@ -122,3 +122,34 @@ button:active,.card:active,.cartbar:active{transform:scale(.97)}
 @keyframes barin{from{opacity:0;transform:translateY(16px)}}
 .toast{animation:viewin .25s ease both}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* ---- fun: daily spin, ready baskets, live tracker, share, confetti ---- */
+.spin{margin:12px 0 0;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--r);background:linear-gradient(120deg,#fff7d6,#ffe9a3);box-shadow:0 1px 0 #f0d57a}
+.spin>div:nth-child(2){flex:1;min-width:0}.spin b{display:block;font-size:16px}.spin small{display:block;color:#6a5712;font-size:13px;line-height:1.35;margin-top:2px}
+.wheelmini{font-size:34px;animation:wob 3.2s ease-in-out infinite}@keyframes wob{0%,80%,100%{transform:rotate(0)}88%{transform:rotate(-14deg)}94%{transform:rotate(12deg)}}
+.spinov{position:fixed;inset:0;z-index:80;background:#0c1030cc;display:grid;place-items:center;padding:18px;animation:viewin .2s ease both}
+.spinbox{background:#fff;border-radius:24px;padding:22px 18px 18px;width:min(360px,100%);text-align:center;display:grid;gap:10px;justify-items:center;position:relative}
+.spinbox h3{margin:6px 0 0;font-size:20px}.spinbox p{margin:0;color:var(--mut);font-size:14px}.spinbox .btn{width:100%}
+.pin{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:3;color:var(--price);font-size:26px;line-height:1;text-shadow:0 2px 0 #fff}
+.wheel{position:relative;width:230px;height:230px;border-radius:50%;margin-top:10px;border:6px solid var(--ink);box-shadow:0 10px 30px #12173344;background:conic-gradient(var(--tag) 0 45deg,#fff 0 90deg,var(--sig) 0 135deg,#fff 0 180deg,var(--tag) 0 225deg,#fff 0 270deg,var(--sig) 0 315deg,#fff 0 360deg)}
+.wheel span{position:absolute;left:50%;top:50%;width:0;height:0;transform:rotate(var(--a)) translateY(-78px);display:grid;place-items:center}
+.wheel span{font-weight:800;font-size:18px;color:var(--ink)}.wheel span::before{content:"";position:absolute}
+.wheel span{white-space:nowrap}
+.rwl{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px;padding:10px 12px;border-radius:12px;background:#fff7d6;color:#6a5712;font-weight:600;font-size:14px}.rwl small{font-weight:500;text-align:end}.rwl b{color:#12713f}
+.bk{flex:0 0 200px;scroll-snap-align:start;background:#fff;border-radius:var(--r);padding:12px;box-shadow:0 1px 0 var(--line);display:grid;gap:8px;align-content:start}
+.bkh{display:flex;align-items:center;gap:8px;font-size:16px}.bkh span{font-size:24px}
+.bkp{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.bkp .th{aspect-ratio:1;border-radius:9px;overflow:hidden;background:#f4f5fb}.bkp .th img{width:100%;height:100%;object-fit:contain}.bkp .ph{font-size:10px}
+.bk small{color:var(--mut)}
+.trk{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:12px 0 4px;position:relative}
+.trk>div{display:grid;justify-items:center;gap:4px;text-align:center;opacity:.4;transition:opacity .4s}.trk>div.on,.trk>div.now{opacity:1}
+.trk i{font-style:normal;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--line);font-size:18px}
+.trk .on i{background:#e1f5ea}.trk .now i{background:var(--tag);box-shadow:0 0 0 0 #ffd23f99;animation:pulse 1.8s infinite}
+.trk small{font-size:12px;color:var(--mut)}.trk .now small{color:var(--tx);font-weight:600}
+@keyframes pulse{70%{box-shadow:0 0 0 12px #ffd23f00}100%{box-shadow:0 0 0 0 #ffd23f00}}
+.ttl{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.ttl h1{flex:1;margin:0}
+.shr{flex:none;border-radius:99px;padding:8px 14px;font-size:14px;font-weight:600;background:#fff;box-shadow:inset 0 0 0 1.5px var(--line);color:var(--ink)}
+#cc.bump{animation:bump .35s}@keyframes bump{40%{transform:scale(1.5)}}
+.conf{position:fixed;inset:0;pointer-events:none;z-index:90;overflow:hidden}
+.conf i{position:absolute;top:-14px;left:var(--x);width:9px;height:14px;background:var(--c);border-radius:2px;animation:fall 2.2s var(--d) ease-in forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(var(--r));opacity:.9}}
+@media (prefers-reduced-motion:reduce){.wheelmini,.trk .now i,#cc.bump{animation:none}}

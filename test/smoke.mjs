@@ -59,12 +59,22 @@ try {
   const so = { name: 'Maya', phone: '03 123 456', mode: 'pickup', lines: [{ item_id: sl.items[0].id, qty: 2 }, { item_id: kg.id, qty: 1.5 }] };
   ok((await call('/api/shop/order', { method: 'POST', body: { ...so, name: '' } })).s === 400 && (await call('/api/shop/order', { method: 'POST', body: { ...so, phone: '12' } })).s === 400 && (await call('/api/shop/order', { method: 'POST', body: { ...so, mode: 'delivery' } })).s === 400, 'order needs name, phone and (for delivery) an address');
   ok((await call('/api/shop/order', { method: 'POST', body: { ...so, lines: [{ item_id: 999999, qty: 1 }] } })).s === 400 && (await call('/api/shop/order', { method: 'POST', body: { ...so, lines: [{ item_id: sl.items[0].id, qty: -1 }] } })).s === 400, 'order rejects unknown items and bad quantities');
+  // --- shop fun: spin, baskets, share ---
+  const sp = await call('/api/shop/spin', { method: 'POST' }); ok(sp.s === 200 && ['pct3', 'pct5', 'pct10', 'treat'].includes(sp.j.kind) && sp.j.token.includes('.'), 'a daily spin returns a signed prize');
+  ok((await call('/api/shop/home')).j.spin === true, 'the shop knows the spin is on');
+  const bad1 = await call('/api/shop/order', { method: 'POST', body: { ...so, reward: sp.j.token.slice(0, -3) + 'xyz' } }); ok(bad1.s === 400, 'a forged prize is refused');
+  let pz = sp; for (let n = 0; n < 60 && pz.j.kind !== 'pct10'; n++) pz = await call('/api/shop/spin', { method: 'POST' });
+  if (pz.j.kind === 'pct10') { const sub = 2 * sl.items[0].price_cents + Math.round(1.5 * kg.price_cents), won = await call('/api/shop/order', { method: 'POST', body: { ...so, reward: pz.j.token } });
+    ok(won.s === 200 && won.j.discount_cents > 0 && won.j.discount_cents <= 500 && won.j.total_cents === sub - won.j.discount_cents, 'a won discount is applied by the server, capped at $5');
+    ok((await call('/api/shop/order', { method: 'POST', body: { ...so, reward: pz.j.token } })).s === 400, 'a prize can only be used once'); }
+  const bkr = await call('/api/shop/baskets'); ok(bkr.s === 200 && Array.isArray(bkr.j), 'ready baskets endpoint answers');
+  const shp = await fetch(`${base}/shop/p/${sl.items[0].id}`); const shh = await shp.text(); ok(shp.status === 200 && shh.includes(`/shop/p/${sl.items[0].id}`) && shh.includes(sl.items[0].name.replace(/&/g, '&amp;')), 'a shared product link carries its own name in the preview');
   const od = await call('/api/shop/order', { method: 'POST', body: { ...so, lines: [{ item_id: sl.items[0].id, qty: 2 }, { item_id: kg.id, qty: 1.5 }], price_cents: 1 } });
   const oexp = sl.items[0].price_cents * 2 + Math.round(1.5 * kg.price_cents); ok(od.s === 200 && /^[A-Z0-9]{6}$/.test(od.j.code) && od.j.total_cents === oexp, 'order total is computed on the server');
   const pst = (await call('/api/shop/orders?codes=' + od.j.code)).j; ok(pst.length === 1 && pst[0].status === 'new' && !('phone' in pst[0]), 'customer can follow an order by code without seeing private details');
-  const ol = (await call('/api/orders', {}, ct)).j; ok(ol.length === 1 && ol[0].phone === '9613123456' && ol[0].name === 'Maya', 'till staff see the new order with a normalized phone');
+  const ol = (await call('/api/orders', {}, ct)).j; const mo = ol.find((x) => x.code === od.j.code); ok(!!mo && mo.phone === '9613123456' && mo.name === 'Maya', 'till staff see the new order with a normalized phone');
   ok((await call('/api/orders')).s === 401, 'orders list needs login');
-  ok((await call(`/api/orders/${ol[0].id}/status`, { method: 'PUT', body: { status: 'accepted' } }, ct)).j.status === 'accepted' && (await call('/api/shop/orders?codes=' + od.j.code)).j[0].status === 'accepted', 'staff can accept an order and the customer sees it');
+  ok((await call(`/api/orders/${mo.id}/status`, { method: 'PUT', body: { status: 'accepted' } }, ct)).j.status === 'accepted' && (await call('/api/shop/orders?codes=' + od.j.code)).j[0].status === 'accepted', 'staff can accept an order and the customer sees it');
   const pw = async (pay) => (await call('/api/shop/order', { method: 'POST', body: { ...so, lines: [{ item_id: sl.items[0].id, qty: 1 }], pay } })).j.pay_method;
   ok(await pw('whish') === 'cash' && await pw('card') === 'card', 'Whish is refused until a number is set; card works by default');
   await call('/api/settings', { method: 'PUT', body: { shop_whish: '71 000 111', shop_card: false } }, tok);

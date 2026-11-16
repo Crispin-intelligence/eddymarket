@@ -345,7 +345,7 @@
     const when = (o) => dateFmt(o.created_at), ar = I.lang === 'ar';
     const msg = (o) => ar ? `مرحباً ${o.name}، طلبك ${o.code} من ${S.set.store_name} ${o.status === 'ready' ? 'جاهز' : o.status === 'accepted' ? 'تم قبوله' : o.status === 'rejected' ? 'للأسف غير متوفر حالياً' : 'وصلنا'}.` : `Hello ${o.name}, your order ${o.code} at ${S.set.store_name} is ${o.status === 'ready' ? 'ready' : o.status === 'accepted' ? 'accepted' : o.status === 'rejected' ? 'sadly not available right now' : 'received'}.`;
     el.innerHTML = rows.length ? rows.map((o) => `<article class="ord ${o.status}"><header><b>${o.code}</b><span class="pill ${o.status === 'new' ? 'bad' : ''}">${t('o_' + o.status)}</span><span class="pill ${o.pay_status === 'paid' ? '' : 'bad'}">${t('pay_' + o.pay_method)} · ${t(o.pay_status === 'paid' ? 'paid' : 'unpaid')}</span><span class="grow"></span><span class="muted">${when(o)}</span></header>
-      <div class="who"><b>${esc(o.name)}</b> · <a href="tel:+${o.phone}">+${o.phone}</a> · <span class="mode">${t('o_' + o.mode)}</span></div>${o.mode === 'delivery' && o.address ? `<div class="muted">📍 ${esc(o.address)}</div>` : ''}${o.note ? `<div class="muted">📝 ${esc(o.note)}</div>` : ''}
+      <div class="who"><b>${esc(o.name)}</b> · <a href="tel:+${o.phone}">+${o.phone}</a> · <span class="mode">${t('o_' + o.mode)}</span></div>${o.mode === 'delivery' && o.address ? `<div class="muted">📍 ${esc(o.address)}</div>` : ''}${o.note ? `<div class="muted">📝 ${esc(o.note)}</div>` : ''}${o.reward ? `<div class="muted" style="color:#12713f;font-weight:600">🎁 ${t('r_' + o.reward)}${o.discount_cents ? ' −$' + (o.discount_cents / 100).toFixed(2) : ''}</div>` : ''}
       <ul>${o.items.map((l) => `<li><span>${l.qty} × ${esc(I.itemName(l))}</span><span class="num">${I.usd(Math.round(l.qty * l.price_cents))}</span></li>`).join('')}</ul>
       <div class="tt"><b class="num">${I.usd(o.total_cents)}</b><span class="muted num">${I.ll(o.total_ll)}</span></div>
       <div class="row">${o.status === 'new' ? `<button class="btn pri" data-act="ostatus" data-id="${o.id}" data-s="accepted">${t('o_accept')}</button><button class="btn" data-act="ostatus" data-id="${o.id}" data-s="rejected">${t('o_reject')}</button>` : ''}
@@ -411,6 +411,7 @@
   function drawShopCfg() {
     const link = location.origin + '/shop';
     $('#shopcfg').innerHTML = `<form id="shform" style="display:grid;gap:10px"><label style="display:flex;gap:10px;align-items:center"><input type="checkbox" name="on" style="width:auto;min-height:0" ${S.set.shop_on ? 'checked' : ''}> ${t('shop_on')}</label>
+      <label style="display:flex;gap:10px;align-items:center"><input type="checkbox" name="spin" style="width:auto;min-height:0" ${S.set.shop_spin ? 'checked' : ''}> ${t('shop_spin')}</label>
       <label style="display:flex;gap:10px;align-items:center"><input type="checkbox" name="card" style="width:auto;min-height:0" ${S.set.shop_card ? 'checked' : ''}> ${t('shop_card_pos')}</label>
       <label class="f">${t('shop_whish')}<input name="whish" inputmode="tel" placeholder="03 123 456" value="${esc(S.set.shop_whish)}"></label>
       <label class="f">${t('shop_wa')}<input name="wa" inputmode="tel" placeholder="03 123 456" value="${esc(S.set.shop_wa)}"></label><p class="muted" style="margin:0;font-size:13px">${t('shop_wa_hint')}</p>
@@ -468,7 +469,7 @@
     clear() { S.cart = []; drawCart(); $('#q')?.focus(); },
     pay: openPay, closem: closeModal, done: finishSale, print() { printReceipt(S.lastSale); }, opendrawer() { api('/api/drawer', { method: 'POST' }).then(() => toast(t('drawer_opened'))).catch((e) => toast(e.message, true)); },
     async testprint() { const s = { id: 0, created_at: new Date().toISOString(), user_name: S.user.name, status: 'ok', items: [{ name: 'Test item', qty: 2, price_cents: 150 }, { name: 'صنف تجريبي', qty: 1, price_cents: 99 }], total_cents: 399, total_ll: 360000, method: 'cash', currency: 'USD', tendered: 5, change_cents: 101, rate: S.set.rate }; await printReceipt(s); toast(t('test_sent')); },
-    async saveshop() { const f = $('#shform'); try { S.set = await api('/api/settings', { method: 'PUT', body: { shop_on: f.on.checked, shop_wa: f.wa.value, shop_card: f.card.checked, shop_whish: f.whish.value } }); toast(t('saved')); drawShopCfg(); } catch (e) { fail(e); } },
+    async saveshop() { const f = $('#shform'); try { S.set = await api('/api/settings', { method: 'PUT', body: { shop_on: f.on.checked, shop_spin: f.spin.checked, shop_wa: f.wa.value, shop_card: f.card.checked, shop_whish: f.whish.value } }); toast(t('saved')); drawShopCfg(); } catch (e) { fail(e); } },
     async ostatus(b) { try { await api(`/api/orders/${b.dataset.id}/status`, { method: 'PUT', body: { status: b.dataset.s } }); pollOrders(); const rows = await api('/api/orders'); drawOrders(rows); } catch (e) { fail(e); } },
     async photoreview(el) {
       const off = el && el.dataset.off ? +el.dataset.off : 0;

@@ -10,6 +10,8 @@
       place: 'Place order', placing: 'Sending…', pay_note: 'You pay when you pick up or when it arrives.', no_results: 'Nothing found', no_results_sub: 'Try another word or check the spelling.', saved_empty: 'Nothing saved yet', saved_empty_sub: 'Tap the heart on a product to keep it here.',
       buy_again: 'Buy it again', wishlist: 'Wish list', no_orders: 'No orders yet', no_orders_sub: 'Your orders will show here.', order: 'Order', thanks: 'Order sent!', thanks_sub: 'The store will confirm it shortly. Keep this code:', send_wa: 'Send on WhatsApp', track: 'Track my order', again: 'Order again', items: 'items',
       s_new: 'Received', s_accepted: 'Accepted', s_ready: 'Ready', s_done: 'Completed', s_rejected: 'Not available', lang: 'عربي', pc: 'piece', added: 'Added to cart', unavail: 'This item is no longer available',
+      spin_t: 'Daily spin', spin_s: 'One free spin every day. Win a discount or a treat.', spin_go: 'Spin to win', spin_done: 'Come back tomorrow for your next spin', spin_win: 'You won', spin_use: 'It is saved. Use it on your next order.', r_pct3: '3% off', r_pct5: '5% off', r_pct10: '10% off', r_treat: 'A free treat', r_pct3d: '3% off your order', r_pct5d: '5% off your order', r_pct10d: '10% off your order', r_treatd: 'A free treat with your order', reward_min: 'Add $5 or more to use your discount', reward_on: 'Your prize', discount: 'Discount', close: 'Close',
+      baskets: 'Ready baskets', baskets_s: 'One tap, everything you need', add_all: 'Add all', bk_breakfast: 'Breakfast', bk_bbq: 'BBQ night', bk_kids: 'Kids snacks', bk_clean: 'Cleaning day', bk_movie: 'Movie night', share: 'Share', copied: 'Link copied', share_msg: 'Look what I found at', ready_now: 'Your order is ready!', st_new: 'Received', st_accepted: 'Preparing', st_ready: 'Ready', st_done: 'Done', hi_m: 'Good morning', hi_a: 'Good afternoon', hi_e: 'Good evening', hi_n: 'Welcome',
       wa_hi: 'Hello Eddy’s Market, my order', cat_dairy: 'Dairy', cat_bakery: 'Bakery', cat_produce: 'Fruits & vegetables', cat_meat: 'Meat & poultry', cat_frozen: 'Frozen', cat_pantry: 'Pantry', cat_snacks: 'Snacks & sweets', cat_drinks: 'Drinks', cat_cleaning: 'Cleaning', cat_personal: 'Personal care', cat_other: 'More products', cat_tobacco: 'Tobacco', cat_alcohol: 'Alcohol', pay_title: 'Payment', pay_cash: 'Cash on delivery / pickup', pay_card: 'Card machine on delivery / pickup', pay_whish: 'Whish Money', whish_note: 'Send the total on Whish to', whish_ref: 'and write your order code in the note.', paid: 'Paid', unpaid: 'Not paid yet' },
     ar: { store: 'المتجر', cats: 'الأقسام', saved: 'المفضلة', orders: 'طلباتي', search: 'ابحث عن منتج', open: 'مفتوح', closed: 'مغلق', closed_msg: 'الطلبات متوقفة حالياً. عد قريباً.',
       hero: 'طازج من إيدي ماركت', hero_sub: 'اطلب من هنا. استلام أو توصيل.', rate: 'يمكنك الدفع بالليرة اللبنانية', pickup: 'استلام', delivery: 'توصيل', pickup_sub: 'جاهز عند وصولك', delivery_sub: 'يصلك إلى الباب', 
@@ -18,6 +20,8 @@
       place: 'أرسل الطلب', placing: 'جارٍ الإرسال…', pay_note: 'الدفع عند الاستلام أو عند وصول الطلب.', no_results: 'لا نتائج', no_results_sub: 'جرّب كلمة أخرى أو تأكد من الإملاء.', saved_empty: 'لا شيء محفوظ', saved_empty_sub: 'اضغط على القلب في أي منتج ليظهر هنا.',
       buy_again: 'اشترِ مجدداً', wishlist: 'المفضلة', no_orders: 'لا طلبات بعد', no_orders_sub: 'ستظهر طلباتك هنا.', order: 'طلب', thanks: 'تم إرسال الطلب!', thanks_sub: 'سيؤكد المتجر طلبك قريباً. احتفظ بهذا الرمز:', send_wa: 'أرسل عبر واتساب', track: 'تتبّع طلبي', again: 'اطلب مجدداً', items: 'أصناف',
       s_new: 'تم الاستلام', s_accepted: 'تم القبول', s_ready: 'جاهز', s_done: 'مكتمل', s_rejected: 'غير متوفر', lang: 'EN', pc: 'قطعة', added: 'أضيف إلى السلة', unavail: 'هذا المنتج لم يعد متوفراً',
+      spin_t: 'دولاب اليوم', spin_s: 'دورة مجانية كل يوم. اربح خصماً أو هدية.', spin_go: 'أدِر واربح', spin_done: 'عد غداً لدورتك التالية', spin_win: 'ربحت', spin_use: 'تم حفظها. استخدمها في طلبك القادم.', r_pct3: 'خصم 3%', r_pct5: 'خصم 5%', r_pct10: 'خصم 10%', r_treat: 'هدية مجانية', r_pct3d: 'خصم 3% على طلبك', r_pct5d: 'خصم 5% على طلبك', r_pct10d: 'خصم 10% على طلبك', r_treatd: 'هدية مجانية مع طلبك', reward_min: 'أضف 5$ أو أكثر لاستخدام الخصم', reward_on: 'جائزتك', discount: 'خصم', close: 'إغلاق',
+      baskets: 'سلال جاهزة', baskets_s: 'ضغطة واحدة وكل ما تحتاجه', add_all: 'أضف الكل', bk_breakfast: 'الفطور', bk_bbq: 'ليلة الشواء', bk_kids: 'تسالي الأولاد', bk_clean: 'يوم التنظيف', bk_movie: 'ليلة فيلم', share: 'مشاركة', copied: 'تم نسخ الرابط', share_msg: 'شوف شو لقيت عند', ready_now: 'طلبك جاهز!', st_new: 'تم الاستلام', st_accepted: 'قيد التجهيز', st_ready: 'جاهز', st_done: 'تم', hi_m: 'صباح الخير', hi_a: 'مساء الخير', hi_e: 'مساء الخير', hi_n: 'أهلاً',
       wa_hi: 'مرحباً إيدي ماركت، طلبي', cat_dairy: 'الألبان', cat_bakery: 'المخبوزات', cat_produce: 'فواكه وخضار', cat_meat: 'لحوم ودواجن', cat_frozen: 'مجمّدات', cat_pantry: 'المؤن', cat_snacks: 'تسالي وحلويات', cat_drinks: 'مشروبات', cat_cleaning: 'تنظيف', cat_personal: 'العناية الشخصية', cat_other: 'منتجات أخرى', cat_tobacco: 'دخان', cat_alcohol: 'مشروبات روحية', pay_title: 'الدفع', pay_cash: 'نقداً عند التوصيل / الاستلام', pay_card: 'ماكينة البطاقات عند التوصيل / الاستلام', pay_whish: 'ويش موني', whish_note: 'أرسل المبلغ عبر ويش إلى الرقم', whish_ref: 'واكتب رمز طلبك في الملاحظة.', paid: 'مدفوع', unpaid: 'غير مدفوع بعد' } };
   let lang = LS.get('lang', (navigator.language || '').startsWith('ar') ? 'ar' : 'en');
   const t = (k) => T[lang][k] ?? T.en[k] ?? k;
@@ -30,7 +34,12 @@
   const llOf = (c) => (Math.round((c / 100) * HOME.rate / 1000) * 1000).toLocaleString('en-US') + ' LL';
   const ITEMS = new Map(); const keep = (list) => { list.forEach((i) => ITEMS.set(i.id, i)); return list; };
   let cart = LS.get('cart', []), wish = LS.get('wish', []), myOrders = LS.get('orders', []), me = LS.get('me', { name: '', phone: '', address: '' }), mode = LS.get('mode', 'pickup'), pay = LS.get('pay', 'cash');
-  const save = () => { LS.set('cart', cart); LS.set('wish', wish); LS.set('orders', myOrders); LS.set('me', me); LS.set('mode', mode); LS.set('pay', pay); };
+  let rw = LS.get('reward', null), spinDay = LS.get('spinday', ''); const today = () => new Date().toISOString().slice(0, 10);
+  const rwLive = () => rw && rw.exp > Date.now() ? rw : null;
+  const discOf = (sub) => { const r = rwLive(); return r && r.kind !== 'treat' && sub >= 500 ? Math.min(500, Math.round(sub * r.pct / 100)) : 0; };
+  const buzz = (n = 10) => { try { navigator.vibrate && navigator.vibrate(n); } catch { /* unsupported */ } };
+  const confetti = () => { if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; const w = document.createElement('div'); w.className = 'conf'; w.innerHTML = Array.from({ length: 44 }, (_, k) => `<i style="--x:${Math.round(Math.random() * 100)}vw;--d:${(Math.random() * 0.5).toFixed(2)}s;--r:${Math.round(Math.random() * 720)}deg;--c:${['#ffd23f', '#c8102e', '#7886ff', '#1f9d63', '#fff'][k % 5]}"></i>`).join(''); document.body.appendChild(w); setTimeout(() => w.remove(), 2600); };
+  const save = () => { LS.set('reward', rw); LS.set('spinday', spinDay); LS.set('cart', cart); LS.set('wish', wish); LS.set('orders', myOrders); LS.set('me', me); LS.set('mode', mode); LS.set('pay', pay); };
   const step = (i) => (i.unit && i.unit !== 'pc' ? 0.5 : 1);
   const unitTxt = (i) => (i.unit && i.unit !== 'pc' ? '/ ' + i.unit : '');
   async function api(p, o = {}) {
@@ -71,15 +80,22 @@
 
   // ---- views ----
   async function vHome() {
-    const h = await api('/api/shop/home'); HOME = h; keep(h.featured); keep(h.recent);
+    const [h, bk] = await Promise.all([api('/api/shop/home'), api('/api/shop/baskets').catch(() => [])]); HOME = h; keep(h.featured); keep(h.recent); bk.forEach((b) => keep(b.items));
     const top = $('.brand .n'); if (top) top.textContent = h.store_name; const pl = $('.pill'); if (pl) { pl.className = 'pill ' + (h.open ? 'on' : 'off'); pl.textContent = h.open ? t('open') : t('closed'); }
     return `${h.open ? '' : `<div class="err">${t('closed_msg')}</div>`}
-      <section class="hero"><div><h1>${t('hero')}</h1><p>${t('hero_sub')}</p></div><div class="tg">Eddy</div></section>
+      <section class="hero"><div><h1>${greet()}${esc(hello())}</h1><p>${t('hero_sub')}</p></div><div class="tg">Eddy</div></section>
       <div class="info" style="margin-top:12px"><div><i>💱</i><span>${t('rate')}<b>$1 = ${h.rate.toLocaleString('en-US')} LL</b></span></div><div><i>🛍️</i><span>${t('pickup')}<b>${t('pickup_sub')}</b></span></div><div><i>🚚</i><span>${t('delivery')}<b>${t('delivery_sub')}</b></span></div></div>
+      ${spinCard(h)}${bk.length ? `<h2 class="sec">${t('baskets')}</h2><div class="scroll">${bk.map(basketCard).join('')}</div>` : ''}
       ${h.featured.length ? `<h2 class="sec">${t('featured')}</h2>${rowOf(h.featured)}` : ''}
       ${h.recent.length ? `<h2 class="sec">${t('recent')}</h2>${rowOf(h.recent)}` : ''}
       <h2 class="sec">${t('shop_cat')}<a href="#/cats">${t('see_all')}</a></h2><div class="catrow">${h.cats.map(catTile).join('')}</div>`;
   }
+  const hello = () => me.name ? me.name.split(' ')[0] : '';
+  const greet = () => { const h = new Date().getHours(); return t(h < 5 ? 'hi_n' : h < 12 ? 'hi_m' : h < 18 ? 'hi_a' : 'hi_e') + (me.name ? ', ' : ''); };
+  const spinCard = (h) => { if (!h.spin) return ''; const r = rwLive(), can = spinDay !== today();
+    return `<section class="spin"><div class="wheelmini">🎡</div><div><b>${t('spin_t')}</b><small>${r ? t('reward_on') + ': ' + t('r_' + r.kind + 'd') : can ? t('spin_s') : t('spin_done')}</small></div>${can ? `<button class="btn sm" data-act="spin">${t('spin_go')}</button>` : ''}</section>`; };
+  const basketCard = (b) => { const sum = b.items.reduce((a, i) => a + i.price_cents, 0);
+    return `<article class="bk"><div class="bkh"><span>${b.e}</span><b>${t('bk_' + b.id)}</b></div><div class="bkp">${b.items.slice(0, 4).map((i) => `<div class="th">${pic(i)}</div>`).join('')}</div><small>${b.items.length} ${t('items')} · ${usd(sum)}</small><button class="btn sm" data-basket="${b.id}">${t('add_all')}</button></article>`; };
   const catTile = (c, n) => `<a class="cat" href="#/c/${encodeURIComponent(c.category)}"><div class="ic c${(n ?? c.category.length) % 6}">${CI[c.category] || '🏷️'}</div>${esc(catName(c.category))}</a>`;
   async function vCats() { const h = await api('/api/shop/home'); HOME = h; return `<h2 class="sec">${t('cats')}</h2><div class="cats">${h.cats.map((c, n) => catTile(c, n)).join('')}</div>`; }
   let list = { q: '', category: '', off: 0, total: 0 };
@@ -99,7 +115,7 @@
     const inCart = cart.find((l) => l.id === i.id); pq = inCart ? inCart.qty : step(i);
     const sim = await api('/api/shop/items?limit=9&category=' + encodeURIComponent(i.category)); keep(sim.items);
     const s = sim.items.filter((x) => x.id !== i.id).slice(0, 8);
-    return `<div class="pd"><div class="pbig">${pic(i)}</div><div><h1>${esc(nm(i))}</h1><span class="bigtag">${usd(i.price_cents)}</span><span class="ll">${llOf(i.price_cents)} ${unitTxt(i)}</span>
+    return `<div class="pd"><div class="pbig">${pic(i)}</div><div><div class="ttl"><h1>${esc(nm(i))}</h1><button class="shr" data-share="${i.id}" aria-label="${t('share')}">⤴ ${t('share')}</button></div><span class="bigtag">${usd(i.price_cents)}</span><span class="ll">${llOf(i.price_cents)} ${unitTxt(i)}</span>
       ${s.length ? `<h2 class="sec">${t('similar')}</h2>${rowOf(s)}` : ''}</div></div>
       <div class="stick"><button class="heart ${wish.includes(i.id) ? 'on' : ''}" data-wish="${i.id}" aria-label="${t('wishlist')}">${I.heart}</button>
       <div class="step"><button data-pq="-1" data-id="${i.id}" aria-label="−">−</button><span id="pq">${pq}</span><button data-pq="1" data-id="${i.id}" aria-label="+">+</button></div>
@@ -114,16 +130,18 @@
     return `${w.length ? `<h2 class="sec">${t('wishlist')}</h2><div class="grid">${w.map(card).join('')}</div>` : ''}${b.length ? `<h2 class="sec">${t('buy_again')}</h2><div class="grid">${b.map(card).join('')}</div>` : ''}`;
   }
   const stIdx = { new: 0, accepted: 1, ready: 2, done: 3 };
-  const statusBox = (o) => `<span class="ostat ${o.status}">${t('s_' + o.status)}</span>${o.status === 'rejected' ? '' : `<div class="bar">${[0, 1, 2, 3].map((n) => `<i class="${n <= (stIdx[o.status] ?? 0) ? 'on' : ''}"></i>`).join('')}</div>`}`;
+  const STE = ['📥', '👍', '🛍️', '✅'], STK = ['st_new', 'st_accepted', 'st_ready', 'st_done'];
+  const statusBox = (o) => `<span class="ostat ${o.status}">${t('s_' + o.status)}</span>${o.status === 'rejected' ? '' : `<div class="trk">${STK.map((k, n) => { const cur = stIdx[o.status] ?? 0; return `<div class="${n < cur ? 'on' : n === cur ? 'now' : ''}"><i>${STE[n]}</i><small>${t(k)}</small></div>`; }).join('')}</div>`}`;
+  const lastSt = {}; function notice(rows) { for (const o of rows) { const p = lastSt[o.code]; if (p && p !== o.status) { toast(o.status === 'ready' ? t('ready_now') : t('s_' + o.status)); buzz([60, 40, 60]); if (o.status === 'ready' || o.status === 'done') confetti(); } lastSt[o.code] = o.status; } }
   async function vOrders() {
     if (!myOrders.length) return `<h2 class="sec">${t('orders')}</h2>` + empty('🧾', t('no_orders'), t('no_orders_sub'));
-    const rows = await api('/api/shop/orders?codes=' + myOrders.map((o) => o.code).join(','));
+    const rows = await api('/api/shop/orders?codes=' + myOrders.map((o) => o.code).join(',')); notice(rows);
     return `<h2 class="sec">${t('orders')}</h2>` + rows.map((o) => `<div class="box"><div class="tot"><span>${t('order')} ${o.code}</span><span>${usd(o.total_cents)}</span></div>
       <small style="color:var(--mut)">${new Date(o.created_at).toLocaleString(lang === 'ar' ? 'ar-LB-u-nu-latn' : 'en-GB', { dateStyle: 'medium', timeStyle: 'short' })} · ${t(o.mode)} · ${o.items.length} ${t('items')}</small>${statusBox(o)}
       <button class="btn sm ghost" data-reorder="${o.code}">${t('again')}</button></div>`).join('');
   }
   async function vDone(code) {
-    const [o] = await api('/api/shop/orders?codes=' + code); if (!o) return empty('🤷', t('no_orders'), '');
+    const [o] = await api('/api/shop/orders?codes=' + code); if (!o) return empty('🤷', t('no_orders'), ''); notice([o]); if (fresh === code) { fresh = ''; setTimeout(confetti, 120); }
     const mine = myOrders.find((x) => x.code === code) || {};
     const lines = o.items.map((l) => `• ${l.qty} × ${l.name} — ${usd(Math.round(l.qty * l.price_cents))}`).join('\n');
     const msg = `${t('wa_hi')} ${code}\n${t(o.mode)}${mine.name ? ' · ' + mine.name : ''}\n${lines}\n${t('total')}: ${usd(o.total_cents)} (${llOf(o.total_cents)})`;
@@ -147,11 +165,13 @@
     };
     orderNote = $('#f-note').value;
   }
+  const rewardLine = () => { const r = rwLive(); if (!r) return ''; const d = discOf(total());
+    return `<div class="rwl"><span>🎁 ${t('r_' + r.kind + 'd')}</span>${r.kind === 'treat' ? '' : d ? `<b>−${usd(d)}</b>` : `<small>${t('reward_min')}</small>`}</div>`; };
   function vCart(err = '') {
     if (!cart.length) return `<h2 class="sec">${t('cart')}</h2>` + empty('🛒', t('cart_empty'), t('cart_empty_sub')) + `<p style="text-align:center"><a class="btn" href="#/">${t('keep')}</a></p>`;
     return `<h2 class="sec">${t('cart')}</h2><div class="box">${cart.map((l) => `<div class="ln"><div class="th">${pic(l)}</div><div class="nm">${esc(nm(l))}<small>${usd(l.price_cents)} ${unitTxt(l)}</small></div>
       <div class="step"><button data-cq="-1" data-id="${l.id}">−</button><span>${l.qty}</span><button data-cq="1" data-id="${l.id}">+</button></div></div>`).join('')}
-      <div class="tot" style="margin-top:12px"><span>${t('total')}</span><span>${usd(total())}</span></div><div style="text-align:end;color:var(--mut)">${llOf(total())}</div></div>
+      ${rewardLine()}<div class="tot" style="margin-top:12px"><span>${t('total')}</span><span>${usd(total() - discOf(total()))}</span></div><div style="text-align:end;color:var(--mut)">${llOf(total() - discOf(total()))}</div></div>
       <div class="box"><h3 style="margin:0 0 10px">${t('your_details')}</h3>
       <div class="seg"><button data-mode="pickup" class="${mode === 'pickup' ? 'on' : ''}">🛍️ ${t('pickup')}</button><button data-mode="delivery" class="${mode === 'delivery' ? 'on' : ''}">🚚 ${t('delivery')}</button></div>
       ${payChooser()}
@@ -160,20 +180,22 @@
       ${mode === 'delivery' ? `<label class="f">${t('address')}<textarea id="f-addr" rows="2" autocomplete="street-address">${esc(me.address)}</textarea></label>` : ''}
       <label class="f">${t('note')}<input id="f-note" value="${esc(orderNote)}"></label>
       ${err ? `<div class="err">${esc(err)}</div>` : ''}${HOME.open ? '' : `<div class="err">${t('closed_msg')}</div>`}
-      <button class="btn full" data-act="place" ${HOME.open ? '' : 'disabled'}>${t('place')} · ${usd(total())}</button><p style="text-align:center;color:var(--mut);font-size:13px;margin:10px 0 0">${t('pay_note')}</p></div>`;
+      <button class="btn full" data-act="place" ${HOME.open ? '' : 'disabled'}>${t('place')} · ${usd(total() - discOf(total()))}</button><p style="text-align:center;color:var(--mut);font-size:13px;margin:10px 0 0">${t('pay_note')}</p></div>`;
   }
   async function place() {
     captureCartDetails(); save();
     const btn = $('[data-act=place]'); btn.disabled = true; btn.textContent = t('placing');
     try {
-      const r = await api('/api/shop/order', { method: 'POST', body: { ...me, mode, address: mode === 'delivery' ? me.address : '', note: orderNote, pay, lines: cart.map((l) => ({ item_id: l.id, qty: l.qty })) } });
-      myOrders.unshift({ code: r.code, at: Date.now(), name: me.name, items: cart.map((l) => ({ item_id: l.id })) }); myOrders = myOrders.slice(0, 20); cart = []; orderNote = ''; save(); location.hash = '#/done/' + r.code;
-    } catch (e) { captureCartDetails(); $('#main').innerHTML = vCart(e.message); }
+      const r = await api('/api/shop/order', { method: 'POST', body: { ...me, mode, address: mode === 'delivery' ? me.address : '', note: orderNote, pay, ...(rwLive() ? { reward: rw.token } : {}), lines: cart.map((l) => ({ item_id: l.id, qty: l.qty })) } });
+      if (r.reward) { rw = null; }
+      myOrders.unshift({ code: r.code, at: Date.now(), name: me.name, items: cart.map((l) => ({ item_id: l.id })) }); myOrders = myOrders.slice(0, 20); cart = []; orderNote = ''; save(); fresh = r.code; buzz([20, 40, 20]); location.hash = '#/done/' + r.code;
+    } catch (e) { if (/reward/i.test(e.message)) { rw = null; save(); } captureCartDetails(); $('#main').innerHTML = vCart(e.message); }
   }
 
   // ---- cart ops ----
   const snap = (i, qty) => ({ id: i.id, name: i.name, name_ar: i.name_ar, price_cents: i.price_cents, unit: i.unit, has_image: i.has_image, v: i.v, category: i.category, qty });
-  function addItem(id, qty) { const i = ITEMS.get(id); if (!i) return; const l = cart.find((x) => x.id === id); if (l) l.qty = Math.round((l.qty + qty) * 100) / 100; else cart.push(snap(i, qty)); save(); chrome(path()); }
+  function addItem(id, qty) { const i = ITEMS.get(id); if (!i) return; const l = cart.find((x) => x.id === id); if (l) l.qty = Math.round((l.qty + qty) * 100) / 100; else cart.push(snap(i, qty)); save(); chrome(path()); buzz(8); const cc = $('#cc'); if (cc) { cc.classList.remove('bump'); void cc.offsetWidth; cc.classList.add('bump'); } }
+  let fresh = '';
   const path = () => (location.hash || '#/').slice(1) || '/';
   let timer = 0;
   async function route() {
@@ -186,12 +208,29 @@
       else if ((m = p.match(/^\/s\/(.+)$/))) main.innerHTML = await vList({ q: decodeURIComponent(m[1]) }, '“' + decodeURIComponent(m[1]) + '”');
       else if ((m = p.match(/^\/i\/(\d+)$/))) main.innerHTML = await vItem(+m[1]);
       else if (p === '/saved') main.innerHTML = await vSaved();
-      else if (p === '/orders') { main.innerHTML = await vOrders(); timer = setInterval(async () => { if (path() === '/orders') $('#main').innerHTML = await vOrders().catch(() => $('#main').innerHTML); }, 20000); }
+      else if (p === '/orders') { main.innerHTML = await vOrders(); timer = setInterval(async () => { if (path() === '/orders') $('#main').innerHTML = await vOrders().catch(() => $('#main').innerHTML); }, 8000); }
       else if (p === '/cart') main.innerHTML = vCart();
-      else if ((m = p.match(/^\/done\/([A-Z0-9]{6})$/))) { main.innerHTML = await vDone(m[1]); timer = setInterval(async () => { if (path().startsWith('/done')) $('#main').innerHTML = await vDone(m[1]).catch(() => $('#main').innerHTML); }, 20000); }
+      else if ((m = p.match(/^\/done\/([A-Z0-9]{6})$/))) { main.innerHTML = await vDone(m[1]); timer = setInterval(async () => { if (path().startsWith('/done')) $('#main').innerHTML = await vDone(m[1]).catch(() => $('#main').innerHTML); }, 8000); }
       else main.innerHTML = await vHome();
     } catch (e) { main.innerHTML = empty('📡', 'Connection problem', esc(e.message)); }
     if (!p.startsWith('/s/') && $('#q') && document.activeElement !== $('#q')) $('#q').value = '';
+  }
+
+  // ---- daily spin ----
+  const WHEEL = ['pct3', 'pct5', 'treat', 'pct3', 'pct10', 'pct5', 'treat', 'pct3'], WE = { pct3: '3%', pct5: '5%', pct10: '10%', treat: '🎁' };
+  async function spin() {
+    const ov = document.createElement('div'); ov.className = 'spinov';
+    ov.innerHTML = `<div class="spinbox"><div class="pin">▼</div><div class="wheel" id="wh">${WHEEL.map((k, n) => `<span style="--a:${n * 45 + 22.5}deg">${WE[k]}</span>`).join('')}</div><h3 id="sp-t">${t('spin_t')}</h3><p id="sp-s">${t('spin_s')}</p><button class="btn" id="sp-b" data-spingo="1">${t('spin_go')}</button><button class="btn ghost" data-act="spinclose">${t('close')}</button></div>`;
+    document.body.appendChild(ov);
+    ov.querySelector('#sp-b').onclick = async (e) => {
+      e.target.disabled = true;
+      try {
+        const r = await api('/api/shop/spin', { method: 'POST' });
+        const idx = WHEEL.map((k, n) => (k === r.kind ? n : -1)).filter((n) => n >= 0), n = idx[Math.floor(Math.random() * idx.length)], turn = 360 * 5 + (360 - (n * 45 + 22.5));
+        const wh = $('#wh'); wh.style.transition = 'transform 4s cubic-bezier(.12,.7,.1,1)'; wh.style.transform = `rotate(${turn}deg)`; buzz([10, 30, 10]);
+        setTimeout(() => { rw = { token: r.token, kind: r.kind, pct: r.pct, exp: r.exp }; spinDay = today(); save(); $('#sp-t').textContent = t('spin_win') + ' ' + t('r_' + r.kind); $('#sp-s').textContent = t('spin_use'); e.target.remove(); buzz([80, 40, 80]); confetti(); }, 4200);
+      } catch (err) { spinDay = today(); save(); $('#sp-s').textContent = err.message; e.target.remove(); }
+    };
   }
 
   // ---- events ----
@@ -206,9 +245,13 @@
     if ((b = g('[data-pay]'))) { captureCartDetails(); pay = b.dataset.pay; save(); $('#main').innerHTML = vCart(); return; }
     if ((b = g('[data-mode]'))) { captureCartDetails(); mode = b.dataset.mode; save(); $('#main').innerHTML = vCart(); return; }
     if ((b = g('[data-reorder]'))) { const o = myOrders.find((x) => x.code === b.dataset.reorder); const ids = (o?.items || []).map((x) => x.item_id); if (ids.length) { keep((await api('/api/shop/items?limit=60&ids=' + ids.join(','))).items); const lines = (await api('/api/shop/orders?codes=' + o.code))[0].items; lines.forEach((l) => ITEMS.has(l.item_id) && addItem(l.item_id, l.qty)); location.hash = '#/cart'; } return; }
-    if ((b = g('[data-act]'))) { const a = b.dataset.act; if (a === 'lang') { captureCartDetails(); lang = lang === 'ar' ? 'en' : 'ar'; LS.set('lang', lang); shell(); route(); } else if (a === 'more') more(); else if (a === 'place') place(); return; }
+    if ((b = g('[data-share]'))) { const i = ITEMS.get(+b.dataset.share), url = location.origin + '/shop/p/' + i.id, text = `${t('share_msg')} ${HOME.store_name}: ${nm(i)} ${usd(i.price_cents)}`; try { if (navigator.share) await navigator.share({ title: nm(i), text, url }); else window.open('https://wa.me/?text=' + encodeURIComponent(text + '\n' + url), '_blank', 'noopener'); } catch { /* cancelled */ } return; }
+    if ((b = g('[data-basket]'))) { const bk = (await api('/api/shop/baskets')).find((x) => x.id === b.dataset.basket); if (bk) { keep(bk.items); bk.items.forEach((i) => addItem(i.id, step(i))); toast(t('added')); } return; }
+    if ((b = g('[data-act]'))) { const a = b.dataset.act; if (a === 'lang') { captureCartDetails(); lang = lang === 'ar' ? 'en' : 'ar'; LS.set('lang', lang); shell(); route(); } else if (a === 'more') more(); else if (a === 'place') place(); else if (a === 'spin') spin(); else if (a === 'spinclose') { $('.spinov')?.remove(); route(); } return; }
+    if ((b = g('[data-go]'))) { location.hash = b.dataset.go; }
   });
   window.addEventListener('hashchange', route);
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+  { const m = location.pathname.match(/^\/shop\/p\/(\d+)$/); if (m) { history.replaceState(null, '', '/shop'); location.hash = '#/i/' + m[1]; } }
   api('/api/shop/home').then((h) => { HOME = h; }).catch(() => {}).finally(() => { shell(); route(); });
 })();
