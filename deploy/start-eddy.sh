@@ -2,8 +2,8 @@
 # Starts Eddy OS and its Cloudflare tunnel (eddy.ci-ccg.com) and keeps both alive.
 # Usage: ./deploy/start-eddy.sh        (run by launchd on boot, see deploy/README.md)
 cd "$(dirname "$0")/.." || exit 1
-export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
-export STORE_ID="${STORE_ID:-eddy}" PORT="${PORT:-3000}" DATA_DIR="${DATA_DIR:-$PWD/data}"
+export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+export STORE_ID="${STORE_ID:-eddy}" PORT="${PORT:-3187}" DATA_DIR="${DATA_DIR:-$PWD/data}"
 export SEED_DEMO="${SEED_DEMO:-0}"        # 0 = real catalogue only (set 1 to load example items)
 export SHOP_WA="${SHOP_WA:-96181852775}"   # store WhatsApp number for online orders (only used until set in Settings)
 # Optional: sharper HD product photos from Google Images through serper.dev. Put your key in ~/.eddy-env as SERPER_KEY=... (never in the repo)
