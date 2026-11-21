@@ -910,8 +910,14 @@ route('POST', '/api/admin/photos', 'owner', ({ body }) => {
 // ---------- static + server ----------
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2', '.jpg': 'image/jpeg' };
 const PUB = path.join(ROOT, 'public');
+// ---------- service hold switch ----------
+// Create the file ~/.eddy-pause on the server to show every visitor the "coming soon" page; delete it to switch everything back on at once. Nothing in the data is touched.
+const PAUSE_FILE = process.env.EDDY_PAUSE_FILE || path.join(os.homedir(), '.eddy-pause');
+const isPaused = () => { try { return fs.existsSync(PAUSE_FILE); } catch { return false; } };
+const PAUSE_OK_API = new Set(['/api/version', '/api/settings']); // health checks keep answering, so the watchdog stays calm
 function serveStatic(req, res, pathname) {
   let p = pathname === '/' ? '/index.html' : pathname === '/kiosk' ? '/kiosk.html' : pathname === '/shop' || pathname === '/shop/' || /^\/shop\/p\/\d+$/.test(pathname) ? '/shop.html' : pathname;
+  if (isPaused() && p.endsWith('.html')) p = '/paused.html';
   const file = path.normalize(path.join(PUB, p));
   if (!file.startsWith(PUB + path.sep) || !fs.existsSync(file) || !fs.statSync(file).isFile()) { res.writeHead(404); return res.end('Not found'); }
   const ext = path.extname(file);
@@ -919,7 +925,8 @@ function serveStatic(req, res, pathname) {
     const html = fs.readFileSync(file, 'utf8').replace(/((?:src|href)=")(\/[^"?#]+\.(?:js|css))(")/g, (m, a, u, z) => { try { return `${a}${u}?v=${Math.floor(fs.statSync(path.join(PUB, u)).mtimeMs / 1000)}${z}`; } catch { return m; } });
     const origin = `${String(req.headers['x-forwarded-proto'] || 'https').split(',')[0]}://${String(req.headers['x-forwarded-host'] || req.headers.host || 'localhost').split(',')[0]}`.replace(/^https:\/\/(localhost|127\.)/, 'http://$1'); // absolute URLs for link previews
     let out = html.replaceAll('__ORIGIN__', origin), mm;
-    if ((mm = pathname.match(/^\/shop\/p\/(\d+)$/))) { // shared product link: rich preview with the product photo
+    if (p !== '/paused.html') out = out.replace('</body>', '<script src="/guard.js"></script></body>');
+    if (p !== '/paused.html' && (mm = pathname.match(/^\/shop\/p\/(\d+)$/))) { // shared product link: rich preview with the product photo
       const it = loadCache().find((x) => x.id === +mm[1] && shopOk(x));
       if (it) { const title = `${it.name} · $${(it.price_cents / 100).toFixed(2)} · ${getSetting('store_name')}`, img = it.has_image ? `${origin}/img/${it.id}` : `${origin}/og-shop.jpg`, e = (x) => x.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
         out = out.replace(/(<title>)[^<]*/, '$1' + e(title)).replace(/(og:title" content=")[^"]*/, '$1' + e(title)).replace(/(twitter:title" content=")[^"]*/, '$1' + e(title)).replace(/(og:description" content=")[^"]*/, '$1' + e('Order it from ' + getSetting('store_name') + ' for pickup or delivery.')).replace(/(og:url" content=")[^"]*/, `$1${origin}/shop/p/${it.id}`).replace(/(og:image" content=")[^"]*/, '$1' + img).replace(/(twitter:image" content=")[^"]*/, '$1' + img).replace(/(og:image:(?:width|height)" content=")[^"]*/g, '$1' + (it.has_image ? '720' : '1200')); }
@@ -940,6 +947,7 @@ const server = http.createServer(async (req, res) => {
   const pathname = decodeURIComponent(url.pathname);
   try {
     if (!pathname.startsWith('/api/') && !pathname.startsWith('/img/')) return serveStatic(req, res, pathname);
+    if (isPaused() && !PAUSE_OK_API.has(pathname)) { res.setHeader('X-Eddy-Paused', '1'); return json(res, 503, { error: 'Coming soon', paused: true }); }
     for (const r of routes) {
       if (r.method !== req.method) continue;
       const m = r.re.exec(pathname);

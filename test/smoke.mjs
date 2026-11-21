@@ -3,7 +3,7 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import assert from 'node:assert/strict';
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'eddy-')); const port = 3100 + Math.floor(Math.random() * 500);
-const srv = spawn(process.execPath, ['--disable-warning=ExperimentalWarning', fileURLToPath(new URL('../server.js', import.meta.url))], { env: { ...process.env, PORT: port, DATA_DIR: dir, STORE_ID: 'test', SEED_DEMO: '1', BACKUP_DIR: path.join(dir, 'bk') } });
+const srv = spawn(process.execPath, ['--disable-warning=ExperimentalWarning', fileURLToPath(new URL('../server.js', import.meta.url))], { env: { ...process.env, PORT: port, DATA_DIR: dir, STORE_ID: 'test', SEED_DEMO: '1', BACKUP_DIR: path.join(dir, 'bk'), EDDY_PAUSE_FILE: dir + '/pause.flag' } });
 let out = ''; srv.stdout.on('data', (d) => (out += d)); srv.stderr.on('data', (d) => (out += d));
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const base = `http://localhost:${port}`;
@@ -59,6 +59,12 @@ try {
   const so = { name: 'Maya', phone: '03 123 456', mode: 'pickup', lines: [{ item_id: sl.items[0].id, qty: 2 }, { item_id: kg.id, qty: 1.5 }] };
   ok((await call('/api/shop/order', { method: 'POST', body: { ...so, name: '' } })).s === 400 && (await call('/api/shop/order', { method: 'POST', body: { ...so, phone: '12' } })).s === 400 && (await call('/api/shop/order', { method: 'POST', body: { ...so, mode: 'delivery' } })).s === 400, 'order needs name, phone and (for delivery) an address');
   ok((await call('/api/shop/order', { method: 'POST', body: { ...so, lines: [{ item_id: 999999, qty: 1 }] } })).s === 400 && (await call('/api/shop/order', { method: 'POST', body: { ...so, lines: [{ item_id: sl.items[0].id, qty: -1 }] } })).s === 400, 'order rejects unknown items and bad quantities');
+  // --- service hold switch ---
+  const { writeFileSync: wf, unlinkSync: ul } = await import('node:fs'); wf(dir + '/pause.flag', '');
+  const ph = await (await fetch(`${base}/shop`)).text(), pt = await fetch(`${base}/`), pa = await fetch(`${base}/api/shop/home`);
+  ok(ph.includes('Coming soon') && ph.includes('wa.me/ciccg') && (await pt.text()).includes('Coming soon'), 'on hold: shop and till both show the coming-soon page with the WhatsApp contact');
+  ok(pa.status === 503 && pa.headers.get('x-eddy-paused') === '1' && (await fetch(`${base}/api/version`)).status === 200, 'on hold: data requests are refused but the health check still answers');
+  ul(dir + '/pause.flag'); ok((await fetch(`${base}/api/shop/home`)).status === 200 && !(await (await fetch(`${base}/shop`)).text()).includes('Coming soon'), 'deleting the switch file brings everything back at once');
   // --- shop fun: spin, baskets, share ---
   const sp = await call('/api/shop/spin', { method: 'POST' }); ok(sp.s === 200 && ['pct3', 'pct5', 'pct10', 'treat'].includes(sp.j.kind) && sp.j.token.includes('.'), 'a daily spin returns a signed prize');
   ok((await call('/api/shop/home')).j.spin === true, 'the shop knows the spin is on');
